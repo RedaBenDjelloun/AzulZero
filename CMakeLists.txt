@@ -6,5 +6,6 @@ find_package(Imagine REQUIRED)
 
 project(AzulZero)
 add_executable(AzulZero
-               main.cpp)
+               main.cpp
+               GUI.cpp GUI.h)
 ImagineUseModules(AzulZero Graphics)
