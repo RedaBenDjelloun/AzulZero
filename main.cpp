@@ -1,3 +1,8 @@
+#include <Imagine/Graphics.h>
+using namespace Imagine;
+#include <iostream>
+using namespace std;
+
 #include "GUI.h"
 
 int main(){
