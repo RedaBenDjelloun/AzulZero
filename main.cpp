@@ -2,23 +2,14 @@
 using namespace Imagine;
 #include <iostream>
 using namespace std;
+#include "board.h"
 
-const char* default_image_file=srcPath("Images/red.svg");
+const char* default_image_file=srcPath("Images/black.svg");
 
-int main(int argc, char **argv) {
-    string image_file = (argc>1)? argv[1]: default_image_file;
-    AlphaColor* image;
-    int width, height;
-    cout << "Loading image: " << image_file << endl;
-    if(! loadAlphaColorImage(default_image_file, image, width, height)) {
-        cerr << "Error loading image file " << image_file << endl;
-        return 1;
-    }
+int main() {
 
-    openWindow(width, height);
-    putAlphaColorImage(0,0,image,width,height);
-
-    endGraphics();
+    Board test(2);
+    test.nextRound();
 
     return 0;
 }

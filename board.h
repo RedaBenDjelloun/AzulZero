@@ -25,14 +25,11 @@ const int HORIZONTAL_LINE_BONUS = 2;
 const int VERTICAL_LINE_BONUS = 7;
 const int COLOR_BONUS = 10;
 
-// Output the color
-int wallColumnToColor(int column, int line){
-    return (column - line + NB_COLORS) % NB_COLORS;
-}
 
-int wallColorToColumn(int color, int line){
-    return (line + color) % NB_COLORS;
-}
+int wallColumnToColor(int column, int line);
+
+int wallColorToColumn(int color, int line);
+
 
 
 class Board{

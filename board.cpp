@@ -4,9 +4,20 @@ using namespace Imagine;
 #include <assert.h>
 using namespace std;
 
+int wallColumnToColor(int column, int line){
+    return (column - line + NB_COLORS) % NB_COLORS;
+}
+
+int wallColorToColumn(int color, int line){
+    return (line + color) % NB_COLORS;
+}
+
+
 Board::Board(int nb_players_){
     nb_players = nb_players_;
     current_player = 0;
+
+    scores = new int[nb_players];
 
     bag = new int[NB_COLORS];
     for(int i=0; i<NB_COLORS; i++){
@@ -43,6 +54,7 @@ Board::Board(int nb_players_){
 }
 
 Board::~Board(){
+    delete[] scores;
     delete[] bag;
     delete[] discard;
     delete[] factories;
