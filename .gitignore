@@ -32,8 +32,7 @@
 *.app
 
 # CMake
-CMakeLists.txt.user
+*.user
 
-# Autosaves
-board.cpp.autosave
-board.h.autosave
+# Qt autosaves
+*.autosave
