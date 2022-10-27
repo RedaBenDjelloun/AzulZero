@@ -6,15 +6,14 @@ using namespace std;
 #include "GUI.h"
 
 int main(){
-    Image<AlphaColor> image;
+    vector<Image<AlphaColor>> images;
+    loadAllImages(IMAGE_PATHS,images);
 
-    if(! load(image, RED_TILE)) {
-        cerr << "Error loading image file " << RED_TILE << endl;
-        return 1;
-    }
+//    Image<AlphaColor> I;
+//    safeLoad(I,PLAYERBOARD);
 
     openWindow(window_width, window_height);
-    display(image,0,0);
+    display(images[6],0,0);
 
     endGraphics();
     return 0;
