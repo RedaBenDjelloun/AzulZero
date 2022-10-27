@@ -3,23 +3,21 @@ using namespace Imagine;
 #include <iostream>
 using namespace std;
 
-const char* default_image_file=srcPath("Images/red.svg");
+#include "GUI.h"
 
-int main(int argc, char **argv) {
-    string image_file = (argc>1)? argv[1]: default_image_file;
-    AlphaColor* image;
-    int width, height;
-    cout << "Loading image: " << image_file << endl;
-    if(! loadAlphaColorImage(default_image_file, image, width, height)) {
-        cerr << "Error loading image file " << image_file << endl;
+int main(){
+    Image<AlphaColor> image;
+
+    if(! load(image, RED_TILE)) {
+        cerr << "Error loading image file " << RED_TILE << endl;
         return 1;
     }
 
-    openWindow(width, height);
-    putAlphaColorImage(0,0,image,width,height);
+    openWindow(window_width, window_height);
+    display(image,0,0);
 
     endGraphics();
-
     return 0;
+
 }
 
