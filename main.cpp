@@ -3,7 +3,7 @@ using namespace Imagine;
 #include <iostream>
 using namespace std;
 
-const char* default_image_file=srcPath("/SVG_logo.svg");
+const char* default_image_file=srcPath("Images/red.svg");
 
 int main(int argc, char **argv) {
     string image_file = (argc>1)? argv[1]: default_image_file;

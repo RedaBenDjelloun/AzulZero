@@ -19,7 +19,7 @@ const int WALL_WIDTH = 5;
 const int WALL_SIZE = WALL_HEIGHT*WALL_WIDTH;
 
 // Scoring
-const int FLOOR_SIZE=7;
+const int FLOOR_SIZE = 7;
 const int FLOOR[FLOOR_SIZE] = {-1,-1,-2,-2,-2,-3,-3};
 const int HORIZONTAL_LINE_BONUS = 2;
 const int VERTICAL_LINE_BONUS = 7;
