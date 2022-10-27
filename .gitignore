@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# CMake
+*.user
+
+# Qt autosaves
+*.autosave
