@@ -13,59 +13,38 @@ int wallColorToColumn(int color, int line){
 }
 
 
-Board::Board(int nb_players_){
-    nb_players = nb_players_;
+Board::Board(){
+
     current_player = 0;
 
-    scores = new int[nb_players];
-
-    bag = new int[NB_COLORS];
     for(int i=0; i<NB_COLORS; i++){
         bag[i] = NB_TILES_PER_COLOR;
     }
 
-    discard = new int[NB_COLORS];
     for(int i=0; i<NB_COLORS; i++){
-        discard[i] = 0;
+        discard[i] = 0; // no tiles discarded yet
     }
 
-    int factories_size = (NB_FACTORIES.at(nb_players)+1)*5;
-    factories = new int[factories_size];
-    for(int i=0; i<factories_size; i++){
-        factories[i] = 0;
+    for(int i=0; i<(NB_FACTORIES+1)*NB_COLORS; i++){
+        factories[i] = 0;   // factories are empty
     }
 
-    int pattern_lines_size = nb_players*2*WALL_HEIGHT;
-    pattern_lines = new int[pattern_lines_size];
-    for(int i=0; i<pattern_lines_size; i++){
-        pattern_lines[i] = 0;
+    for(int i=0; i<NB_PLAYERS*WALL_HEIGHT*2; i++){
+        pattern_lines[i] = 0; // pattern lines are empty
     }
 
-    int floor_lines_size = FLOOR_SIZE*nb_players;
-    floor_lines = new int[floor_lines_size];
-    for(int i=0; i<floor_lines_size; i++){
-        floor_lines[i] = -1;
+    for(int i=0; i<NB_PLAYERS*FLOOR_SIZE; i++){
+        floor_lines[i] = NB_COLORS+1; // there is no tile
     }
 
-    walls = new bool[WALL_SIZE * nb_players];
-    for(int i=0; i<WALL_SIZE; i++){
-        walls[i] = false;
+    for(int i=0; i<NB_PLAYERS*WALL_SIZE; i++){
+        walls[i] = false;   // the wall is empty
     }
-}
-
-Board::~Board(){
-    delete[] scores;
-    delete[] bag;
-    delete[] discard;
-    delete[] factories;
-    delete[] pattern_lines;
-    delete[] floor_lines;
-    delete[] walls;
 }
 
 
 bool Board::endOfTheRound(){
-    int factories_size = (NB_FACTORIES.at(nb_players)+1)*5;
+    int factories_size = (NB_FACTORIES+1)*NB_COLORS;
     for(int i=0; i<factories_size; i++){
         if(factories[i]!=0)
             return false;
@@ -76,7 +55,7 @@ bool Board::endOfTheRound(){
 
 bool Board::endOfTheGame(){
 
-    for(int player=0; player<nb_players; player++){
+    for(int player=0; player<NB_PLAYERS; player++){
         for(int line=0; line<WALL_HEIGHT; line++){
             for(int column=0; column<WALL_WIDTH; column++){
                 if(!walls[player*WALL_SIZE + line*WALL_WIDTH + column])
@@ -99,7 +78,7 @@ void Board::nextRound(){
 void Board::updateWall(){
 
     // for each player
-    for(int player=0; player<nb_players; player++){
+    for(int player=0; player<NB_PLAYERS; player++){
 
         // update wall
         for(int line=0; line<WALL_HEIGHT; line++){
@@ -125,18 +104,18 @@ void Board::updateWall(){
 
 void Board::updateFloor(){
     // for each player
-    for(int player=0; player<nb_players; player++){
+    for(int player=0; player<NB_PLAYERS; player++){
         // update floor
         for(int i=0; i<FLOOR_SIZE; i++){
             int color = floor_lines[player*FLOOR_SIZE+i];
             // if there is no tile: stop
-            if(color == -1)
+            if(color == NB_COLORS+1)
                 break;
             // if there is the "1" tile: player become the current player
             if(color == NB_COLORS)
                 current_player = player;
             // clear the tile
-            floor_lines[player*FLOOR_SIZE+i]=-1;
+            floor_lines[player*FLOOR_SIZE+i]=NB_COLORS+1;
             // add the malus
             scores[player] += FLOOR[i];
             // discard the tile
@@ -153,7 +132,7 @@ void Board::updateFactories(){
     }
 
     // for each factory (except the center of the table)
-    for(int factory=0; factory<NB_FACTORIES.at(nb_players); factory++){
+    for(int factory=0; factory<NB_FACTORIES; factory++){
         for(int tile=0; tile<NB_TILES_PER_FACTORY; tile++){
             if(tiles_remaining == 0){
                 refillBag();

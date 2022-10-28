@@ -4,11 +4,9 @@ using namespace Imagine;
 using namespace std;
 #include "board.h"
 
-const char* default_image_file=srcPath("Images/black.svg");
-
 int main() {
 
-    Board test(2);
+    Board test;
     test.nextRound();
 
     return 0;

@@ -1,16 +1,16 @@
 #pragma once
 
+#include <Imagine/Graphics.h>
+using namespace Imagine;
+#include <iostream>
 #include <map>
 using namespace std;
 
 // Parameters
+const int NB_PLAYERS = 2;
 const int NB_COLORS  = 5;
 const int NB_TILES_PER_COLOR = 20;
-const map<int, int> NB_FACTORIES = {
-    {2, 5},
-    {3, 7},
-    {4, 9}
-};
+const int NB_FACTORIES = 2*NB_PLAYERS+1;
 const int NB_TILES_PER_FACTORY = 4;
 
 // Geometry
@@ -33,53 +33,67 @@ int wallColorToColumn(int color, int line);
 
 
 class Board{
+    byte current_player;
 
-    int nb_players;
-    int current_player;
-
-    // score for each player
+    // Score of each player
     // [player] -> score
-    int* scores;
+    byte scores[NB_PLAYERS];
 
     // tiles in the bag
     // [color] -> nb of tiles of this color
-    int* bag;
+    byte bag[NB_COLORS];
 
     // tiles in the lid of the game box
     // [color] -> nb of tiles of this color
-    int* discard;
+    byte discard[NB_COLORS];
 
     // factories containing tiles and the center of the table
     // [factory,color] -> nb of tiles of this color
-    // factory = 0 -> center of the table
-    int* factories;
+    // factory = NB_FACTORIES -> center of the table
+    byte factories[(NB_FACTORIES+1)*NB_COLORS];
 
     // tiles on the pattern lines for each player
     // [player,line,(nb,color)] ->
-    int* pattern_lines;
+    byte pattern_lines[NB_PLAYERS*WALL_HEIGHT*2];
 
     // tiles on the floor line for each player
-    // [player,square] -> color or -1 if no tile or NB_COLORS if "1" tile
-    int* floor_lines;
+    // [player,square] -> color or NB_COLORS if "1" tile or NB_COLOR+1 if no tile
+    byte floor_lines[NB_PLAYERS*FLOOR_SIZE];
 
     // tiles on the wall for each player
     // [player, line, column] -> is there a tile ?
-    bool* walls;
+    bool walls[NB_PLAYERS*WALL_SIZE];
 
 
 public:
 
-    Board(int nb_players_);
-    ~Board();
+    Board();
+    ~Board(){};
 
+    /// Checks if it is the end of the round
     bool endOfTheRound();
+
+    /// Checks if it is the end of the game
     bool endOfTheGame();
+
+    /// Update score and set up the tiles for the next round
     void nextRound();
-    // add a tile to the wall of one player
+
+    /// Add a tile to the wall of one player and update his score
     void addTileToWall(int player, int line, int column);
+
+    /// Add the right tiles to the wall of each player, clean pattern lines and update score
     void updateWall();
+
+    /// Clear the floor of each player (uptade also the score)
     void updateFloor();
+
+    /// Replace new tiles on the factory
     void updateFactories();
+
+    /// Pick a random tile in the bag
     int chooseRandomTile(int tiles_remaining);
+
+    /// put discarded tiles back in the bag
     void refillBag();
 };
