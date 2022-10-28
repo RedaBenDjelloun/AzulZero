@@ -4,9 +4,11 @@ using namespace Imagine;
 #include <assert.h>
 using namespace std;
 
+
 int wallColumnToColor(int column, int line){
     return (column - line + NB_COLORS) % NB_COLORS;
 }
+
 
 int wallColorToColumn(int color, int line){
     return (line + color) % NB_COLORS;
@@ -68,6 +70,7 @@ bool Board::endOfTheGame(){
     return false;
 }
 
+
 void Board::nextRound(){
     updateWall();
     updateFloor();
@@ -124,6 +127,7 @@ void Board::updateFloor(){
     }
 }
 
+
 void Board::updateFactories(){
 
     int tiles_remaining = 0;
@@ -151,6 +155,7 @@ void Board::updateFactories(){
     }
 }
 
+
 int Board::chooseRandomTile(int tiles_remaining){
     assert(tiles_remaining>0);
     int random = rand()%tiles_remaining;
@@ -171,6 +176,7 @@ void Board::refillBag(){
         discard[col] = 0;
     }
 }
+
 
 void Board::addTileToWall(int player, int line, int column){
     int horizontal_points = 1;
@@ -209,6 +215,45 @@ void Board::addTileToWall(int player, int line, int column){
 }
 
 
+void Board::addEndgameBonus(){
+    for(int player=0; player<NB_PLAYERS; player++){
 
+        // horizontal line bonus
+        for(int i=0; i< WALL_HEIGHT; i++){
+            for(int j=0; j< WALL_WIDTH; j++){
+                // if there is no tile: the line isn't complete (stop)
+                if(!walls[player*WALL_SIZE+i*WALL_WIDTH+j])
+                    break;
+                // if we checked that all tiles in line i are here: add bonus
+                if(j==WALL_WIDTH-1)
+                    scores[player] += HORIZONTAL_LINE_BONUS;
+            }
+        }
 
+        // vertical line bonus
+        for(int j=0; j< WALL_WIDTH; j++){
+            for(int i=0; i< WALL_HEIGHT; i++){
+                // if there is no tile: the column isn't complete (stop)
+                if(!walls[player*WALL_SIZE+i*WALL_WIDTH+j])
+                    break;
+                // if we checked that all tiles in column j are here: add bonus
+                if(i==WALL_HEIGHT-1)
+                    scores[player] += VERTICAL_LINE_BONUS;
+            }
+        }
 
+        int j;
+        // color bonus
+        for(int col=0; col<NB_COLORS; col++){
+            for(int i=0; i< WALL_HEIGHT; i++){
+                j = wallColorToColumn(col,i);
+                // if there is no tile: the color isn't complete (stop)
+                if(!walls[player*WALL_SIZE+i*WALL_WIDTH+j])
+                    break;
+                // if we checked that all tiles of color col are here: add bonus
+                if(i==WALL_HEIGHT-1)
+                    scores[player] += COLOR_BONUS;
+            }
+        }
+    }
+}

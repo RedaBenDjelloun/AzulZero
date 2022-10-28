@@ -94,6 +94,9 @@ public:
     /// Pick a random tile in the bag
     int chooseRandomTile(int tiles_remaining);
 
-    /// put discarded tiles back in the bag
+    /// Put discarded tiles back in the bag
     void refillBag();
+
+    /// Add bonus for every horizontal/vertical line and color complete
+    void addEndgameBonus();
 };
