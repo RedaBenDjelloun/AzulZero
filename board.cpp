@@ -5,12 +5,12 @@ using namespace Imagine;
 using namespace std;
 
 
-int wallColumnToColor(int column, int line){
+byte wallColumnToColor(byte column, byte line){
     return (column - line + NB_COLORS) % NB_COLORS;
 }
 
 
-int wallColorToColumn(int color, int line){
+byte wallColorToColumn(byte color, byte line){
     return (line + color) % NB_COLORS;
 }
 
@@ -19,35 +19,35 @@ Board::Board(){
 
     current_player = 0;
 
-    for(int i=0; i<NB_COLORS; i++){
+    for(byte i=0; i<NB_COLORS; i++){
         bag[i] = NB_TILES_PER_COLOR;
     }
 
-    for(int i=0; i<NB_COLORS; i++){
+    for(byte i=0; i<NB_COLORS; i++){
         discard[i] = 0; // no tiles discarded yet
     }
 
-    for(int i=0; i<(NB_FACTORIES+1)*NB_COLORS; i++){
+    for(byte i=0; i<(NB_FACTORIES+1)*NB_COLORS; i++){
         factories[i] = 0;   // factories are empty
     }
 
-    for(int i=0; i<NB_PLAYERS*WALL_HEIGHT*2; i++){
+    for(byte i=0; i<NB_PLAYERS*WALL_HEIGHT*2; i++){
         pattern_lines[i] = 0; // pattern lines are empty
     }
 
-    for(int i=0; i<NB_PLAYERS*FLOOR_SIZE; i++){
+    for(byte i=0; i<NB_PLAYERS*FLOOR_SIZE; i++){
         floor_lines[i] = NB_COLORS+1; // there is no tile
     }
 
-    for(int i=0; i<NB_PLAYERS*WALL_SIZE; i++){
+    for(byte i=0; i<NB_PLAYERS*WALL_SIZE; i++){
         walls[i] = false;   // the wall is empty
     }
 }
 
 
 bool Board::endOfTheRound(){
-    int factories_size = (NB_FACTORIES+1)*NB_COLORS;
-    for(int i=0; i<factories_size; i++){
+    byte factories_size = (NB_FACTORIES+1)*NB_COLORS;
+    for(byte i=0; i<factories_size; i++){
         if(factories[i]!=0)
             return false;
     }
@@ -57,9 +57,9 @@ bool Board::endOfTheRound(){
 
 bool Board::endOfTheGame(){
 
-    for(int player=0; player<NB_PLAYERS; player++){
-        for(int line=0; line<WALL_HEIGHT; line++){
-            for(int column=0; column<WALL_WIDTH; column++){
+    for(byte player=0; player<NB_PLAYERS; player++){
+        for(byte line=0; line<WALL_HEIGHT; line++){
+            for(byte column=0; column<WALL_WIDTH; column++){
                 if(!walls[player*WALL_SIZE + line*WALL_WIDTH + column])
                     break;
                 else if(column == WALL_WIDTH-1)
@@ -81,15 +81,15 @@ void Board::nextRound(){
 void Board::updateWall(){
 
     // for each player
-    for(int player=0; player<NB_PLAYERS; player++){
+    for(byte player=0; player<NB_PLAYERS; player++){
 
         // update wall
-        for(int line=0; line<WALL_HEIGHT; line++){
+        for(byte line=0; line<WALL_HEIGHT; line++){
             // if the pattern line is complete
             if(pattern_lines[player*2*WALL_HEIGHT+line*2] == line+1){
 
-                int color = pattern_lines[player*2*WALL_HEIGHT+line*2+1];
-                int column = wallColorToColumn(color, line);
+                byte color = pattern_lines[player*2*WALL_HEIGHT+line*2+1];
+                byte column = wallColorToColumn(color, line);
 
                 // clear the tiles on the pattern line
                 pattern_lines[player*2*WALL_HEIGHT+line*2] = 0;
@@ -107,10 +107,10 @@ void Board::updateWall(){
 
 void Board::updateFloor(){
     // for each player
-    for(int player=0; player<NB_PLAYERS; player++){
+    for(byte player=0; player<NB_PLAYERS; player++){
         // update floor
-        for(int i=0; i<FLOOR_SIZE; i++){
-            int color = floor_lines[player*FLOOR_SIZE+i];
+        for(byte i=0; i<FLOOR_SIZE; i++){
+            byte color = floor_lines[player*FLOOR_SIZE+i];
             // if there is no tile: stop
             if(color == NB_COLORS+1)
                 break;
@@ -120,7 +120,7 @@ void Board::updateFloor(){
             // clear the tile
             floor_lines[player*FLOOR_SIZE+i]=NB_COLORS+1;
             // add the malus
-            scores[player] += FLOOR[i];
+            scores[player] -= FLOOR[i];
             // discard the tile
             discard[color] ++;
         }
@@ -130,22 +130,22 @@ void Board::updateFloor(){
 
 void Board::updateFactories(){
 
-    int tiles_remaining = 0;
-    for(int col=0; col<NB_COLORS; col++){
+    byte tiles_remaining = 0;
+    for(byte col=0; col<NB_COLORS; col++){
         tiles_remaining += bag[col];
     }
 
     // for each factory (except the center of the table)
-    for(int factory=0; factory<NB_FACTORIES; factory++){
-        for(int tile=0; tile<NB_TILES_PER_FACTORY; tile++){
+    for(byte factory=0; factory<NB_FACTORIES; factory++){
+        for(byte tile=0; tile<NB_TILES_PER_FACTORY; tile++){
             if(tiles_remaining == 0){
                 refillBag();
-                for(int col=0; col<NB_COLORS; col++){
+                for(byte col=0; col<NB_COLORS; col++){
                     tiles_remaining += bag[col];
                 }
             }
             // choose a random tile
-            int col = chooseRandomTile(tiles_remaining);
+            byte col = chooseRandomTile(tiles_remaining);
             // remove the color from the bag
             bag[col] --;
             tiles_remaining --;
@@ -156,11 +156,11 @@ void Board::updateFactories(){
 }
 
 
-int Board::chooseRandomTile(int tiles_remaining){
+byte Board::chooseRandomTile(byte tiles_remaining){
     assert(tiles_remaining>0);
-    int random = rand()%tiles_remaining;
-    int nb_tiles = 0;
-    for (int col=0; col<NB_COLORS; col++){
+    byte random = rand()%tiles_remaining;
+    byte nb_tiles = 0;
+    for (byte col=0; col<NB_COLORS; col++){
         nb_tiles += bag[col];
         if(nb_tiles>random){
             return col;
@@ -171,56 +171,59 @@ int Board::chooseRandomTile(int tiles_remaining){
 
 
 void Board::refillBag(){
-    for(int col=0; col<NB_COLORS; col++){
+    for(byte col=0; col<NB_COLORS; col++){
         bag[col] = discard[col];
         discard[col] = 0;
     }
 }
 
 
-void Board::addTileToWall(int player, int line, int column){
-    int horizontal_points = 1;
-    int vertical_points = 1;
-    for(int i=line-1; i>=0; i--){
+void Board::addTileToWall(byte player, byte line, byte column){
+
+    walls[player*WALL_SIZE+line*WALL_WIDTH+column] = true;
+
+    byte horizontal_pobytes = 1;
+    byte vertical_pobytes = 1;
+    for(byte i=line-1; i>=0; i--){
         if(walls[player*WALL_SIZE + i*WALL_WIDTH + column])
-            vertical_points += 1;
+            vertical_pobytes += 1;
         else
             break;
     }
-    for(int i=line+1; i<WALL_HEIGHT; i++){
+    for(byte i=line+1; i<WALL_HEIGHT; i++){
         if(walls[player*WALL_SIZE + i*WALL_WIDTH + column])
-            vertical_points += 1;
+            vertical_pobytes += 1;
         else
             break;
     }
-    for(int j=column-1; j>=0; j--){
+    for(byte j=column-1; j>=0; j--){
         if(walls[player*WALL_SIZE + line*WALL_WIDTH + j])
-            horizontal_points += 1;
+            horizontal_pobytes += 1;
         else
             break;
     }
-    for(int j=column+1; j<WALL_HEIGHT; j++){
+    for(byte j=column+1; j<WALL_HEIGHT; j++){
         if(walls[player*WALL_SIZE + line*WALL_WIDTH + j])
-            horizontal_points += 1;
+            horizontal_pobytes += 1;
         else
             break;
     }
 
-    if(vertical_points==1)
-        scores[player] += horizontal_points;
-    else if(horizontal_points==1)
-        scores[player] += vertical_points;
+    if(vertical_pobytes==1)
+        scores[player] += horizontal_pobytes;
+    else if(horizontal_pobytes==1)
+        scores[player] += vertical_pobytes;
     else
-        scores[player] += horizontal_points + vertical_points;
+        scores[player] += horizontal_pobytes + vertical_pobytes;
 }
 
 
 void Board::addEndgameBonus(){
-    for(int player=0; player<NB_PLAYERS; player++){
+    for(byte player=0; player<NB_PLAYERS; player++){
 
         // horizontal line bonus
-        for(int i=0; i< WALL_HEIGHT; i++){
-            for(int j=0; j< WALL_WIDTH; j++){
+        for(byte i=0; i< WALL_HEIGHT; i++){
+            for(byte j=0; j< WALL_WIDTH; j++){
                 // if there is no tile: the line isn't complete (stop)
                 if(!walls[player*WALL_SIZE+i*WALL_WIDTH+j])
                     break;
@@ -231,8 +234,8 @@ void Board::addEndgameBonus(){
         }
 
         // vertical line bonus
-        for(int j=0; j< WALL_WIDTH; j++){
-            for(int i=0; i< WALL_HEIGHT; i++){
+        for(byte j=0; j< WALL_WIDTH; j++){
+            for(byte i=0; i< WALL_HEIGHT; i++){
                 // if there is no tile: the column isn't complete (stop)
                 if(!walls[player*WALL_SIZE+i*WALL_WIDTH+j])
                     break;
@@ -242,10 +245,10 @@ void Board::addEndgameBonus(){
             }
         }
 
-        int j;
+        byte j;
         // color bonus
-        for(int col=0; col<NB_COLORS; col++){
-            for(int i=0; i< WALL_HEIGHT; i++){
+        for(byte col=0; col<NB_COLORS; col++){
+            for(byte i=0; i< WALL_HEIGHT; i++){
                 j = wallColorToColumn(col,i);
                 // if there is no tile: the color isn't complete (stop)
                 if(!walls[player*WALL_SIZE+i*WALL_WIDTH+j])

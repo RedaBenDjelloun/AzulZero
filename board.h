@@ -7,28 +7,28 @@ using namespace Imagine;
 using namespace std;
 
 // Parameters
-const int NB_PLAYERS = 2;
-const int NB_COLORS  = 5;
-const int NB_TILES_PER_COLOR = 20;
-const int NB_FACTORIES = 2*NB_PLAYERS+1;
-const int NB_TILES_PER_FACTORY = 4;
+const byte NB_PLAYERS = 2;
+const byte NB_COLORS  = 5;
+const byte NB_TILES_PER_COLOR = 20;
+const byte NB_FACTORIES = 2*NB_PLAYERS+1;
+const byte NB_TILES_PER_FACTORY = 4;
 
 // Geometry
-const int WALL_HEIGHT = 5;
-const int WALL_WIDTH = 5;
-const int WALL_SIZE = WALL_HEIGHT*WALL_WIDTH;
+const byte WALL_HEIGHT = 5;
+const byte WALL_WIDTH = 5;
+const byte WALL_SIZE = WALL_HEIGHT*WALL_WIDTH;
 
 // Scoring
-const int FLOOR_SIZE = 7;
-const int FLOOR[FLOOR_SIZE] = {-1,-1,-2,-2,-2,-3,-3};
-const int HORIZONTAL_LINE_BONUS = 2;
-const int VERTICAL_LINE_BONUS = 7;
-const int COLOR_BONUS = 10;
+const byte FLOOR_SIZE = 7;
+const byte FLOOR[FLOOR_SIZE] = {1,1,2,2,2,3,3};
+const byte HORIZONTAL_LINE_BONUS = 2;
+const byte VERTICAL_LINE_BONUS = 7;
+const byte COLOR_BONUS = 10;
 
 
-int wallColumnToColor(int column, int line);
+byte wallColumnToColor(byte column, byte line);
 
-int wallColorToColumn(int color, int line);
+byte wallColorToColumn(byte color, byte line);
 
 
 
@@ -80,7 +80,7 @@ public:
     void nextRound();
 
     /// Add a tile to the wall of one player and update his score
-    void addTileToWall(int player, int line, int column);
+    void addTileToWall(byte player, byte line, byte column);
 
     /// Add the right tiles to the wall of each player, clean pattern lines and update score
     void updateWall();
@@ -92,11 +92,13 @@ public:
     void updateFactories();
 
     /// Pick a random tile in the bag
-    int chooseRandomTile(int tiles_remaining);
+    byte chooseRandomTile(byte tiles_remaining);
 
     /// Put discarded tiles back in the bag
     void refillBag();
 
     /// Add bonus for every horizontal/vertical line and color complete
     void addEndgameBonus();
+
+    void play();
 };
