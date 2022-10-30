@@ -18,6 +18,7 @@ byte wallColorToColumn(byte color, byte line){
 Board::Board(){
 
     current_player = 0;
+    tile1 = NB_PLAYERS;
 
     for(byte i=0; i<NB_COLORS; i++){
         bag[i] = NB_TILES_PER_COLOR;
@@ -75,6 +76,9 @@ void Board::nextRound(){
     updateWall();
     updateFloor();
     updateFactories();
+
+    current_player = tile1;
+    tile1 = NB_PLAYERS;
 }
 
 
@@ -114,14 +118,13 @@ void Board::updateFloor(){
             // if there is no tile: stop
             if(color == NB_COLORS+1)
                 break;
-            // if there is the "1" tile: player become the current player
-            if(color == NB_COLORS)
-                current_player = player;
             // clear the tile
             floor_lines[player*FLOOR_SIZE+i]=NB_COLORS+1;
             // add the malus
             scores[player] -= FLOOR[i];
+
             // discard the tile
+            if(color != NB_COLORS)
             discard[color] ++;
         }
     }
@@ -259,4 +262,60 @@ void Board::addEndgameBonus(){
             }
         }
     }
+}
+
+
+void Board::play(byte factory, byte color, byte line){
+    int nb_tiles = factories[factory*NB_COLORS+color];
+    assert(nb_tiles > 0);
+    factories[factory*NB_COLORS+color] = 0;
+    // if the choosen tile is not in the center
+    if(factory != NB_FACTORIES){
+        for(byte col=0; col<NB_COLORS; col++){
+            // move the tiles to center of the table
+            factories[NB_FACTORIES+col] += factories[factory*NB_COLORS+col];
+            factories[factory*NB_COLORS+col] = 0;
+        }
+    }
+    // if the choosen tile is in the center and the "1" tile is still here
+    else if(tile1 == NB_PLAYERS){
+        tile1 = current_player;
+        // place the "1" tile in the floor if possible
+        for(byte i=0; i<FLOOR_SIZE ; i++){
+            // si la case est vide
+            if(floor_lines[current_player*FLOOR_SIZE+i] == NB_COLORS+1){
+                floor_lines[current_player*FLOOR_SIZE+i] = NB_COLORS;
+                break;
+            }
+        }
+    }
+
+    byte index = current_player*WALL_HEIGHT*2 + line*2;
+    byte nb_tiles_line;
+    byte nb_tiles_floor;
+    if(line < WALL_HEIGHT){
+        nb_tiles_line = min(line-pattern_lines[index], nb_tiles);
+        nb_tiles_floor = nb_tiles-nb_tiles_line;
+        // fill the pattern line
+        pattern_lines[index] += nb_tiles_line;
+    }
+    else{
+        nb_tiles_line = 0;
+        nb_tiles_floor = nb_tiles;
+    }
+
+    // fill the floor lines
+    for(byte i=0; i<FLOOR_SIZE and nb_tiles_floor>0; i++){
+        // si la case est vide
+        if(floor_lines[current_player*FLOOR_SIZE+i] == NB_COLORS+1){
+            floor_lines[current_player*FLOOR_SIZE+i] = color;
+            nb_tiles_floor--;
+        }
+    }
+
+    // discard the extra wtiles
+    discard[current_player*NB_COLORS+color] += nb_tiles_floor;
+
+    // The player end his turn
+    current_player = (current_player+1) % NB_PLAYERS;
 }

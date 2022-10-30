@@ -52,12 +52,16 @@ class Board{
     // factory = NB_FACTORIES -> center of the table
     byte factories[(NB_FACTORIES+1)*NB_COLORS];
 
+    // indicates where the "1" tile
+    // player or NB_PLAYER -> center of the table
+    byte tile1;
+
     // tiles on the pattern lines for each player
     // [player,line,(nb,color)] ->
     byte pattern_lines[NB_PLAYERS*WALL_HEIGHT*2];
 
     // tiles on the floor line for each player
-    // [player,square] -> color or NB_COLORS if "1" tile or NB_COLOR+1 if no tile
+    // [player,color] -> color or NB_COLORS if "1" tile or NB_COLOR+1 if no tile
     byte floor_lines[NB_PLAYERS*FLOOR_SIZE];
 
     // tiles on the wall for each player
@@ -100,5 +104,6 @@ public:
     /// Add bonus for every horizontal/vertical line and color complete
     void addEndgameBonus();
 
-    void play();
+    /// Play a move without checking if it is possible (Unknown behaviour if the move is not possible)
+    void play(byte factory, byte color, byte line);
 };
