@@ -5,15 +5,21 @@ using namespace std;
 
 #include "GUI.h"
 
+
+
 int main(){
-    vector<Image<AlphaColor>> images;
-    loadAllImages(IMAGE_PATHS,images);
+    int nb_player = 2;
+    Board board(nb_player);
 
-//    Image<AlphaColor> I;
-//    safeLoad(I,PLAYERBOARD);
+    GUI gui;
+    gui.init();
+    gui.displayPlayerboard(WINDOW_WIDTH/2);
+    gui.displayPlayerboard(WINDOW_WIDTH/2,WINDOW_HEIGHT/2);
+    gui.displayBag();
 
-    openWindow(window_width, window_height);
-    display(images[6],0,0);
+    int x,y;
+    getMouse(x,y);
+    gui.displayTile(0,x,y);
 
     endGraphics();
     return 0;
