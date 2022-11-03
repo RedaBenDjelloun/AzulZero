@@ -20,6 +20,10 @@ Board::Board(){
     current_player = 0;
     tile1 = NB_PLAYERS;
 
+    for(byte player=0; player<NB_PLAYERS; player++){
+        scores[player] = 0;
+    }
+
     for(byte i=0; i<NB_COLORS; i++){
         bag[i] = NB_TILES_PER_COLOR;
     }
@@ -77,7 +81,9 @@ void Board::nextRound(){
     updateFloor();
     updateFactories();
 
-    current_player = tile1;
+    // checks if we are in the first round
+    if(tile1 != NB_PLAYERS)
+        current_player = tile1;
     tile1 = NB_PLAYERS;
 }
 
@@ -185,39 +191,39 @@ void Board::addTileToWall(byte player, byte line, byte column){
 
     walls[player*WALL_SIZE+line*WALL_WIDTH+column] = true;
 
-    byte horizontal_pobytes = 1;
-    byte vertical_pobytes = 1;
-    for(byte i=line-1; i>=0; i--){
+    byte horizontal_points = 1;
+    byte vertical_points = 1;
+    for(byte i=line-1; i!=255; i--){
         if(walls[player*WALL_SIZE + i*WALL_WIDTH + column])
-            vertical_pobytes += 1;
+            vertical_points += 1;
         else
             break;
     }
     for(byte i=line+1; i<WALL_HEIGHT; i++){
         if(walls[player*WALL_SIZE + i*WALL_WIDTH + column])
-            vertical_pobytes += 1;
+            vertical_points += 1;
         else
             break;
     }
-    for(byte j=column-1; j>=0; j--){
+    for(byte j=column-1; j!=255; j--){
         if(walls[player*WALL_SIZE + line*WALL_WIDTH + j])
-            horizontal_pobytes += 1;
+            horizontal_points += 1;
         else
             break;
     }
     for(byte j=column+1; j<WALL_HEIGHT; j++){
         if(walls[player*WALL_SIZE + line*WALL_WIDTH + j])
-            horizontal_pobytes += 1;
+            horizontal_points += 1;
         else
             break;
     }
 
-    if(vertical_pobytes==1)
-        scores[player] += horizontal_pobytes;
-    else if(horizontal_pobytes==1)
-        scores[player] += vertical_pobytes;
+    if(vertical_points==1)
+        scores[player] += horizontal_points;
+    else if(horizontal_points==1)
+        scores[player] += vertical_points;
     else
-        scores[player] += horizontal_pobytes + vertical_pobytes;
+        scores[player] += horizontal_points + vertical_points;
 }
 
 
@@ -273,7 +279,7 @@ void Board::play(byte factory, byte color, byte line){
     if(factory != NB_FACTORIES){
         for(byte col=0; col<NB_COLORS; col++){
             // move the tiles to center of the table
-            factories[NB_FACTORIES+col] += factories[factory*NB_COLORS+col];
+            factories[NB_FACTORIES*NB_COLORS+col] += factories[factory*NB_COLORS+col];
             factories[factory*NB_COLORS+col] = 0;
         }
     }
@@ -294,9 +300,11 @@ void Board::play(byte factory, byte color, byte line){
     byte nb_tiles_line;
     byte nb_tiles_floor;
     if(line < WALL_HEIGHT){
-        nb_tiles_line = min(line-pattern_lines[index], nb_tiles);
+        nb_tiles_line = min(line-pattern_lines[index]+1, nb_tiles);
         nb_tiles_floor = nb_tiles-nb_tiles_line;
         // fill the pattern line
+        if(pattern_lines[index]==0)
+            pattern_lines[index+1] = color;
         pattern_lines[index] += nb_tiles_line;
     }
     else{
@@ -317,13 +325,16 @@ void Board::play(byte factory, byte color, byte line){
     discard[current_player*NB_COLORS+color] += nb_tiles_floor;
 
     // the player end his turn
-    current_player = (current_player+1) % NB_PLAYERS;
+    nextPlayer();
 }
 
-bool Board::playable(byte factory, byte color, byte line){
-    // if that color is not available in this factory
-    if(factories[factory*NB_COLORS+color]==0)
-        return false;
+
+bool Board::pickableTile(byte factory, byte color){
+    // That color is available in this factory ?
+    return factories[factory*NB_COLORS+color]>0;
+}
+
+bool Board::placeableTile(byte color, byte line){
     // if the player wants to place the tiles on the floor line (always possible)
     if(line == WALL_HEIGHT)
         return true;
@@ -336,7 +347,10 @@ bool Board::playable(byte factory, byte color, byte line){
 
     // if the line is not empty... colors need to match and the line needs to be not full
     return (pattern_lines[index+1] == color and pattern_lines[index]<line);
+}
 
+bool Board::playable(byte factory, byte color, byte line){
+    return pickableTile(factory,color) and placeableTile(color,line);
 }
 
 void Board::addMalus(byte malus, byte player){

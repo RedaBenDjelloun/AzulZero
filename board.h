@@ -106,8 +106,18 @@ public:
     /// Play a move without checking if it is possible (Unknown behaviour if the move is not possible)
     void play(byte factory, byte color, byte line);
 
-    /// Tells if the move is possible
+    ///  Checks if a tile exists
+    bool pickableTile(byte factory, byte color);
+
+    /// Checks if a tile is placeable on a particular line
+    bool placeableTile(byte color, byte line);
+
+    /// Checks if the move is possible
     bool playable(byte factory, byte color, byte line);
 
+    /// Add a malus to a player
     void addMalus(byte malus, byte player);
+
+    /// End the turn of the current player
+    void nextPlayer(){current_player = (current_player+1)%NB_PLAYERS;};
 };
