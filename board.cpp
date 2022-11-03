@@ -121,7 +121,7 @@ void Board::updateFloor(){
             // clear the tile
             floor_lines[player*FLOOR_SIZE+i]=NB_COLORS+1;
             // add the malus
-            scores[player] -= FLOOR[i];
+            addMalus(FLOOR[i],player);
 
             // discard the tile
             if(color != NB_COLORS)
@@ -337,4 +337,11 @@ bool Board::playable(byte factory, byte color, byte line){
     // if the line is not empty... colors need to match and the line needs to be not full
     return (pattern_lines[index+1] == color and pattern_lines[index]<line);
 
+}
+
+void Board::addMalus(byte malus, byte player){
+    if(malus>scores[player])
+        scores[player] = 0;
+    else
+        scores[player] -= player;
 }

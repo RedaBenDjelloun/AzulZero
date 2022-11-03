@@ -68,7 +68,6 @@ class Board{
     // [player, line, column] -> is there a tile ?
     bool walls[NB_PLAYERS*WALL_SIZE];
 
-
 public:
 
     Board();
@@ -109,4 +108,6 @@ public:
 
     /// Tells if the move is possible
     bool playable(byte factory, byte color, byte line);
+
+    void addMalus(byte malus, byte player);
 };
