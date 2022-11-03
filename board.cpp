@@ -357,5 +357,5 @@ void Board::addMalus(byte malus, byte player){
     if(malus>scores[player])
         scores[player] = 0;
     else
-        scores[player] -= player;
+        scores[player] -= malus;
 }

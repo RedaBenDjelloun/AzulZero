@@ -48,6 +48,7 @@ int main() {
                 nb_placeable += game.placeableTile(color_choice, line);
             }
 
+            nb_placeable = max(1,nb_placeable-1);
             int spot_choice = rand()%nb_placeable;
             acc=0;
 
