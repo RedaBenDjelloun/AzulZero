@@ -106,4 +106,7 @@ public:
 
     /// Play a move without checking if it is possible (Unknown behaviour if the move is not possible)
     void play(byte factory, byte color, byte line);
+
+    /// Tells if the move is possible
+    bool playable(byte factory, byte color, byte line);
 };

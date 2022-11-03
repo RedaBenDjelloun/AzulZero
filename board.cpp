@@ -313,9 +313,28 @@ void Board::play(byte factory, byte color, byte line){
         }
     }
 
-    // discard the extra wtiles
+    // discard the extra tiles
     discard[current_player*NB_COLORS+color] += nb_tiles_floor;
 
-    // The player end his turn
+    // the player end his turn
     current_player = (current_player+1) % NB_PLAYERS;
+}
+
+bool Board::playable(byte factory, byte color, byte line){
+    // if that color is not available in this factory
+    if(factories[factory*NB_COLORS+color]==0)
+        return false;
+    // if the player wants to place the tiles on the floor line (always possible)
+    if(line == WALL_HEIGHT)
+        return true;
+
+    int index = current_player*WALL_HEIGHT*2+line*2;
+
+    // if the line is empty... check if the color has already be done
+    if(pattern_lines[index] == 0)
+        return !walls[current_player*WALL_SIZE+line*WALL_WIDTH+wallColorToColumn(color,line)];
+
+    // if the line is not empty... colors need to match and the line needs to be not full
+    return (pattern_lines[index+1] == color and pattern_lines[index]<line);
+
 }
