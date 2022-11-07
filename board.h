@@ -120,4 +120,5 @@ public:
 
     /// End the turn of the current player
     void nextPlayer(){current_player = (current_player+1)%NB_PLAYERS;};
+
 };
