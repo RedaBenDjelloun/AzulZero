@@ -3,7 +3,6 @@
 #include <Imagine/Graphics.h>
 using namespace Imagine;
 #include <iostream>
-#include <map>
 using namespace std;
 
 // Parameters
@@ -122,3 +121,6 @@ public:
     void nextPlayer(){current_player = (current_player+1)%NB_PLAYERS;};
 
 };
+
+
+void randomGameTest();
