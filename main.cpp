@@ -10,9 +10,9 @@ int main(){
 
 
     Board board;
-    Random* players = new Random[NB_PLAYERS];
-    players[0] = Random(&board);
-    players[1] = Random(&board);
+    Controller** players = new Controller*[NB_PLAYERS];
+    players[0] = new Random(&board);
+    players[1] = new Random(&board);
 
     play(&board,players);
     return 0;

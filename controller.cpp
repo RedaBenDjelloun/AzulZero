@@ -60,13 +60,13 @@ void Heuristic::play(){
 }
 
 
-void play(Board* board, Controller* players){
+void play(Board* board, Controller **players){
     while(!board->endOfTheGame()){
 
         board->nextRound();
 
         while(!board->endOfTheRound()){
-            players[board->currentPlayer()].play();
+            players[board->currentPlayer()]->play();
         }
     }
     board->nextRound();

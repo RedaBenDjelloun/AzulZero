@@ -31,4 +31,4 @@ public:
 };
 
 /// Play an entire game given the players
-void play(Board* board, Controller* players);
+void play(Board* board, Controller** players);
