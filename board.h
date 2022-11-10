@@ -72,6 +72,9 @@ public:
     Board();
     ~Board(){};
 
+    /// Accessor
+    byte currentPlayer(){return current_player;}
+
     /// Checks if it is the end of the round
     bool endOfTheRound();
 
