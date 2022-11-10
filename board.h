@@ -33,7 +33,7 @@ byte wallColorToColumn(byte color, byte line);
 
 class Board{
 
-protected:
+public:
     byte current_player;
 
     // Score of each player
@@ -69,7 +69,6 @@ protected:
     // [player, line, column] -> is there a tile ?
     bool walls[NB_PLAYERS*WALL_SIZE];
 
-public:
 
     Board();
     ~Board(){};
