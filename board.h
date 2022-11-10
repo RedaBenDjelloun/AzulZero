@@ -70,7 +70,7 @@ class Board{
 public:
 
     Board();
-    ~Board(){};
+    ~Board(){}
 
     /// Checks if it is the end of the round
     bool endOfTheRound();

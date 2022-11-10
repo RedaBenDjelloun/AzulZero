@@ -8,18 +8,18 @@ using namespace std;
 
 
 int main(){
-    int nb_player = 2;
-    Board board(nb_player);
+    Board board;
 
     GUI gui;
     gui.init();
-    gui.displayPlayerboard(WINDOW_WIDTH/2);
-    gui.displayPlayerboard(WINDOW_WIDTH/2,WINDOW_HEIGHT/2);
-    gui.displayBag();
 
-    int x,y;
-    getMouse(x,y);
-    gui.displayTile(0,x,y);
+    gui.displayAllPlayerboards();
+    gui.displayBag();
+    gui.displayFactoryCircle();
+
+//    int x,y;
+//    getMouse(x,y);
+//    gui.displayTile(0,x,y);
 
     endGraphics();
     return 0;
