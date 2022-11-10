@@ -11,8 +11,8 @@ int main(){
 
     Board board;
     Controller** players = new Controller*[NB_PLAYERS];
-    players[0] = new Random(&board);
-    players[1] = new Random(&board);
+    players[0] = new Random();
+    players[1] = new Random();
 
     play(&board,players);
     return 0;

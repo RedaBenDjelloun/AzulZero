@@ -3,7 +3,7 @@
 
 
 
-void Random::play(){
+void Random::play(Board* board){
     int nb_pickeable = 0;
     for(int factory=0; factory<=NB_FACTORIES; factory++){
         for(int color=0; color<NB_COLORS; color++){
@@ -47,7 +47,7 @@ void Random::play(){
 
 
 
-void Heuristic::play(){
+void Heuristic::play(Board* board){
 
     // [color,nb] -> is it possible to have this ?
     bool possible_draw[NB_COLORS*NB_TILES_PER_COLOR];
@@ -56,6 +56,11 @@ void Heuristic::play(){
         possible_draw[i] = false;
     }
 
+    for(int factory=0; factory<NB_FACTORIES; factory++){
+        for(int col=0; col<NB_COLORS; col++){
+
+        }
+    }
 
 }
 
@@ -66,7 +71,7 @@ void play(Board* board, Controller **players){
         board->nextRound();
 
         while(!board->endOfTheRound()){
-            players[board->currentPlayer()]->play();
+            players[board->currentPlayer()]->play(board);
         }
     }
     board->nextRound();

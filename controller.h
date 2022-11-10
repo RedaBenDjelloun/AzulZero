@@ -4,12 +4,9 @@
 
 class Controller
 {
-protected:
-    Board* board;
 public:
     Controller(){}
-    Controller(Board* board_){board=board_;}
-    virtual void play(){}
+    virtual void play(Board* board){}
 };
 
 
@@ -17,8 +14,7 @@ class Random: public Controller
 {
 public:
     Random(){};
-    Random(Board* board_): Controller(board_){};
-    void play();
+    void play(Board* board);
 };
 
 
@@ -26,8 +22,7 @@ class Heuristic: public Controller
 {
 public:
     Heuristic(){};
-    Heuristic(Board* board_): Controller(board_){};
-    void play();
+    void play(Board* board);
 };
 
 /// Play an entire game given the players

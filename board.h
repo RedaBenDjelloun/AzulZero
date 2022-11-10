@@ -32,6 +32,8 @@ byte wallColorToColumn(byte color, byte line);
 
 
 class Board{
+
+protected:
     byte current_player;
 
     // Score of each player
