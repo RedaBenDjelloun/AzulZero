@@ -2,7 +2,7 @@
 using namespace Imagine;
 #include <iostream>
 using namespace std;
-
+#include "board.h"
 #include "GUI.h"
 
 
