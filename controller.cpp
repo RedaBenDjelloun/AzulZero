@@ -3,7 +3,7 @@
 
 
 
-void Random::play(Board* board){
+void Random::play_move(Board* board){
     int nb_pickeable = 0;
     for(int factory=0; factory<=NB_FACTORIES; factory++){
         for(int color=0; color<NB_COLORS; color++){
@@ -56,7 +56,7 @@ double Heuristic::reward(int line, int nb, int in_the_floor){
 }
 
 
-void Heuristic::play(Board* board){
+void Heuristic::play_move(Board* board){
 
     // [color,nb] -> is it possible to have this ?
     bool possible_draw[NB_COLORS*NB_TILES_PER_COLOR];
@@ -70,8 +70,8 @@ void Heuristic::play(Board* board){
     for(int factory=0; factory<=NB_FACTORIES; factory++){
         for(int col=0; col<NB_COLORS; col++){
             if(board->factories[factory*NB_COLORS+col]>0){
-            possible_draw[col*NB_TILES_PER_COLOR+board->factories[factory*NB_COLORS+col]-1] = true;
-            arg_fact[col*NB_TILES_PER_COLOR+board->factories[factory*NB_COLORS+col]-1] = factory;
+                possible_draw[col*NB_TILES_PER_COLOR+board->factories[factory*NB_COLORS+col]-1] = true;
+                arg_fact[col*NB_TILES_PER_COLOR+board->factories[factory*NB_COLORS+col]-1] = factory;
             }
         }
     }
@@ -111,14 +111,84 @@ void Heuristic::play(Board* board){
     board->play(best_factory,best_col,best_line);
 }
 
+Heuristic::Heuristic(int preoptimize){
+    switch(preoptimize){
 
-void play(Board* board, Controller **players){
+    // best score(player)-score(opponent) vs random
+    case 0:
+        par[0] = 0.990938;
+        par[1] = 3.58249;
+        par[2] = 2.18165;
+        par[3] = -2.9019;
+        par[4] = 1.33669;
+        par[5] = -2.5848;
+        par[6] = -3.2952;
+        par[7] = -3.16817;
+
+    // best winrate vs random (but an awful avg score)
+    case 1:
+        par[0] = -3.54123;
+        par[1] = -0.238941;
+        par[2] = -2.58024;
+        par[3] = 1.84378;
+        par[4] = 2.85989;
+        par[5] = -2.76286;
+        par[6] = -1.99341;
+        par[7] = -4.08354;
+    }
+
+}
+
+void Heuristic::optimize(Controller *opponent){
+    int total_result;
+    int best_result = -INFINITY; // = score(player)-score(opponent)
+    double old_par[8];
+    double best_par[8];
+
+    Controller** players = new Controller*[NB_PLAYERS];
+    players[0] = this;
+    players[1] = opponent;
+
+    for(int i=0; i<100; i++){
+        total_result=0;
+        for(int j=0; j<8; j++){
+            old_par[j] = par[j];
+            par[j] += min(i,1)*10*(doubleRandom()-0.5)/(i+10);
+        }
+
+        for(int j=0; j<100; j++){
+            Board board;
+
+            play_game(&board,players);
+            total_result += board.scores[0]-board.scores[1];
+        }
+
+        if(total_result>best_result or doubleRandom()<exp(double(total_result-best_result)/50)){
+            best_result = total_result;
+            for(int j=0; j<8; j++){
+                best_par[j] = par[j];
+            }
+        }
+
+        for(int j=0; j<8; j++){
+            par[j] = best_par[j];
+        }
+    }
+    /*
+    for(int j=0; j<8; j++){
+        cout<<best_par[j]<<endl;
+    }
+    */
+}
+
+
+void play_game(Board* board, Controller **players){
     while(!board->endOfTheGame()){
 
         board->nextRound();
 
         while(!board->endOfTheRound()){
-            players[board->currentPlayer()]->play(board);
+            players[board->currentPlayer()]->play_move(board);
         }
     }
     board->nextRound();
