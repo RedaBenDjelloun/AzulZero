@@ -49,10 +49,11 @@ void Random::play_move(Board* board){
 double Heuristic::reward(int line, int nb, int in_the_floor){
     if(line==WALL_HEIGHT)
         return discard_reward(nb);
-    else if(in_the_floor>=0)
-        return line_complete_reward(line,nb)+discard_reward(max(0,in_the_floor));
-    else
-        return non_complete_line_reward(line,nb);
+    if(in_the_floor>0)
+        return line_complete_reward(line,nb)+discard_reward(in_the_floor);
+    if(in_the_floor==0)
+        return line_complete_reward(line,nb);
+    return non_complete_line_reward(line,nb,-in_the_floor);
 }
 
 
@@ -114,79 +115,80 @@ void Heuristic::play_move(Board* board){
 Heuristic::Heuristic(int preoptimize){
     switch(preoptimize){
 
-    // best score(player)-score(opponent) vs random
+    // optimize vs random
     case 0:
-        par[0] = 0.990938;
-        par[1] = 3.58249;
-        par[2] = 2.18165;
-        par[3] = -2.9019;
-        par[4] = 1.33669;
-        par[5] = -2.5848;
-        par[6] = -3.2952;
-        par[7] = -3.16817;
+        par[0] = 0.173511;
+        par[1] = 2.56913;
+        par[2] = 0.323115;
+        par[3] = -2.52196;
+        par[4] = 0.32235;
+        par[5] = -1.78068;
+        par[6] = 0.7963;
+        par[7] = -1.43846;
+        par[8] = -1.50168;
 
-    // best winrate vs random (but an awful avg score)
+        // optimize against an other heuristic
     case 1:
-        par[0] = -3.54123;
-        par[1] = -0.238941;
-        par[2] = -2.58024;
-        par[3] = 1.84378;
-        par[4] = 2.85989;
-        par[5] = -2.76286;
-        par[6] = -1.99341;
-        par[7] = -4.08354;
+        par[0]=0.227802;
+        par[1]=1.86971;
+        par[2]=1.13071;
+        par[3]=-2.33147;
+        par[4]=0.0705628;
+        par[5]=-0.942529;
+        par[6]=0.982265;
+        par[7]=-0.942418;
+        par[8]=-2.00689;
     }
-
 }
 
-void Heuristic::optimize(Controller *opponent){
+void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_game){
     int total_result;
     int best_result = -INFINITY; // = score(player)-score(opponent)
-    double old_par[8];
-    double best_par[8];
+    double old_par[9];
+    double best_par[9];
 
     Controller** players = new Controller*[NB_PLAYERS];
     players[0] = this;
     players[1] = opponent;
 
-    for(int i=0; i<100; i++){
+    for(int i=0; i<nb_evolve_game; i++){
         total_result=0;
-        for(int j=0; j<8; j++){
+        int squared_norm = 0;
+        for(int j=0; j<9; j++){
             old_par[j] = par[j];
-            par[j] += min(i,1)*10*(doubleRandom()-0.5)/(i+10);
+            par[j] += min(i,1)*(doubleRandom()-0.5)/(i+10);
+            squared_norm += par[j]*par[j];
+        }
+        int norm = sqrt(squared_norm);
+        if(squared_norm>0){
+            for(int j=0; j<9; j++){
+                par[j] /= norm;
+            }
         }
 
-        for(int j=0; j<100; j++){
+        for(int j=0; j<nb_test_game; j++){
             Board board;
-
             play_game(&board,players);
             total_result += board.scores[0]-board.scores[1];
         }
 
-        if(total_result>best_result or doubleRandom()<exp(double(total_result-best_result)/50)){
+        if(total_result>best_result or doubleRandom()<exp(double(total_result-best_result)/nb_test_game)){
             best_result = total_result;
-            for(int j=0; j<8; j++){
+            for(int j=0; j<9; j++){
                 best_par[j] = par[j];
             }
         }
 
-        for(int j=0; j<8; j++){
+        for(int j=0; j<9; j++){
             par[j] = best_par[j];
         }
     }
-    /*
-    for(int j=0; j<8; j++){
-        cout<<best_par[j]<<endl;
-    }
-    */
 }
 
 
 void play_game(Board* board, Controller **players){
     while(!board->endOfTheGame()){
-
         board->nextRound();
-
         while(!board->endOfTheRound()){
             players[board->currentPlayer()]->play_move(board);
         }

@@ -15,11 +15,15 @@ int main(){
     int nb_iterations = 10000;
     int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
-    Heuristic smart_player1;
-    Heuristic smart_player2;
+    Heuristic smart_player1(0);
+    Heuristic smart_player2(0);
+
     for(int i=0; i<10; i++){
         smart_player1.optimize(&smart_player2);
         smart_player2.optimize(&smart_player1);
+    }
+
+    for(int i=0; i<9; i++){
     }
     players[0] = &smart_player1;
     players[1] = &smart_player2;
