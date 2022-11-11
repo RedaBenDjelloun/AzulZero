@@ -117,27 +117,27 @@ Heuristic::Heuristic(int preoptimize){
 
     // optimize vs random
     case 0:
-        par[0] = 0.173511;
-        par[1] = 2.56913;
-        par[2] = 0.323115;
-        par[3] = -2.52196;
-        par[4] = 0.32235;
-        par[5] = -1.78068;
-        par[6] = 0.7963;
-        par[7] = -1.43846;
-        par[8] = -1.50168;
+        par[0] = 0.06558;
+        par[1] = 0.4635;
+        par[2] = 0.2758;
+        par[3] = -0.5508;
+        par[4] = 0.03573;
+        par[5] = -0.2471;
+        par[6] = 0.1930;
+        par[7] = -0.2121;
+        par[8] = -0.5065;
 
-        // optimize against an other heuristic
+        // optimize vs (case 0) only a little bit more efficient...
     case 1:
-        par[0]=0.227802;
-        par[1]=1.86971;
-        par[2]=1.13071;
-        par[3]=-2.33147;
-        par[4]=0.0705628;
-        par[5]=-0.942529;
-        par[6]=0.982265;
-        par[7]=-0.942418;
-        par[8]=-2.00689;
+        par[0]=0.06557;
+        par[1]=0.4635;
+        par[2]=0.2758;
+        par[3]=-0.5508;
+        par[4]=0.03573;
+        par[5]=-0.2471;
+        par[6]=0.1930;
+        par[7]=-0.2121;
+        par[8]=-0.5065;
     }
 }
 
@@ -153,13 +153,13 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
 
     for(int i=0; i<nb_evolve_game; i++){
         total_result=0;
-        int squared_norm = 0;
+        double squared_norm = 0;
         for(int j=0; j<9; j++){
             old_par[j] = par[j];
-            par[j] += min(i,1)*(doubleRandom()-0.5)/(i+10);
+            par[j] += 10*min(i,1)*(doubleRandom()-0.5)/(i+10);
             squared_norm += par[j]*par[j];
         }
-        int norm = sqrt(squared_norm);
+        double norm = sqrt(squared_norm);
         if(squared_norm>0){
             for(int j=0; j<9; j++){
                 par[j] /= norm;
@@ -182,6 +182,9 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
         for(int j=0; j<9; j++){
             par[j] = best_par[j];
         }
+    }
+    for(int j=0; j<9; j++){
+        cout<<par[j]<<endl;
     }
 }
 
