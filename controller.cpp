@@ -126,18 +126,6 @@ Heuristic::Heuristic(int preoptimize){
         par[6] = 0.1930;
         par[7] = -0.2121;
         par[8] = -0.5065;
-
-        // optimize vs (case 0) only a little bit more efficient...
-    case 1:
-        par[0]=0.06557;
-        par[1]=0.4635;
-        par[2]=0.2758;
-        par[3]=-0.5508;
-        par[4]=0.03573;
-        par[5]=-0.2471;
-        par[6]=0.1930;
-        par[7]=-0.2121;
-        par[8]=-0.5065;
     }
 }
 
