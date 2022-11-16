@@ -32,6 +32,8 @@ byte wallColorToColumn(byte color, byte line);
 
 
 class Board{
+
+public:
     byte current_player;
 
     // Score of each player
@@ -67,10 +69,12 @@ class Board{
     // [player, line, column] -> is there a tile ?
     bool walls[NB_PLAYERS*WALL_SIZE];
 
-public:
 
     Board();
     ~Board(){};
+
+    /// Accessor
+    byte currentPlayer(){return current_player;}
 
     /// Checks if it is the end of the round
     bool endOfTheRound();
