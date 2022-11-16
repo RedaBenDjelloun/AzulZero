@@ -50,6 +50,15 @@ Board::Board(){
 }
 
 
+byte Board::nbFloorTiles() const{
+    for(int pos=0; pos<FLOOR_SIZE; pos++){
+        if(getFloorTile(pos))
+            return pos+1;
+    }
+    return FLOOR_SIZE;
+}
+
+
 bool Board::endOfTheRound(){
     byte factories_size = (NB_FACTORIES+1)*NB_COLORS;
     for(byte i=0; i<factories_size; i++){

@@ -27,10 +27,10 @@ int main(){
 
         play_game(&board,players);
         for(int player=0; player<NB_PLAYERS; player++){
-            total_points[player] += board.scores[player];
-            max_points[player] = max(max_points[player],int(board.scores[player]));
+            total_points[player] += board.getScore(player);
+            max_points[player] = max(max_points[player],int(board.getScore(player)));
         }
-        winner[(board.scores[0]<board.scores[1])+(board.scores[0]<=board.scores[1])]+=1;
+        winner[board.winner()]+=1;
     }
 
     cout<<nb_iterations<<" parties jouees"<<endl;
