@@ -8,5 +8,6 @@ project(AzulZero)
 add_executable(AzulZero
                main.cpp
                board.cpp board.h
+               controller.cpp controller.h
                GUI.cpp GUI.h)
 ImagineUseModules(AzulZero Graphics)
