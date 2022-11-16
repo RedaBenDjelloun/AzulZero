@@ -32,5 +32,16 @@ public:
     double reward(int line, int nb, int in_the_floor);
 };
 
+class MinMax: public Controller
+{
+    byte max_depth;
+public:
+    MinMax(){}
+    MinMax(byte max_depth_){max_depth= max_depth_;}
+    int play_move(Board* board, byte depth);
+    void play_move(Board* board);
+};
+
+
 /// Play an entire game given the players
 void play_game(Board* board, Controller** players);

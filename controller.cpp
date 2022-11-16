@@ -176,6 +176,48 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
     }
 }
 
+int MinMax::play_move(Board *board, byte depth){
+    // cannot happened if depth==0 (the end of the round would have been called)
+    if(depth==max_depth or board->endOfTheRound()){
+        byte player = board->currentPlayer();
+        board->nextRound();
+        board->addEndgameBonus();
+        return board->getScore(player) - board->getScore(1-player);
+    }
+
+    int best_response = INT32_MIN;
+    int response;
+    byte best_factory=255, best_col, best_line;
+    for(byte factory=0; factory<=NB_FACTORIES; factory++){
+        for(byte col=0; col<NB_COLORS; col++){
+            if(board->pickableTile(factory,col)){
+                for(byte line=0; line<=WALL_HEIGHT; line++){
+                    if(board->placeableTile(col,line)){
+                        Board* board_copy = new Board(*board);
+                        board_copy->play(factory,col,line);
+                        response = -play_move(board_copy,depth+1);
+                        delete board_copy;
+                        if(response>best_response){
+                            best_response = response;
+                            best_factory = factory;
+                            best_col = col;
+                            best_line = line;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    assert(best_factory!=255);
+    if(depth==0)
+        board->play(best_factory,best_col,best_line);
+    return best_response;
+}
+
+void MinMax::play_move(Board *board){
+    play_move(board,0);
+}
+
 
 void play_game(Board* board, Controller **players){
     while(!board->endOfTheGame()){

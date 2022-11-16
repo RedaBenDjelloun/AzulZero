@@ -12,14 +12,14 @@ int main(){
 
     int total_points[NB_PLAYERS] = {0,0};
     int max_points[NB_PLAYERS] = {0,0};
-    int nb_iterations = 10000;
+    int nb_iterations = 1;
     int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
     Heuristic smart_player1(0);
-    Heuristic smart_player2(0);
+    MinMax smart_player2(4);
     Random random_player;
     players[0] = &smart_player1;
-    players[1] = &random_player;
+    players[1] = &smart_player2;
 
     for(int i=0; i<nb_iterations; i++){
 

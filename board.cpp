@@ -355,7 +355,7 @@ bool Board::placeableTile(byte color, byte line){
         return !walls[current_player*WALL_SIZE+line*WALL_WIDTH+wallColorToColumn(color,line)];
 
     // if the line is not empty... colors need to match and the line needs to be not full
-    return (pattern_lines[index+1] == color and pattern_lines[index]<line);
+    return (pattern_lines[index+1] == color and pattern_lines[index]<line+1);
 }
 
 bool Board::playable(byte factory, byte color, byte line){
