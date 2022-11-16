@@ -70,9 +70,9 @@ void Heuristic::play_move(Board* board){
 
     for(int factory=0; factory<=NB_FACTORIES; factory++){
         for(int col=0; col<NB_COLORS; col++){
-            if(board->factories[factory*NB_COLORS+col]>0){
-                possible_draw[col*NB_TILES_PER_COLOR+board->factories[factory*NB_COLORS+col]-1] = true;
-                arg_fact[col*NB_TILES_PER_COLOR+board->factories[factory*NB_COLORS+col]-1] = factory;
+            if(board->getFactoryTile(factory,col)>0){
+                possible_draw[col*NB_TILES_PER_COLOR+board->getFactoryTile(factory,col)-1] = true;
+                arg_fact[col*NB_TILES_PER_COLOR+board->getFactoryTile(factory,col)-1] = factory;
             }
         }
     }
@@ -87,7 +87,7 @@ void Heuristic::play_move(Board* board){
                 int max_line = WALL_HEIGHT;
                 for(int line=0; line<WALL_HEIGHT; line++){
                     if(board->placeableTile(col,line)){
-                        int in_the_floor = (nb+board->pattern_lines[board->current_player*2*WALL_HEIGHT + line*2]-line-1);
+                        int in_the_floor = nb+board->getPatternLineNb(board->currentPlayer(),line) -line-1;
                         if(max_reward<reward(line,nb,in_the_floor)){
                             max_reward = reward(line,nb,in_the_floor);
                             max_line = line;
@@ -157,7 +157,7 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
         for(int j=0; j<nb_test_game; j++){
             Board board;
             play_game(&board,players);
-            total_result += board.scores[0]-board.scores[1];
+            total_result += board.getScore(0)-board.getScore(1);
         }
 
         if(total_result>best_result or doubleRandom()<exp(double(total_result-best_result)/nb_test_game)){
