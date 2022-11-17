@@ -188,20 +188,53 @@ int MinMax::play_move(Board *board, byte depth){
     int best_response = INT32_MIN;
     int response;
     byte best_factory=255, best_col, best_line;
-    for(byte factory=0; factory<=NB_FACTORIES; factory++){
-        for(byte col=0; col<NB_COLORS; col++){
-            if(board->pickableTile(factory,col)){
-                for(byte line=0; line<=WALL_HEIGHT; line++){
-                    if(board->placeableTile(col,line)){
-                        Board* board_copy = new Board(*board);
-                        board_copy->play(factory,col,line);
-                        response = -play_move(board_copy,depth+1);
-                        delete board_copy;
-                        if(response>best_response){
-                            best_response = response;
-                            best_factory = factory;
-                            best_col = col;
-                            best_line = line;
+
+    // when the depth is max_depth-1 we (almost) don't care about the factory
+    if(depth==max_depth-1){
+
+        bool already_done[NB_COLORS*NB_TILES_PER_COLOR];
+        for(int i=0; i<NB_COLORS*NB_TILES_PER_COLOR; i++){
+            already_done[i]=false;
+        }
+
+        for(byte factory=0; factory<=NB_FACTORIES; factory++){
+            for(byte col=0; col<NB_COLORS; col++){
+                if(board->pickableTile(factory,col) and !already_done[col*NB_TILES_PER_COLOR+board->getFactoryTile(factory,col)]){
+                    already_done[col*NB_TILES_PER_COLOR+board->getFactoryTile(factory,col)] = true;
+                    for(byte line=0; line<=WALL_HEIGHT; line++){
+                        if(board->placeableTile(col,line)){
+                            Board* board_copy = new Board(*board);
+                            board_copy->play(factory,col,line);
+                            response = -play_move(board_copy,depth+1);
+                            delete board_copy;
+                            if(response>best_response){
+                                best_response = response;
+                                best_factory = factory;
+                                best_col = col;
+                                best_line = line;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else{
+        for(byte factory=0; factory<=NB_FACTORIES; factory++){
+            for(byte col=0; col<NB_COLORS; col++){
+                if(board->pickableTile(factory,col)){
+                    for(byte line=0; line<=WALL_HEIGHT; line++){
+                        if(board->placeableTile(col,line)){
+                            Board* board_copy = new Board(*board);
+                            board_copy->play(factory,col,line);
+                            response = -play_move(board_copy,depth+1);
+                            delete board_copy;
+                            if(response>best_response){
+                                best_response = response;
+                                best_factory = factory;
+                                best_col = col;
+                                best_line = line;
+                            }
                         }
                     }
                 }

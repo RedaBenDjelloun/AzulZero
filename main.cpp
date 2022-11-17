@@ -2,13 +2,16 @@
 using namespace Imagine;
 #include <iostream>
 using namespace std;
+#include <chrono>
+using namespace std::chrono;
 #include "board.h"
 #include "controller.h"
 #include "GUI.h"
 
 int main(){
 
-    srand((unsigned int) time(0));
+    //srand((unsigned int) time(0));
+    srand(0);
 
     int total_points[NB_PLAYERS] = {0,0};
     int max_points[NB_PLAYERS] = {0,0};
@@ -20,6 +23,8 @@ int main(){
     Random random_player;
     players[0] = &smart_player1;
     players[1] = &smart_player2;
+
+    auto start = high_resolution_clock::now();
 
     for(int i=0; i<nb_iterations; i++){
 
@@ -33,6 +38,10 @@ int main(){
         winner[board.winner()]+=1;
     }
 
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<milliseconds>(stop - start);
+
+    cout<<duration.count()<<endl;
     cout<<nb_iterations<<" parties jouees"<<endl;
     cout<<"score moyen joueur 1: "<<float(total_points[0])/nb_iterations<<endl;
     cout<<"score moyen joueur 2: "<<float(total_points[1])/nb_iterations<<endl;
