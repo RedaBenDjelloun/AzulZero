@@ -1,6 +1,7 @@
 #pragma once
 
 #include "board.h"
+#include "time.h"
 
 class Controller
 {
@@ -34,10 +35,19 @@ public:
 
 class MinMax: public Controller
 {
+    double time_limit = 0.1; //100ms
     byte max_depth;
+    byte depth_limit;
+    bool time_limited = true;
+
+    byte choosen_color;
+    byte choosen_factory;
+    byte choosen_line;
+
+    Timer chrono;
 public:
     MinMax(){}
-    MinMax(byte max_depth_){max_depth= max_depth_;}
+    MinMax(byte depth_limit_){depth_limit= depth_limit_;}
     int play_move(Board* board, byte depth);
     void play_move(Board* board);
 };

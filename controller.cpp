@@ -1,6 +1,9 @@
 #include "controller.h"
 
 
+struct TimeOutException{};
+
+//////////////////// RANDOM ////////////////////
 
 
 void Random::play_move(Board* board){
@@ -44,6 +47,10 @@ void Random::play_move(Board* board){
         }
     }
 }
+
+
+
+//////////////////// HEURISTIC ////////////////////
 
 
 double Heuristic::reward(int line, int nb, int in_the_floor){
@@ -115,7 +122,7 @@ void Heuristic::play_move(Board* board){
 Heuristic::Heuristic(int preoptimize){
     switch(preoptimize){
 
-    // optimize vs random
+    // optimize vs random (53-2 in average)
     case 0:
         par[0] = 0.06558;
         par[1] = 0.4635;
@@ -176,7 +183,15 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
     }
 }
 
+
+
+//////////////////// MINMAX ////////////////////
+
+
 int MinMax::play_move(Board *board, byte depth){
+    if(time_limited and chrono.lap()>time_limit)
+        throw TimeOutException();
+
     // cannot happened if depth==0 (the end of the round would have been called)
     if(depth==max_depth or board->endOfTheRound()){
         byte player = board->currentPlayer();
@@ -203,10 +218,9 @@ int MinMax::play_move(Board *board, byte depth){
                     already_done[col*NB_TILES_PER_COLOR+board->getFactoryTile(factory,col)] = true;
                     for(byte line=0; line<=WALL_HEIGHT; line++){
                         if(board->placeableTile(col,line)){
-                            Board* board_copy = new Board(*board);
-                            board_copy->play(factory,col,line);
-                            response = -play_move(board_copy,depth+1);
-                            delete board_copy;
+                            Board board_copy(*board);
+                            board_copy.play(factory,col,line);
+                            response = -play_move(&board_copy,depth+1);
                             if(response>best_response){
                                 best_response = response;
                                 best_factory = factory;
@@ -225,10 +239,9 @@ int MinMax::play_move(Board *board, byte depth){
                 if(board->pickableTile(factory,col)){
                     for(byte line=0; line<=WALL_HEIGHT; line++){
                         if(board->placeableTile(col,line)){
-                            Board* board_copy = new Board(*board);
-                            board_copy->play(factory,col,line);
-                            response = -play_move(board_copy,depth+1);
-                            delete board_copy;
+                            Board board_copy(*board);
+                            board_copy.play(factory,col,line);
+                            response = -play_move(&board_copy,depth+1);
                             if(response>best_response){
                                 best_response = response;
                                 best_factory = factory;
@@ -242,13 +255,30 @@ int MinMax::play_move(Board *board, byte depth){
         }
     }
     assert(best_factory!=255);
-    if(depth==0)
-        board->play(best_factory,best_col,best_line);
+    // choose the best move
+    if(depth==0){
+        choosen_factory = best_factory;
+        choosen_color = best_col;
+        choosen_line=best_line;
+    }
     return best_response;
 }
 
 void MinMax::play_move(Board *board){
-    play_move(board,0);
+    if(time_limited){
+    chrono.reset();
+    try{
+        for(max_depth=1; max_depth<=depth_limit; max_depth++){
+            play_move(board,0);
+        }
+    }
+    catch(TimeOutException&e){}
+    }
+    else{
+        max_depth=depth_limit;
+        play_move(board,0);
+    }
+    board->play(choosen_factory,choosen_color,choosen_line);
 }
 
 

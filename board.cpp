@@ -15,7 +15,7 @@ byte wallColorToColumn(byte color, byte line){
 }
 
 
-Board::Board(){
+void Board::init(){
 
     current_player = 0;
     tile1 = NB_PLAYERS;
@@ -52,7 +52,7 @@ Board::Board(){
 
 byte Board::nbFloorTiles() const{
     for(int pos=0; pos<FLOOR_SIZE; pos++){
-        if(getFloorTile(pos))
+        if(getFloorTile(pos)==NB_COLORS+1)
             return pos+1;
     }
     return FLOOR_SIZE;

@@ -10,16 +10,15 @@ using namespace std::chrono;
 
 int main(){
 
-    //srand((unsigned int) time(0));
-    srand(0);
+    srand((unsigned int) time(0));
 
     int total_points[NB_PLAYERS] = {0,0};
     int max_points[NB_PLAYERS] = {0,0};
-    int nb_iterations = 1;
+    int nb_iterations = 10;
     int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
-    Heuristic smart_player1(0);
-    MinMax smart_player2(4);
+    MinMax smart_player1(3);
+    MinMax smart_player2(10);
     Random random_player;
     players[0] = &smart_player1;
     players[1] = &smart_player2;
@@ -29,6 +28,7 @@ int main(){
     for(int i=0; i<nb_iterations; i++){
 
         Board board;
+        board.init();
 
         play_game(&board,players);
         for(int player=0; player<NB_PLAYERS; player++){
