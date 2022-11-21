@@ -431,3 +431,21 @@ void randomGameTest(){
     game.nextRound();
     game.addEndgameBonus();
 }
+
+
+void Board::display(){
+    for(int factory=0; factory<=NB_FACTORIES; factory++){
+        if(factory == NB_FACTORIES)
+            cout<<"Center"<<endl;
+        else
+            cout<<"Factory "<<factory<<endl;
+        for(int col=0; col<NB_COLORS; col++){
+            if(getFactoryTile(factory,col)!=0){
+                cout<<"Col "<<col<<": "<<int(getFactoryTile(factory,col))<<endl;
+            }
+        }
+        cout<<endl;
+    }
+    if(tile1==NB_PLAYERS)
+        cout<<"tile 1"<<endl;
+}

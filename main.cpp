@@ -14,14 +14,15 @@ int main(){
 
     int total_points[NB_PLAYERS] = {0,0};
     int max_points[NB_PLAYERS] = {0,0};
-    int nb_iterations = 10;
+    int nb_iterations = 1;
     int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
-    MinMax smart_player1(3);
-    MinMax smart_player2(10);
+    Heuristic smart_player1(0);
+    MinMax smart_player2(20);
     Random random_player;
-    players[0] = &smart_player1;
-    players[1] = &smart_player2;
+    Human player("Hector");
+    players[0] = &random_player;
+    players[1] = &player;
 
     auto start = high_resolution_clock::now();
 
@@ -50,6 +51,7 @@ int main(){
     cout<<"nombre de parties gagnees par le joueur 1: "<<winner[0]<<endl;
     cout<<"nombre de parties nulles: "<<winner[1]<<endl;
     cout<<"nombre de parties gagnees par le joueur 2: "<<winner[2]<<endl;
+
 
     return 0;
 

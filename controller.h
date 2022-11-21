@@ -52,6 +52,14 @@ public:
     void play_move(Board* board);
 };
 
+class Human: public Controller
+{
+    string name;
+public:
+    Human(){}
+    Human(string name_){name=name_;}
+    void play_move(Board* board);
+};
 
 /// Play an entire game given the players
 void play_game(Board* board, Controller** players);

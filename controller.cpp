@@ -189,7 +189,8 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
 
 
 int MinMax::play_move(Board *board, byte depth){
-    if(time_limited and chrono.lap()>time_limit)
+    // ensure that we didn't run out of time and that the algorithm has time to compute first depth
+    if(time_limited and max_depth>1 and chrono.lap()>time_limit)
         throw TimeOutException();
 
     // cannot happened if depth==0 (the end of the round would have been called)
@@ -280,6 +281,33 @@ void MinMax::play_move(Board *board){
     }
     board->play(choosen_factory,choosen_color,choosen_line);
 }
+
+
+//////////////////// HUMAN ////////////////////
+
+void Human::play_move(Board *board){
+    byte factory;
+    byte color;
+    byte line;
+
+    board->display();
+
+    do{
+        cout<<"factory ?"<<endl;
+        cin>>factory;
+        cout<<"color ?"<<endl;
+        cin>>color;
+    }while(board->pickableTile(factory,color));
+
+    do{
+        cout<<"line ?"<<endl;
+        cin>>line;
+    }while(board->placeableTile(color,line));
+
+    board->play(factory,color,line);
+}
+
+
 
 
 void play_game(Board* board, Controller **players){
