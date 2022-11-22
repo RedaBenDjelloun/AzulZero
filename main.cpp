@@ -17,12 +17,12 @@ int main(){
     int nb_iterations = 1;
     int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
-    Heuristic smart_player1(0);
-    MinMax smart_player2(20);
+    Heuristic heuristic_player(0);
+    MinMax minmax_player(20);
     Random random_player;
     Human player("Hector");
     players[0] = &random_player;
-    players[1] = &player;
+    players[1] = &minmax_player;
 
     auto start = high_resolution_clock::now();
 
@@ -42,7 +42,7 @@ int main(){
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(stop - start);
 
-    cout<<duration.count()<<endl;
+    cout<<"temps d'execution : "<<duration.count()<<"ms"<<endl;
     cout<<nb_iterations<<" parties jouees"<<endl;
     cout<<"score moyen joueur 1: "<<float(total_points[0])/nb_iterations<<endl;
     cout<<"score moyen joueur 2: "<<float(total_points[1])/nb_iterations<<endl;

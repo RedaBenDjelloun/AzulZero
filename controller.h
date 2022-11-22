@@ -6,6 +6,7 @@
 class Controller
 {
 public:
+    static bool display_game; // Activate GUI
     Controller(){}
     virtual void play_move(Board* board){}
 };
@@ -38,7 +39,7 @@ class MinMax: public Controller
     double time_limit = 0.1; //100ms
     byte max_depth;
     byte depth_limit;
-    bool time_limited = true;
+    bool time_limited;
 
     byte choosen_color;
     byte choosen_factory;
@@ -47,8 +48,8 @@ class MinMax: public Controller
     Timer chrono;
 public:
     MinMax(){}
-    MinMax(byte depth_limit_){depth_limit= depth_limit_;}
-    int play_move(Board* board, byte depth);
+    MinMax(byte depth_limit_, bool time_limited_=true);
+    int DFS(Board* board, byte depth);
     void play_move(Board* board);
 };
 

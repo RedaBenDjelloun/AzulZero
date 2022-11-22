@@ -187,8 +187,14 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
 
 //////////////////// MINMAX ////////////////////
 
+MinMax::MinMax(byte depth_limit_, bool time_limited_){
+    depth_limit=depth_limit_;
+    time_limited = time_limited_;
+}
 
-int MinMax::play_move(Board *board, byte depth){
+
+
+int MinMax::DFS(Board *board, byte depth){
     // ensure that we didn't run out of time and that the algorithm has time to compute first depth
     if(time_limited and max_depth>1 and chrono.lap()>time_limit)
         throw TimeOutException();
@@ -221,7 +227,7 @@ int MinMax::play_move(Board *board, byte depth){
                         if(board->placeableTile(col,line)){
                             Board board_copy(*board);
                             board_copy.play(factory,col,line);
-                            response = -play_move(&board_copy,depth+1);
+                            response = -DFS(&board_copy,depth+1);
                             if(response>best_response){
                                 best_response = response;
                                 best_factory = factory;
@@ -242,7 +248,7 @@ int MinMax::play_move(Board *board, byte depth){
                         if(board->placeableTile(col,line)){
                             Board board_copy(*board);
                             board_copy.play(factory,col,line);
-                            response = -play_move(&board_copy,depth+1);
+                            response = -DFS(&board_copy,depth+1);
                             if(response>best_response){
                                 best_response = response;
                                 best_factory = factory;
@@ -270,14 +276,14 @@ void MinMax::play_move(Board *board){
     chrono.reset();
     try{
         for(max_depth=1; max_depth<=depth_limit; max_depth++){
-            play_move(board,0);
+            DFS(board,0);
         }
     }
     catch(TimeOutException&e){}
     }
     else{
         max_depth=depth_limit;
-        play_move(board,0);
+        DFS(board,0);
     }
     board->play(choosen_factory,choosen_color,choosen_line);
 }
