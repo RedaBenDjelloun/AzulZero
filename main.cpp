@@ -14,15 +14,17 @@ int main(){
 
     int total_points[NB_PLAYERS] = {0,0};
     int max_points[NB_PLAYERS] = {0,0};
-    int nb_iterations = 1;
+    int nb_iterations = 10000;
     int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
     Heuristic heuristic_player(0);
     MinMax minmax_player(20);
     Random random_player;
     Human player("Hector");
+
+    // Choose players
     players[0] = &random_player;
-    players[1] = &minmax_player;
+    players[1] = &heuristic_player;
 
     auto start = high_resolution_clock::now();
 

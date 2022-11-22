@@ -122,20 +122,22 @@ void Heuristic::play_move(Board* board){
 Heuristic::Heuristic(int preoptimize){
     switch(preoptimize){
 
-    // optimize vs random (53-2 in average)
+    // optimize vs random (94-8 in average)
     case 0:
-        par[0] = 0.06558;
-        par[1] = 0.4635;
-        par[2] = 0.2758;
-        par[3] = -0.5508;
-        par[4] = 0.03573;
-        par[5] = -0.2471;
-        par[6] = 0.1930;
-        par[7] = -0.2121;
-        par[8] = -0.5065;
+        par[0] = 0.0053696;
+        par[1] = 0.251656;
+        par[2] = 0.144145;
+        par[3] = 0.0812487;
+        par[4] = 0.390732;
+        par[5] = -0.165523;
+        par[6] = -0.635363;
+        par[7] = -0.519715;
+        par[8] = -0.235377;
     }
 }
 
+
+// optmization of the parameters with the Monte-Carlo method
 void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_game){
     int total_result;
     int best_result = -INFINITY; // = score(player)-score(opponent)
@@ -163,6 +165,7 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
 
         for(int j=0; j<nb_test_game; j++){
             Board board;
+            board.init();
             play_game(&board,players);
             total_result += board.getScore(0)-board.getScore(1);
         }
