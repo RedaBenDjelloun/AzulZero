@@ -72,7 +72,7 @@ public:
 
 
     Board();
-    ~Board(){};
+    ~Board(){}
 
     /// Accessors (and basic informations)
     byte currentPlayer() const {return current_player;}

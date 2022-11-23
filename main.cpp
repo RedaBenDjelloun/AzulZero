@@ -6,7 +6,10 @@ using namespace std;
 #include "controller.h"
 #include "GUI.h"
 
+
+
 int main(){
+
 
     srand((unsigned int) time(0));
 
@@ -41,6 +44,13 @@ int main(){
     cout<<"nombre de parties gagnees par le joueur 1: "<<winner[0]<<endl;
     cout<<"nombre de parties nulles: "<<winner[1]<<endl;
     cout<<"nombre de parties gagnees par le joueur 2: "<<winner[2]<<endl;
+
+    GUI gui;
+    gui.init();
+
+    gui.displayAllPlayerboards();
+    gui.displayBag();
+    gui.displayFactoryCircle();
 
     return 0;
 
