@@ -91,7 +91,7 @@ public:
     /// Display NB_PLAYERS = 2 playerboards
     void displayAllPlayerboards();
     /// Display NB_FACTORIES factories in a circle
-    void displayFactoryCircle();
+    void displayFactoryCircle(double scale = 1);
 
 };
 

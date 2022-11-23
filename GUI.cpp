@@ -39,14 +39,14 @@ void GUI::displayAllPlayerboards(){
     displayPlayerboard(WINDOW_WIDTH-PLAYERBOARD_WIDTH,WINDOW_HEIGHT/2);
 }
 
-void GUI::displayFactoryCircle(){
-    int radius = (WINDOW_WIDTH-PLAYERBOARD_WIDTH)/2 - FACTORY_SIDE/2;
+void GUI::displayFactoryCircle(double scale){
+    int radius = int((WINDOW_HEIGHT-FACTORY_SIDE)*scale/2);
     IntPoint2 center = IntPoint2((WINDOW_WIDTH-PLAYERBOARD_WIDTH)/2,WINDOW_HEIGHT/2);
     IntPoint2 centering = IntPoint2(FACTORY_SIDE/2, FACTORY_SIDE/2);
     IntPoint2 unityroot = IntPoint2(1,0);
-    drawCircle(center,radius-FACTORY_SIDE/2,ORANGE);
-    drawCircle(center,radius+FACTORY_SIDE/2,ORANGE);
-    drawCircle(center,radius,BLACK);
+//    drawCircle(center,radius-FACTORY_SIDE/2,ORANGE);
+//    drawCircle(center,radius+FACTORY_SIDE/2,ORANGE);
+//    drawCircle(center,radius,BLACK);
     for (int k = 0; k < NB_FACTORIES; k++){
         unityroot = IntPoint2(int(radius*cos(- M_PI/2 + 2*M_PI*k/NB_FACTORIES)),int(radius*sin(- M_PI/2 + 2*M_PI*k/NB_FACTORIES)));
         displayFactory(center+unityroot-centering);

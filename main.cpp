@@ -5,7 +5,7 @@ using namespace std;
 #include "board.h"
 #include "GUI.h"
 
-
+const int NB_STEP = 20;
 
 int main(){
     Board board;
@@ -15,7 +15,7 @@ int main(){
 
     gui.displayAllPlayerboards();
     gui.displayBag();
-    gui.displayFactoryCircle();
+    gui.displayFactoryCircle(0.9);
 
 //    int x,y;
 //    getMouse(x,y);
