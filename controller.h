@@ -36,9 +36,10 @@ public:
 
 class MinMax: public Controller
 {
-    double time_limit = 0.1; //100ms
-    byte max_depth;
-    byte depth_limit;
+protected:
+    double time_limit = 0.01; // in seconds
+    byte max_depth;     // current depth of the DFS
+    byte depth_limit;   // limit of max_depth
     bool time_limited;
 
     byte choosen_color;
@@ -49,8 +50,8 @@ class MinMax: public Controller
 public:
     MinMax(){}
     MinMax(byte depth_limit_, bool time_limited_=true);
-    int DFS(Board* board, byte depth);
-    void play_move(Board* board);
+    virtual int DFS(Board* board, byte depth);
+    virtual void play_move(Board* board);
 };
 
 class Human: public Controller
@@ -61,6 +62,7 @@ public:
     Human(string name_){name=name_;}
     void play_move(Board* board);
 };
+
 
 /// Play an entire game given the players
 void play_game(Board* board, Controller** players);

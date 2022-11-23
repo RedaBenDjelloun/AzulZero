@@ -122,7 +122,7 @@ void Heuristic::play_move(Board* board){
 Heuristic::Heuristic(int preoptimize){
     switch(preoptimize){
 
-    // optimize vs random (94-8 in average)
+    // optimize vs random (94-8.5 in average)
     case 0:
         par[0] = 0.0053696;
         par[1] = 0.251656;
@@ -147,7 +147,7 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
     Controller** players = new Controller*[NB_PLAYERS];
     players[0] = this;
     players[1] = opponent;
-
+    Board board;
     for(int i=0; i<nb_evolve_game; i++){
         total_result=0;
         double squared_norm = 0;
@@ -164,7 +164,6 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
         }
 
         for(int j=0; j<nb_test_game; j++){
-            Board board;
             board.init();
             play_game(&board,players);
             total_result += board.getScore(0)-board.getScore(1);
@@ -214,50 +213,19 @@ int MinMax::DFS(Board *board, byte depth){
     int response;
     byte best_factory=255, best_col, best_line;
 
-    // when the depth is max_depth-1 we (almost) don't care about the factory
-    if(depth==max_depth-1){
-
-        bool already_done[NB_COLORS*NB_TILES_PER_COLOR];
-        for(int i=0; i<NB_COLORS*NB_TILES_PER_COLOR; i++){
-            already_done[i]=false;
-        }
-
-        for(byte factory=0; factory<=NB_FACTORIES; factory++){
-            for(byte col=0; col<NB_COLORS; col++){
-                if(board->pickableTile(factory,col) and !already_done[col*NB_TILES_PER_COLOR+board->getFactoryTile(factory,col)]){
-                    already_done[col*NB_TILES_PER_COLOR+board->getFactoryTile(factory,col)] = true;
-                    for(byte line=0; line<=WALL_HEIGHT; line++){
-                        if(board->placeableTile(col,line)){
-                            Board board_copy(*board);
-                            board_copy.play(factory,col,line);
-                            response = -DFS(&board_copy,depth+1);
-                            if(response>best_response){
-                                best_response = response;
-                                best_factory = factory;
-                                best_col = col;
-                                best_line = line;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else{
-        for(byte factory=0; factory<=NB_FACTORIES; factory++){
-            for(byte col=0; col<NB_COLORS; col++){
-                if(board->pickableTile(factory,col)){
-                    for(byte line=0; line<=WALL_HEIGHT; line++){
-                        if(board->placeableTile(col,line)){
-                            Board board_copy(*board);
-                            board_copy.play(factory,col,line);
-                            response = -DFS(&board_copy,depth+1);
-                            if(response>best_response){
-                                best_response = response;
-                                best_factory = factory;
-                                best_col = col;
-                                best_line = line;
-                            }
+    for(byte factory=0; factory<=NB_FACTORIES; factory++){
+        for(byte col=0; col<NB_COLORS; col++){
+            if(board->pickableTile(factory,col)){
+                for(byte line=0; line<=WALL_HEIGHT; line++){
+                    if(board->placeableTile(col,line)){
+                        Board board_copy(*board);
+                        board_copy.play(factory,col,line);
+                        response = -DFS(&board_copy,depth+1);
+                        if(response>best_response){
+                            best_response = response;
+                            best_factory = factory;
+                            best_col = col;
+                            best_line = line;
                         }
                     }
                 }
@@ -276,13 +244,13 @@ int MinMax::DFS(Board *board, byte depth){
 
 void MinMax::play_move(Board *board){
     if(time_limited){
-    chrono.reset();
-    try{
-        for(max_depth=1; max_depth<=depth_limit; max_depth++){
-            DFS(board,0);
+        chrono.reset();
+        try{
+            for(max_depth=1; max_depth<=depth_limit; max_depth++){
+                DFS(board,0);
+            }
         }
-    }
-    catch(TimeOutException&e){}
+        catch(TimeOutException&e){}
     }
     else{
         max_depth=depth_limit;
@@ -315,7 +283,6 @@ void Human::play_move(Board *board){
 
     board->play(factory,color,line);
 }
-
 
 
 
