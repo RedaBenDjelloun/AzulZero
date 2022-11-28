@@ -92,10 +92,10 @@ public:
     byte winner() const{return (scores[0]<scores[1])+(scores[0]<=scores[1]);};
 
     /// Checks if it is the end of the round
-    bool endOfTheRound();
+    bool endOfTheRound() const;
 
     /// Checks if it is the end of the game
-    bool endOfTheGame();
+    bool endOfTheGame() const;
 
     /// Update score and set up the tiles for the next round
     void nextRound();
@@ -125,10 +125,10 @@ public:
     void play(byte factory, byte color, byte line);
 
     ///  Checks if a tile exists
-    bool pickableTile(byte factory, byte color);
+    bool pickableTile(byte factory, byte color) const;
 
     /// Checks if a tile is placeable on a particular line
-    bool placeableTile(byte color, byte line);
+    bool placeableTile(byte color, byte line) const;
 
     /// Checks if the move is possible
     bool playable(byte factory, byte color, byte line);
@@ -140,9 +140,21 @@ public:
     void nextPlayer(){current_player = (current_player+1)%NB_PLAYERS;};
 
     /// In terminal display of the factories
-    void display();
+    void display() const;
 
+    size_t board_hash() const;
 };
 
 
 void randomGameTest();
+
+
+namespace std {
+  template <> struct hash<Board>
+  {
+    size_t operator()(const Board & b) const
+    {
+      return b.board_hash();
+    }
+  };
+}

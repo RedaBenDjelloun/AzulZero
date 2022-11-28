@@ -8,7 +8,8 @@ class Controller
 public:
     static bool display_game; // Activate GUI
     Controller(){}
-    virtual void play_move(Board* board){}
+    virtual ~Controller(){}
+    virtual void play_move(Board* board)=0;
 };
 
 
@@ -37,6 +38,7 @@ public:
 class MinMax: public Controller
 {
 protected:
+    int nb_expect = 10;
     double time_limit = 0.01; // in seconds
     byte max_depth;     // current depth of the DFS
     byte depth_limit;   // limit of max_depth
@@ -50,8 +52,8 @@ protected:
 public:
     MinMax(){}
     MinMax(byte depth_limit_, bool time_limited_=true);
-    virtual int DFS(Board* board, byte depth);
-    virtual void play_move(Board* board);
+    double DFS(Board* board, byte depth);
+    void play_move(Board* board);
 };
 
 class Human: public Controller

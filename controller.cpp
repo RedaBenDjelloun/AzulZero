@@ -196,17 +196,29 @@ MinMax::MinMax(byte depth_limit_, bool time_limited_){
 
 
 
-int MinMax::DFS(Board *board, byte depth){
+double MinMax::DFS(Board *board, byte depth){
+
     // ensure that we didn't run out of time and that the algorithm has time to compute first depth
     if(time_limited and max_depth>1 and chrono.lap()>time_limit)
         throw TimeOutException();
 
     // cannot happened if depth==0 (the end of the round would have been called)
-    if(depth==max_depth or board->endOfTheRound()){
+    if(depth==max_depth or (board->endOfTheRound() and board->endOfTheGame())){
         byte player = board->currentPlayer();
         board->nextRound();
         board->addEndgameBonus();
         return board->getScore(player) - board->getScore(1-player);
+    }
+
+    if(board->endOfTheRound()){
+        bool change_sign = board->currentPlayer()!=board->getTile1();
+        double total_expected = 0.;
+        for(int i=0; i<nb_expect; i++){
+            Board board_copy(*board);
+            board_copy.nextRound();
+            total_expected += DFS(&board_copy,depth);
+        }
+        return (1-2*change_sign)*total_expected/nb_expect;
     }
 
     int best_response = INT32_MIN;
@@ -246,7 +258,14 @@ void MinMax::play_move(Board *board){
     if(time_limited){
         chrono.reset();
         try{
-            for(max_depth=1; max_depth<=depth_limit; max_depth++){
+            byte nb_coups_max = 0;
+            for(byte factory=0; factory<NB_FACTORIES+1; factory++){
+                for(byte color=0; color<NB_COLORS; color++){
+                    nb_coups_max += (board->getFactoryTile(factory,color)>0);
+                }
+            }
+
+            for(max_depth=1; max_depth<=min(depth_limit,nb_coups_max); max_depth++){
                 DFS(board,0);
             }
         }

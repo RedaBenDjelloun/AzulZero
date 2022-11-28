@@ -59,9 +59,8 @@ byte Board::nbFloorTiles() const{
 }
 
 
-bool Board::endOfTheRound(){
-    byte factories_size = (NB_FACTORIES+1)*NB_COLORS;
-    for(byte i=0; i<factories_size; i++){
+bool Board::endOfTheRound() const{
+    for(byte i=0; i<(NB_FACTORIES+1)*NB_COLORS; i++){
         if(factories[i]!=0)
             return false;
     }
@@ -69,7 +68,7 @@ bool Board::endOfTheRound(){
 }
 
 
-bool Board::endOfTheGame(){
+bool Board::endOfTheGame() const{
 
     for(byte player=0; player<NB_PLAYERS; player++){
         for(byte line=0; line<WALL_HEIGHT; line++){
@@ -281,8 +280,9 @@ void Board::addEndgameBonus(){
 
 
 void Board::play(byte factory, byte color, byte line){
+    assert(playable(factory,color,line));
+
     int nb_tiles = factories[factory*NB_COLORS+color];
-    assert(nb_tiles > 0);
     factories[factory*NB_COLORS+color] = 0;
     // if the choosen tile is not in the center
     if(factory != NB_FACTORIES){
@@ -338,12 +338,12 @@ void Board::play(byte factory, byte color, byte line){
 }
 
 
-bool Board::pickableTile(byte factory, byte color){
+bool Board::pickableTile(byte factory, byte color) const{
     // That color is available in this factory ?
     return factories[factory*NB_COLORS+color]>0;
 }
 
-bool Board::placeableTile(byte color, byte line){
+bool Board::placeableTile(byte color, byte line) const{
     // if the player wants to place the tiles on the floor line (always possible)
     if(line == WALL_HEIGHT)
         return true;
@@ -433,7 +433,7 @@ void randomGameTest(){
 }
 
 
-void Board::display(){
+void Board::display() const{
     for(int factory=0; factory<=NB_FACTORIES; factory++){
         if(factory == NB_FACTORIES)
             cout<<"Center"<<endl;
@@ -449,3 +449,52 @@ void Board::display(){
     if(tile1==NB_PLAYERS)
         cout<<"tile 1"<<endl;
 }
+
+
+size_t Board::board_hash() const{
+    unsigned int key = 127320773;
+    size_t output =0;
+    output ^= current_player;
+    output *= key;
+    output ^= tile1;
+    output *= key;
+
+    for(byte player=0; player<NB_PLAYERS; player++){
+        output ^= scores[player];
+        output *= key;
+    }
+
+    for(byte i=0; i<NB_COLORS; i++){
+        output ^= bag[i];
+        output *= key;
+    }
+
+    for(byte i=0; i<NB_COLORS; i++){
+        output ^= discard[i];
+        output *= key;
+    }
+
+    for(byte i=0; i<(NB_FACTORIES+1)*NB_COLORS; i++){
+        output ^= factories[i];
+        output *= key;
+    }
+
+    for(byte i=0; i<NB_PLAYERS*WALL_HEIGHT*2; i++){
+        output ^= pattern_lines[i];
+        output *= key;
+    }
+
+    for(byte i=0; i<NB_PLAYERS*FLOOR_SIZE; i++){
+        output ^= floor_lines[i];
+        output *= key;
+    }
+
+    for(byte i=0; i<NB_PLAYERS*WALL_SIZE; i++){
+        output ^= walls[i];
+        output *= key;
+    }
+    return output;
+}
+
+
+
