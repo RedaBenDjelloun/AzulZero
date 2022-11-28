@@ -451,9 +451,9 @@ void Board::display() const{
 }
 
 
-size_t Board::board_hash() const{
-    unsigned int key = 127320773;
-    size_t output =0;
+unsigned long Board::hash() const{
+    unsigned int key = 127320773; //big prime number to hash
+    unsigned long output =0;
     output ^= current_player;
     output *= key;
     output ^= tile1;

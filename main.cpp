@@ -17,7 +17,7 @@ int main(){
     int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
     Heuristic heuristic_player(0);
-    MinMax minmax_player(20);
+    MinMax minmax_player(3,false);
     Random random_player;
     Human player("Hector");
 

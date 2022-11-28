@@ -2,6 +2,8 @@
 
 #include "board.h"
 #include "time.h"
+#include <unordered_map>
+using namespace std;
 
 class Controller
 {
@@ -35,24 +37,30 @@ public:
     double reward(int line, int nb, int in_the_floor);
 };
 
+struct PositionValue{
+    double value;
+    byte depth;
+    PositionValue(double value_,byte depth_){value=value_;depth=depth_;}
+};
+
 class MinMax: public Controller
 {
 protected:
     int nb_expect = 10;
     double time_limit = 0.01; // in seconds
-    byte max_depth;     // current depth of the DFS
     byte depth_limit;   // limit of max_depth
     bool time_limited;
 
     byte choosen_color;
     byte choosen_factory;
     byte choosen_line;
+    unordered_map<unsigned long,PositionValue> look_up_table;
 
     Timer chrono;
 public:
     MinMax(){}
     MinMax(byte depth_limit_, bool time_limited_=true);
-    double DFS(Board* board, byte depth);
+    double DFS(Board* board, byte depth, byte max_depth);
     void play_move(Board* board);
 };
 

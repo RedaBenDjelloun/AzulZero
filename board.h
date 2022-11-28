@@ -142,19 +142,9 @@ public:
     /// In terminal display of the factories
     void display() const;
 
-    size_t board_hash() const;
+    unsigned long hash() const;
 };
 
 
 void randomGameTest();
 
-
-namespace std {
-  template <> struct hash<Board>
-  {
-    size_t operator()(const Board & b) const
-    {
-      return b.board_hash();
-    }
-  };
-}
