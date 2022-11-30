@@ -257,7 +257,7 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
                                 best_col = col;
                                 best_line = line;
                             }
-                            if(best_response>beta)
+                            if(best_response>=beta)
                                 return best_response;
                             alpha = max(alpha,best_response);
                         }
@@ -284,15 +284,8 @@ void MinMax::play_move(Board *board){
         double alpha = -INFINITY;
         double beta = INFINITY;
         try{
-            byte nb_coups_max = 0;
-            for(byte factory=0; factory<NB_FACTORIES+1; factory++){
-                for(byte color=0; color<NB_COLORS; color++){
-                    nb_coups_max += (board->getFactoryTile(factory,color)>0);
-                }
-            }
-
-            for(byte max_depth=1; max_depth<=min(depth_limit,nb_coups_max); max_depth++){
-                beta = DFS(board,0,max_depth,alpha,beta);
+            for(byte max_depth=1; max_depth<=depth_limit; max_depth++){
+                DFS(board,0,max_depth,alpha,beta);
             }
         }
         catch(TimeOutException&e){}
