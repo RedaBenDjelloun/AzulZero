@@ -75,6 +75,8 @@ public:
     ~Board(){};
     void init();
 
+    bool operator ==(const Board& b) const;
+
     // Accessors (and basic informations)
     byte currentPlayer() const {return current_player;}
     byte getScore(byte player) const {return scores[player];}
@@ -142,9 +144,21 @@ public:
     /// In terminal display of the factories
     void display() const;
 
-    unsigned long hash() const;
+    size_t hash() const;
 };
 
+namespace std
+{
+    template <>
+    struct hash<Board>
+    {
+        size_t operator()(const Board& board) const
+        {
+            // Compute individual hash values for two data members and combine them using XOR and bit shifting
+            return board.hash();
+        }
+    };
+}
 
 void randomGameTest();
 

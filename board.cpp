@@ -50,6 +50,51 @@ void Board::init(){
 }
 
 
+bool Board::operator ==(const Board& b) const{
+    if(current_player != b.currentPlayer())
+        return false;
+    if(tile1 != b.tile1)
+        return false;
+
+    for(byte player=0; player<NB_PLAYERS; player++){
+        for(byte line=0; line<WALL_HEIGHT; line++){
+            if(
+                    getPatternLineColor(player,line)!=b.getPatternLineColor(player, line) or
+                    getPatternLineNb(player,line)!=b.getPatternLineNb(player,line)
+                    )
+                return false;
+        }
+        for(byte pos=0; pos<FLOOR_SIZE; pos++){
+            if(getFloorTile(pos)!=b.getFloorTile(pos))
+                return false;
+        }
+        for(byte line=0; line<WALL_HEIGHT; line++){
+            for(byte col=0; col<WALL_WIDTH; col++)
+                if(wallTileFilled(player,line,col)!=b.wallTileFilled(player,line,col))
+                    return false;
+        }
+    }
+
+    for(byte player=0; player<NB_PLAYERS; player++){
+        if(scores[player] != b.getScore(player))
+            return false;
+    }
+
+    for(byte col=0; col<NB_COLORS; col++){
+        if(bag[col] != b.getBagTile(col) or discard[col] != b.getDiscardedTile(col))
+            return false;
+    }
+
+    for(byte factory=0; factory<(NB_FACTORIES+1); factory++){
+        for(byte col=0; col<NB_COLORS; col++){
+            if(getFactoryTile(factory,col)!=b.getFactoryTile(factory,col))
+                return false;
+        }
+    }
+
+    return true;
+}
+
 byte Board::nbFloorTiles() const{
     for(int pos=0; pos<FLOOR_SIZE; pos++){
         if(getFloorTile(pos)==NB_COLORS+1)
@@ -451,9 +496,9 @@ void Board::display() const{
 }
 
 
-unsigned long Board::hash() const{
-    unsigned int key = 127320773; //big prime number to hash
-    unsigned long output =0;
+size_t Board::hash() const{
+    size_t key = 127320773; //big prime number to hash
+    size_t output =0;
     output ^= current_player;
     output *= key;
     output ^= tile1;

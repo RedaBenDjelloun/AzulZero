@@ -50,17 +50,18 @@ protected:
     double time_limit = 0.01; // in seconds
     byte depth_limit;   // limit of max_depth
     bool time_limited;
+    double tol = 5;
 
     byte choosen_color;
     byte choosen_factory;
     byte choosen_line;
-    unordered_map<unsigned long,PositionValue> look_up_table;
+    unordered_map<Board,PositionValue> look_up_table;
 
     Timer chrono;
 public:
     MinMax(){}
     MinMax(byte depth_limit_, bool time_limited_=true);
-    double DFS(Board* board, byte depth, byte max_depth);
+    double DFS(Board* board, byte depth, byte max_depth, double alpha = -INFINITY, double beta = + INFINITY);
     void play_move(Board* board);
 };
 

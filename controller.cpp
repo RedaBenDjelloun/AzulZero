@@ -190,51 +190,56 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
 //////////////////// MINMAX ////////////////////
 
 MinMax::MinMax(byte depth_limit_, bool time_limited_){
-    depth_limit=depth_limit_;
+    depth_limit = depth_limit_;
     time_limited = time_limited_;
 }
 
 
 
-double MinMax::DFS(Board *board, byte depth, byte max_depth){
-    unsigned long board_hash = board->hash();
-    if(look_up_table.count(board_hash)>0){
-        PositionValue pos_val(look_up_table.at(board_hash));
-        if(pos_val.depth < max_depth-depth)
-            look_up_table.erase(board_hash);
-        else
-            return pos_val.value;
-    }
-
+double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, double beta){
+    
     // ensure that we didn't run out of time and that the algorithm has time to compute first depth
     if(time_limited and max_depth>1 and chrono.lap()>time_limit)
         throw TimeOutException();
+    
+    // if the position has already been reached
+    /*
+    if(look_up_table.count(*board)>0){
+        PositionValue pos_val(look_up_table.at(*board));
+        if(pos_val.depth < max_depth-depth and pos_val.value >= alpha-tol){
+            look_up_table.erase(*board);
+            if(beta>=pos_val.value)
+                alpha = max(alpha,pos_val.value);
+        }
+        else
+            return pos_val.value;
+    }
+    */
 
     // cannot happened if depth==0 (the end of the round would have been called)
     if(depth==max_depth or (board->endOfTheRound() and board->endOfTheGame())){
         byte player = board->currentPlayer();
         board->nextRound();
         board->addEndgameBonus();
-        look_up_table.insert({
-            board_hash,
-            PositionValue(board->getScore(player) - board->getScore(1-player),0)
-                    });
+        //look_up_table.insert({*board,PositionValue(board->getScore(player) - board->getScore(1-player),0)});
         return board->getScore(player) - board->getScore(1-player);
     }
 
+
     if(board->endOfTheRound()){
+        // if the other player has to play the sign needs to change
         bool change_sign = board->currentPlayer()!=board->getTile1();
         double total_expected = 0.;
         for(int i=0; i<nb_expect; i++){
             Board board_copy(*board);
             board_copy.nextRound();
-            total_expected += DFS(&board_copy,depth,max_depth);
+            total_expected += DFS(&board_copy,depth,max_depth,-beta,-alpha);
         }
         return (1-2*change_sign)*total_expected/nb_expect;
     }
 
-    int best_response = INT32_MIN;
-    int response;
+    double best_response = -INFINITY;
+    double response;
     byte best_factory=255, best_col, best_line;
 
     for(byte factory=0; factory<=NB_FACTORIES; factory++){
@@ -244,35 +249,40 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth){
                     if(board->placeableTile(col,line)){
                         Board board_copy(*board);
                         board_copy.play(factory,col,line);
-                        response = -DFS(&board_copy,depth+1,max_depth);
+                        response = -DFS(&board_copy,depth+1,max_depth,-beta,-alpha);
                         if(response>best_response){
-                            best_response = response;
-                            best_factory = factory;
-                            best_col = col;
-                            best_line = line;
+                            best_response=response;
+                            if(depth==0){
+                                best_factory = factory;
+                                best_col = col;
+                                best_line = line;
+                            }
+                            if(best_response>beta)
+                                return best_response;
+                            alpha = max(alpha,best_response);
                         }
                     }
                 }
             }
         }
     }
-    assert(best_factory!=255);
     // choose the best move
     if(depth==0){
+        assert(best_factory!=255);
         choosen_factory = best_factory;
         choosen_color = best_col;
         choosen_line=best_line;
     }
-
-    look_up_table.insert({board_hash,PositionValue(best_response,max_depth-depth)});
+    //look_up_table.insert({*board,PositionValue(best_response,max_depth-depth)});
     return best_response;
 }
 
 void MinMax::play_move(Board *board){
     look_up_table.clear();
-
     if(time_limited){
         chrono.reset();
+        double alpha = -INFINITY;
+        double beta = INFINITY;
         try{
             byte nb_coups_max = 0;
             for(byte factory=0; factory<NB_FACTORIES+1; factory++){
@@ -282,7 +292,7 @@ void MinMax::play_move(Board *board){
             }
 
             for(byte max_depth=1; max_depth<=min(depth_limit,nb_coups_max); max_depth++){
-                DFS(board,0,max_depth);
+                beta = DFS(board,0,max_depth,alpha,beta);
             }
         }
         catch(TimeOutException&e){}
