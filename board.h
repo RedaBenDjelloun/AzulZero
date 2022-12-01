@@ -70,7 +70,6 @@ class Board{
 
 public:
 
-
     Board(){};
     ~Board(){};
     void init();
@@ -91,7 +90,7 @@ public:
     bool wallTileFilled(byte player, byte line, byte column) const{return walls[player*WALL_SIZE+line*WALL_HEIGHT+column];}
 
     /// returns 0 if the first player wins 1 if the scaond wins and 1 if its a draw
-    byte winner() const{return (scores[0]<scores[1])+(scores[0]<=scores[1]);};
+    byte winner() const{return (scores[0]<scores[1])+(scores[0]<=scores[1]);}
 
     /// Checks if it is the end of the round
     bool endOfTheRound() const;
@@ -139,7 +138,7 @@ public:
     void addMalus(byte malus, byte player);
 
     /// End the turn of the current player
-    void nextPlayer(){current_player = (current_player+1)%NB_PLAYERS;};
+    void nextPlayer(){current_player = (current_player+1)%NB_PLAYERS;}
 
     /// In terminal display of the factories
     void display() const;

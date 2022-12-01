@@ -75,7 +75,7 @@ void Heuristic::play_move(Board* board){
         arg_fact[i] = -1;
     }
 
-    for(int factory=0; factory<=NB_FACTORIES; factory++){
+    for(byte factory=0; factory<=NB_FACTORIES; factory++){
         for(int col=0; col<NB_COLORS; col++){
             if(board->getFactoryTile(factory,col)>0){
                 possible_draw[col*NB_TILES_PER_COLOR+board->getFactoryTile(factory,col)-1] = true;
@@ -325,12 +325,13 @@ void Human::play_move(Board *board){
 
 
 void play_game(Board* board, Controller **players){
+    board->nextRound();
     while(!board->endOfTheGame()){
-        board->nextRound();
+
         while(!board->endOfTheRound()){
             players[board->currentPlayer()]->play_move(board);
         }
+        board->nextRound();
     }
-    board->nextRound();
     board->addEndgameBonus();
 }

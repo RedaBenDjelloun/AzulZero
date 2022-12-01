@@ -131,6 +131,8 @@ bool Board::endOfTheGame() const{
 
 void Board::nextRound(){
     updateWall();
+    if(endOfTheGame())
+        return;
     updateFloor();
     updateFactories();
 
