@@ -70,11 +70,13 @@ class Board{
 
 public:
 
+    Board(){};
+    ~Board(){};
+    void init();
 
-    Board();
-    ~Board(){}
+    bool operator ==(const Board& b) const;
 
-    /// Accessors (and basic informations)
+    // Accessors (and basic informations)
     byte currentPlayer() const {return current_player;}
     byte getScore(byte player) const {return scores[player];}
     byte getBagTile(byte color) const {return bag[color];}
@@ -86,14 +88,15 @@ public:
     byte getFloorTile(byte pos) const{return floor_lines[pos];}
     byte nbFloorTiles() const;
     bool wallTileFilled(byte player, byte line, byte column) const{return walls[player*WALL_SIZE+line*WALL_HEIGHT+column];}
+
     /// returns 0 if the first player wins 1 if the scaond wins and 1 if its a draw
     byte winner() const{return (scores[0]<scores[1])+(scores[0]<=scores[1]);}
 
     /// Checks if it is the end of the round
-    bool endOfTheRound();
+    bool endOfTheRound() const;
 
     /// Checks if it is the end of the game
-    bool endOfTheGame();
+    bool endOfTheGame() const;
 
     /// Update score and set up the tiles for the next round
     void nextRound();
@@ -123,10 +126,10 @@ public:
     void play(byte factory, byte color, byte line);
 
     ///  Checks if a tile exists
-    bool pickableTile(byte factory, byte color);
+    bool pickableTile(byte factory, byte color) const;
 
     /// Checks if a tile is placeable on a particular line
-    bool placeableTile(byte color, byte line);
+    bool placeableTile(byte color, byte line) const;
 
     /// Checks if the move is possible
     bool playable(byte factory, byte color, byte line);
@@ -136,7 +139,25 @@ public:
 
     /// End the turn of the current player
     void nextPlayer(){current_player = (current_player+1)%NB_PLAYERS;}
+
+    /// In terminal display of the factories
+    void display() const;
+
+    size_t hash() const;
 };
 
+namespace std
+{
+    template <>
+    struct hash<Board>
+    {
+        size_t operator()(const Board& board) const
+        {
+            // Compute individual hash values for two data members and combine them using XOR and bit shifting
+            return board.hash();
+        }
+    };
+}
 
 void randomGameTest();
+

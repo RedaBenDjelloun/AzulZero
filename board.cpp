@@ -15,7 +15,7 @@ byte wallColorToColumn(byte color, byte line){
 }
 
 
-Board::Board(){
+void Board::init(){
 
     current_player = 0;
     tile1 = NB_PLAYERS;
@@ -50,18 +50,62 @@ Board::Board(){
 }
 
 
+bool Board::operator ==(const Board& b) const{
+    if(current_player != b.currentPlayer())
+        return false;
+    if(tile1 != b.tile1)
+        return false;
+
+    for(byte player=0; player<NB_PLAYERS; player++){
+        for(byte line=0; line<WALL_HEIGHT; line++){
+            if(
+                    getPatternLineColor(player,line)!=b.getPatternLineColor(player, line) or
+                    getPatternLineNb(player,line)!=b.getPatternLineNb(player,line)
+                    )
+                return false;
+        }
+        for(byte pos=0; pos<FLOOR_SIZE; pos++){
+            if(getFloorTile(pos)!=b.getFloorTile(pos))
+                return false;
+        }
+        for(byte line=0; line<WALL_HEIGHT; line++){
+            for(byte col=0; col<WALL_WIDTH; col++)
+                if(wallTileFilled(player,line,col)!=b.wallTileFilled(player,line,col))
+                    return false;
+        }
+    }
+
+    for(byte player=0; player<NB_PLAYERS; player++){
+        if(scores[player] != b.getScore(player))
+            return false;
+    }
+
+    for(byte col=0; col<NB_COLORS; col++){
+        if(bag[col] != b.getBagTile(col) or discard[col] != b.getDiscardedTile(col))
+            return false;
+    }
+
+    for(byte factory=0; factory<(NB_FACTORIES+1); factory++){
+        for(byte col=0; col<NB_COLORS; col++){
+            if(getFactoryTile(factory,col)!=b.getFactoryTile(factory,col))
+                return false;
+        }
+    }
+
+    return true;
+}
+
 byte Board::nbFloorTiles() const{
-    for(byte pos=0; pos<FLOOR_SIZE; pos++){
-        if(getFloorTile(pos))
+    for(int pos=0; pos<FLOOR_SIZE; pos++){
+        if(getFloorTile(pos)==NB_COLORS+1)
             return pos+1;
     }
     return FLOOR_SIZE;
 }
 
 
-bool Board::endOfTheRound(){
-    byte factories_size = (NB_FACTORIES+1)*NB_COLORS;
-    for(byte i=0; i<factories_size; i++){
+bool Board::endOfTheRound() const{
+    for(byte i=0; i<(NB_FACTORIES+1)*NB_COLORS; i++){
         if(factories[i]!=0)
             return false;
     }
@@ -69,7 +113,7 @@ bool Board::endOfTheRound(){
 }
 
 
-bool Board::endOfTheGame(){
+bool Board::endOfTheGame() const{
 
     for(byte player=0; player<NB_PLAYERS; player++){
         for(byte line=0; line<WALL_HEIGHT; line++){
@@ -283,8 +327,9 @@ void Board::addEndgameBonus(){
 
 
 void Board::play(byte factory, byte color, byte line){
+    assert(playable(factory,color,line));
+
     int nb_tiles = factories[factory*NB_COLORS+color];
-    assert(nb_tiles > 0);
     factories[factory*NB_COLORS+color] = 0;
     // if the choosen tile is not in the center
     if(factory != NB_FACTORIES){
@@ -340,12 +385,12 @@ void Board::play(byte factory, byte color, byte line){
 }
 
 
-bool Board::pickableTile(byte factory, byte color){
+bool Board::pickableTile(byte factory, byte color) const{
     // That color is available in this factory ?
     return factories[factory*NB_COLORS+color]>0;
 }
 
-bool Board::placeableTile(byte color, byte line){
+bool Board::placeableTile(byte color, byte line) const{
     // if the player wants to place the tiles on the floor line (always possible)
     if(line == WALL_HEIGHT)
         return true;
@@ -357,7 +402,7 @@ bool Board::placeableTile(byte color, byte line){
         return !walls[current_player*WALL_SIZE+line*WALL_WIDTH+wallColorToColumn(color,line)];
 
     // if the line is not empty... colors need to match and the line needs to be not full
-    return (pattern_lines[index+1] == color and pattern_lines[index]<line);
+    return (pattern_lines[index+1] == color and pattern_lines[index]<line+1);
 }
 
 bool Board::playable(byte factory, byte color, byte line){
@@ -433,3 +478,70 @@ void randomGameTest(){
     game.nextRound();
     game.addEndgameBonus();
 }
+
+
+void Board::display() const{
+    for(int factory=0; factory<=NB_FACTORIES; factory++){
+        if(factory == NB_FACTORIES)
+            cout<<"Center"<<endl;
+        else
+            cout<<"Factory "<<factory<<endl;
+        for(int col=0; col<NB_COLORS; col++){
+            if(getFactoryTile(factory,col)!=0){
+                cout<<"Col "<<col<<": "<<int(getFactoryTile(factory,col))<<endl;
+            }
+        }
+        cout<<endl;
+    }
+    if(tile1==NB_PLAYERS)
+        cout<<"tile 1"<<endl;
+}
+
+
+size_t Board::hash() const{
+    size_t key = 127320773; //big prime number to hash
+    size_t output =0;
+    output ^= current_player;
+    output *= key;
+    output ^= tile1;
+    output *= key;
+
+    for(byte player=0; player<NB_PLAYERS; player++){
+        output ^= scores[player];
+        output *= key;
+    }
+
+    for(byte i=0; i<NB_COLORS; i++){
+        output ^= bag[i];
+        output *= key;
+    }
+
+    for(byte i=0; i<NB_COLORS; i++){
+        output ^= discard[i];
+        output *= key;
+    }
+
+    for(byte i=0; i<(NB_FACTORIES+1)*NB_COLORS; i++){
+        output ^= factories[i];
+        output *= key;
+    }
+
+    for(byte i=0; i<NB_PLAYERS*WALL_HEIGHT*2; i++){
+        output ^= pattern_lines[i];
+        output *= key;
+    }
+
+    for(byte i=0; i<NB_PLAYERS*FLOOR_SIZE; i++){
+        output ^= floor_lines[i];
+        output *= key;
+    }
+
+    for(byte i=0; i<NB_PLAYERS*WALL_SIZE; i++){
+        output ^= walls[i];
+        output *= key;
+    }
+    return output;
+}
+
+
+
