@@ -35,7 +35,7 @@ void Random::play_move(Board* board){
         nb_placeable += board->placeableTile(color_choice, line);
     }
 
-    nb_placeable = max(1,nb_placeable-1); // do not play in the floor if he doesn't have to
+    //nb_placeable = max(1,nb_placeable-1); // do not play in the floor if he doesn't have to
     int spot_choice = rand()%nb_placeable;
     acc=0;
 
@@ -189,9 +189,10 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
 
 //////////////////// MINMAX ////////////////////
 
-MinMax::MinMax(byte depth_limit_, bool time_limited_){
+MinMax::MinMax(byte depth_limit_, bool time_limited_, double time_limit_){
     depth_limit = depth_limit_;
     time_limited = time_limited_;
+    time_limit = time_limit_;
 }
 
 

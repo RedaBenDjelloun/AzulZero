@@ -13,11 +13,11 @@ int main(){
 
     int total_points[NB_PLAYERS] = {0,0};
     int max_points[NB_PLAYERS] = {0,0};
-    int nb_iterations = 100;
+    int nb_iterations = 1;
     int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
     Heuristic heuristic_player(0);
-    MinMax minmax_player(20);
+    MinMax minmax_player(7,false);
     Random random_player;
     Human player("Hector");
 

@@ -50,7 +50,7 @@ protected:
     double time_limit = 0.01; // in seconds
     byte depth_limit;   // limit of max_depth
     bool time_limited;
-    double tol = 5;
+    double tol = 0;
 
     byte choosen_color;
     byte choosen_factory;
@@ -60,7 +60,7 @@ protected:
     Timer chrono;
 public:
     MinMax(){}
-    MinMax(byte depth_limit_, bool time_limited_=true);
+    MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 0.01);
     double DFS(Board* board, byte depth, byte max_depth, double alpha = -INFINITY, double beta = + INFINITY);
     void play_move(Board* board);
 };
