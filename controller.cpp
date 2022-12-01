@@ -218,12 +218,6 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
     */
 
     // cannot happened if depth==0 (the end of the round would have been called)
-    if(board->endOfTheGame()){
-        byte player = board->currentPlayer();
-        board->addEndgameBonus();
-        return board->getScore(player) - board->getScore(1-player);
-    }
-
     if(depth==max_depth){
         byte player = board->currentPlayer();
         board->nextRound();
@@ -237,9 +231,16 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
         // if the other player has to play the sign needs to change
         bool change_sign = board->currentPlayer()!=board->getTile1();
         double total_expected = 0.;
+        // takes the average value of the expected outcome
         for(int i=0; i<nb_expect; i++){
             Board board_copy(*board);
             board_copy.nextRound();
+            if(board->endOfTheGame()){
+                byte player = board->currentPlayer();
+                board->addEndgameBonus();
+                return board->getScore(player) - board->getScore(1-player);
+            }
+
             total_expected += DFS(&board_copy,depth,max_depth,-beta,-alpha);
         }
         return (1-2*change_sign)*total_expected/nb_expect;

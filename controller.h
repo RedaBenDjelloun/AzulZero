@@ -47,7 +47,7 @@ class MinMax: public Controller
 {
 protected:
     int nb_expect = 10;
-    double time_limit = 0.01; // in seconds
+    double time_limit; // in seconds
     byte depth_limit;   // limit of max_depth
     bool time_limited;
     double tol = 0;
