@@ -47,7 +47,7 @@ class MinMax: public Controller
 {
 protected:
     int nb_expect = 10;
-    double time_limit = 0.01; // in seconds
+    double time_limit; // in seconds
     byte depth_limit;   // limit of max_depth
     bool time_limited;
     double tol = 0;
@@ -60,7 +60,7 @@ protected:
     Timer chrono;
 public:
     MinMax(){}
-    MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 0.01);
+    MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 1);
     double DFS(Board* board, byte depth, byte max_depth, double alpha = -INFINITY, double beta = + INFINITY);
     void play_move(Board* board);
 };
