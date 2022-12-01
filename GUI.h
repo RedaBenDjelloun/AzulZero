@@ -6,7 +6,7 @@ using namespace std;
 #include <Imagine/Images.h>
 using namespace Imagine;
 
-#include "board.h"
+#include "controller.h"
 
 // GUI Parameters
 
@@ -158,6 +158,7 @@ public:
 
 };
 
+void playGameGraphics(Board* board, Controller** players, GUI gui);
 
 
 

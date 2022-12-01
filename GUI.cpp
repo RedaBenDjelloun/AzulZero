@@ -205,3 +205,36 @@ void GUI::displayBoardState(Board *board){
     displayDiscard(board);
 }
 
+void playGameGraphics(Board* board, Controller **players, GUI gui){
+    gui.displayBoardState(board);
+    click();
+    while(!board->endOfTheGame()){
+        board->nextRound();
+
+        noRefreshBegin();
+        clearWindow();
+        gui.displayBoardState(board);
+        noRefreshEnd();
+        milliSleep(500);
+        click();
+
+        while(!board->endOfTheRound()){
+            players[board->currentPlayer()]->play_move(board);
+
+            noRefreshBegin();
+            clearWindow();
+            gui.displayBoardState(board);
+            noRefreshEnd();
+            milliSleep(500);
+        }
+        click();
+    }
+    board->nextRound();
+
+    noRefreshBegin();
+    clearWindow();
+    gui.displayBoardState(board);
+    noRefreshEnd();
+
+    board->addEndgameBonus();
+}

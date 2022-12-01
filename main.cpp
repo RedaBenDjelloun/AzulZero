@@ -49,11 +49,13 @@ int main(){
     players[1] = &smart_player2;
 
     Board board;
-    play_game(&board,players);
-
     GUI gui;
     gui.init();
-    gui.displayBoardState(&board);
+
+    //play_game(&board,players);
+    //gui.displayBoardState(&board);
+
+    playGameGraphics(&board, players, gui);
 
     endGraphics();
     return 0;
