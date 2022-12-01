@@ -10,7 +10,7 @@ using namespace Imagine;
 
 // GUI Parameters
 
-const double ZOOM = 1;
+const double ZOOM = 0.8;
 
 const int PLAYERBOARD_WIDTH = int(740*ZOOM);
 const int PLAYERBOARD_HEIGHT = int(484*ZOOM);
@@ -130,24 +130,28 @@ public:
     void displayPlayerboards();
     /// Display NB_FACTORIES factories in a circle
     void displayFactories(bool circles = false);
+
     /// Display walls for both players
-    void displayWalls();
+    void displayWalls(Board* board);
     /// Display patterns for both players
-    void displayPatterns();
+    void displayPatterns(Board *board);
     /// Display floors for both players
-    void displayFloors();
+    void displayFloors(Board* board);
     /// Display tiles in one factories
-    void displayFactoryTiles(IntPoint2 factory_p0);
+    void displayFactoryTiles(byte factory, Board *board);
     /// Display tiles in all factories
-    void displayAllFactoryTiles();
+    void displayAllFactoryTiles(Board *board);
     /// Display a box with all Tile colors and numbers
-    void displayTileInfo(IntPoint2 P0, Color bg_color, int tiles[]);
+    void displayTileInfo(IntPoint2 P0, Color bg_color, byte tiles[]);
     /// Display tiles in the middle
-    void displayMiddleTiles(int tiles[], bool first_not_claimed);
+    void displayMiddleTiles(Board *board);
     /// Display remaining tiles in bag
-    void displayBagContent(int tiles[]);
+    void displayBagContent(Board *board);
     /// Display discard
-    void displayDiscard(int tiles[]);
+    void displayDiscard(Board *board);
+
+    /// Display everything
+    void displayBoardState(Board *board);
 
     /// Display grid for designing UI
     void displayGrid();

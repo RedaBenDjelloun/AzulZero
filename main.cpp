@@ -42,26 +42,18 @@ int main(){
 //    cout<<"nombre de parties nulles: "<<winner[1]<<endl;
 //    cout<<"nombre de parties gagnees par le joueur 2: "<<winner[2]<<endl;
 
-    int random_tiles[NB_COLORS] = {rand()%5, rand()%5, rand()%5, rand()%5, rand()%5};
-    int random_tiles_2[NB_COLORS] = {rand()%5, rand()%5, rand()%5, rand()%5, rand()%5};
-    int random_tiles_3[NB_COLORS] = {rand()%5, rand()%5, rand()%5, rand()%5, rand()%5};
+    Controller** players = new Controller*[NB_PLAYERS];
+    Heuristic smart_player1(0);
+    Heuristic smart_player2(0);
+    players[0] = &smart_player1;
+    players[1] = &smart_player2;
+
+    Board board;
+    play_game(&board,players);
 
     GUI gui;
     gui.init();
-
-    gui.displayPlayerboards();
-    gui.displayBag(0, WINDOW_HEIGHT-BAG_SIDE);
-    gui.displayGamebox(WINDOW_HEIGHT-BAG_SIDE, WINDOW_HEIGHT-BAG_SIDE);
-    gui.displayFactories();
-    gui.displayWalls();
-    gui.displayPatterns();
-    gui.displayFloors();
-    gui.displayAllFactoryTiles();
-    gui.displayMiddleTiles(random_tiles, true);
-    gui.displayBagContent(random_tiles_2);
-    gui.displayDiscard(random_tiles_3);
-
-    //gui.displayGrid();
+    gui.displayBoardState(&board);
 
     endGraphics();
     return 0;

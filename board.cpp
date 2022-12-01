@@ -51,7 +51,7 @@ Board::Board(){
 
 
 byte Board::nbFloorTiles() const{
-    for(int pos=0; pos<FLOOR_SIZE; pos++){
+    for(byte pos=0; pos<FLOOR_SIZE; pos++){
         if(getFloorTile(pos))
             return pos+1;
     }
