@@ -218,7 +218,13 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
     */
 
     // cannot happened if depth==0 (the end of the round would have been called)
-    if(depth==max_depth or (board->endOfTheRound() and board->endOfTheGame())){
+    if(board->endOfTheGame()){
+        byte player = board->currentPlayer();
+        board->addEndgameBonus();
+        return board->getScore(player) - board->getScore(1-player);
+    }
+
+    if(depth==max_depth){
         byte player = board->currentPlayer();
         board->nextRound();
         board->addEndgameBonus();
