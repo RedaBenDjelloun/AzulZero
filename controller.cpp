@@ -178,12 +178,13 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
 
 
 void play_game(Board* board, Controller **players){
+    board->nextRound();
     while(!board->endOfTheGame()){
-        board->nextRound();
+
         while(!board->endOfTheRound()){
             players[board->currentPlayer()]->play_move(board);
         }
+        board->nextRound();
     }
-    board->nextRound();
     board->addEndgameBonus();
 }

@@ -208,8 +208,8 @@ void GUI::displayBoardState(Board *board){
 void playGameGraphics(Board* board, Controller **players, GUI gui){
     gui.displayBoardState(board);
     click();
+    board->nextRound();
     while(!board->endOfTheGame()){
-        board->nextRound();
 
         noRefreshBegin();
         clearWindow();
@@ -226,10 +226,11 @@ void playGameGraphics(Board* board, Controller **players, GUI gui){
             gui.displayBoardState(board);
             noRefreshEnd();
             milliSleep(500);
+
         }
         click();
+        board->nextRound();
     }
-    board->nextRound();
 
     noRefreshBegin();
     clearWindow();
