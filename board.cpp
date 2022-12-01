@@ -87,9 +87,9 @@ bool Board::endOfTheGame(){
 
 void Board::nextRound(){
     updateWall();
+    updateFloor();
     if(endOfTheGame())
         return;
-    updateFloor();
     updateFactories();
 
     // checks if we are in the first round
