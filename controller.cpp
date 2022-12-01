@@ -198,11 +198,11 @@ MinMax::MinMax(byte depth_limit_, bool time_limited_, double time_limit_){
 
 
 double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, double beta){
-    
+
     // ensure that we didn't run out of time and that the algorithm has time to compute first depth
     if(time_limited and max_depth>1 and chrono.lap()>time_limit)
         throw TimeOutException();
-    
+
     // if the position has already been reached
     /*
     if(look_up_table.count(*board)>0){
@@ -218,7 +218,13 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
     */
 
     // cannot happened if depth==0 (the end of the round would have been called)
-    if(depth==max_depth or (board->endOfTheRound() and board->endOfTheGame())){
+    if(board->endOfTheGame()){
+        byte player = board->currentPlayer();
+        board->addEndgameBonus();
+        return board->getScore(player) - board->getScore(1-player);
+    }
+
+    if(depth==max_depth){
         byte player = board->currentPlayer();
         board->nextRound();
         board->addEndgameBonus();
