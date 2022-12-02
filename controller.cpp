@@ -336,12 +336,12 @@ Move Human::play_move(Board *board, bool play){
         cin>>factory;
         cout<<"color ?"<<endl;
         cin>>color;
-    }while(board->pickableTile(factory,color));
+    }while(!board->pickableTile(factory,color));
 
     do{
         cout<<"line ?"<<endl;
         cin>>line;
-    }while(board->placeableTile(color,line));
+    }while(!board->placeableTile(color,line));
     if(play)
         board->play(factory,color,line);
     return Move(factory,color,line);
