@@ -58,6 +58,16 @@ int main(){
         cout<<"nombre de parties gagnees par le joueur 2: "<<winner[2]<<"("<<100*float(winner[2])/nb_iterations<<"%)"<<endl;
     }
 
+    /*
+    Board board;
+    board.init();
+    GUI gui;
+    gui.init();
+    playGameGraphics(&board,players,gui);
+
+    endGraphics();
+    */
+
 
     return 0;
 

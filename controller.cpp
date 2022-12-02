@@ -205,6 +205,7 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
     double response;
     byte best_factory=255, best_col, best_line;
     double best_response = -INFINITY;
+    /*
     if(depth==0){
         Move m = heuristic.play_move(board,false);
         Board board_copy(*board);
@@ -214,7 +215,7 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
         best_col = m.col;
         best_line = m.line;
     }
-
+*/
     // ensure that we didn't run out of time and that the algorithm has time to compute first depth
     if(time_limited and max_depth>1 and chrono.lap()>time_limit)
         throw TimeOutException();
@@ -251,12 +252,12 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
         for(int i=0; i<nb_expect; i++){
             Board board_copy(*board);
             board_copy.nextRound();
-            if(board->endOfTheGame()){
-                byte player = board->currentPlayer();
-                board->addEndgameBonus();
+            if(board_copy.endOfTheGame()){
+                byte player = board_copy.currentPlayer();
+                board_copy.addEndgameBonus();
                 // exagerate the result so if it is a win he takes it
                 // and if it is a loss he tries to force a next round
-                return 1000*(board->getScore(player) - board->getScore(1-player));
+                return 1000*(1-2*change_sign)*(board_copy.getScore(player) - board_copy.getScore(1-player));
             }
 
             total_expected += DFS(&board_copy,depth,max_depth,-beta,-alpha);

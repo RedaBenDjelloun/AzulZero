@@ -216,7 +216,7 @@ void playGameGraphics(Board* board, Controller **players, GUI gui){
         gui.displayBoardState(board);
         noRefreshEnd();
         //milliSleep(500);
-        //click();
+        click();
 
         while(!board->endOfTheRound()){
             players[board->currentPlayer()]->play_move(board);
@@ -225,10 +225,10 @@ void playGameGraphics(Board* board, Controller **players, GUI gui){
             clearWindow();
             gui.displayBoardState(board);
             noRefreshEnd();
-            //milliSleep(500);
+            milliSleep(500);
 
         }
-        //click();
+        click();
         board->nextRound();
     }
 
