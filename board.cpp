@@ -132,15 +132,14 @@ bool Board::endOfTheGame() const{
 void Board::nextRound(){
     updateWall();
     updateFloor();
-
     // checks if we are in the first round
     if(tile1 != NB_PLAYERS)
         current_player = tile1;
     tile1 = NB_PLAYERS;
-
     if(endOfTheGame())
         return;
     updateFactories();
+
 }
 
 
@@ -379,7 +378,7 @@ void Board::play(byte factory, byte color, byte line){
     }
 
     // discard the extra tiles
-    discard[current_player*NB_COLORS+color] += nb_tiles_floor;
+    discard[color] += nb_tiles_floor;
 
     // the player end his turn
     nextPlayer();
