@@ -29,7 +29,16 @@ byte wallColumnToColor(byte column, byte line);
 
 byte wallColorToColumn(byte color, byte line);
 
-
+struct Move{
+    byte factory;
+    byte col;
+    byte line;
+    Move(byte factory_, byte col_, byte line_){
+        factory = factory_;
+        col = col_;
+        line = line_;
+    }
+};
 
 class Board{
 
@@ -124,6 +133,7 @@ public:
 
     /// Play a move without checking if it is possible (Unknown behaviour if the move is not possible)
     void play(byte factory, byte color, byte line);
+    void play(Move m){play(m.factory,m.col,m.line);}
 
     ///  Checks if a tile exists
     bool pickableTile(byte factory, byte color) const;

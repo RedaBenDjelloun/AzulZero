@@ -10,7 +10,7 @@ using namespace Imagine;
 
 // GUI Parameters
 
-const double ZOOM = 0.8;
+const double ZOOM = 1.05;
 
 const int PLAYERBOARD_WIDTH = int(740*ZOOM);
 const int PLAYERBOARD_HEIGHT = int(484*ZOOM);

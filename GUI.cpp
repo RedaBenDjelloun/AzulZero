@@ -9,7 +9,7 @@ GUI::GUI(vector<string> image_paths, int w, int h){
 }
 
 GUI::~GUI(){
-    delete [] images;
+    //delete [] images;
 }
 
 void GUI::safeLoad(Image<AlphaColor> &image, string path){
@@ -215,8 +215,8 @@ void playGameGraphics(Board* board, Controller **players, GUI gui){
         clearWindow();
         gui.displayBoardState(board);
         noRefreshEnd();
-        milliSleep(500);
-        click();
+        //milliSleep(500);
+        //click();
 
         while(!board->endOfTheRound()){
             players[board->currentPlayer()]->play_move(board);
@@ -225,10 +225,10 @@ void playGameGraphics(Board* board, Controller **players, GUI gui){
             clearWindow();
             gui.displayBoardState(board);
             noRefreshEnd();
-            milliSleep(500);
+            //milliSleep(500);
 
         }
-        click();
+        //click();
         board->nextRound();
     }
 
