@@ -378,7 +378,7 @@ void Board::play(byte factory, byte color, byte line){
     }
 
     // discard the extra tiles
-    discard[current_player*NB_COLORS+color] += nb_tiles_floor;
+    discard[color] += nb_tiles_floor;
 
     // the player end his turn
     nextPlayer();
