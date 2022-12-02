@@ -132,14 +132,14 @@ bool Board::endOfTheGame() const{
 void Board::nextRound(){
     updateWall();
     updateFloor();
-    if(endOfTheGame())
-        return;
-    updateFactories();
-
     // checks if we are in the first round
     if(tile1 != NB_PLAYERS)
         current_player = tile1;
     tile1 = NB_PLAYERS;
+    if(endOfTheGame())
+        return;
+    updateFactories();
+
 }
 
 

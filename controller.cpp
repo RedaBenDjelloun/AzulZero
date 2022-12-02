@@ -318,12 +318,12 @@ void Human::play_move(Board *board){
         cin>>factory;
         cout<<"color ?"<<endl;
         cin>>color;
-    }while(board->pickableTile(factory,color));
+    }while(!board->pickableTile(factory,color));
 
     do{
         cout<<"line ?"<<endl;
         cin>>line;
-    }while(board->placeableTile(color,line));
+    }while(!board->placeableTile(color,line));
 
     board->play(factory,color,line);
 }
