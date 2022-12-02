@@ -234,7 +234,6 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
     }
     */
 
-    // cannot happened if depth==0 (the end of the round would have been called)
     if(depth==max_depth){
         byte player = board->currentPlayer();
         board->nextRound();
@@ -343,6 +342,7 @@ Move Human::play_move(Board *board, bool play){
         cout<<"line ?"<<endl;
         cin>>line;
     }while(!board->placeableTile(color,line));
+
     if(play)
         board->play(factory,color,line);
     return Move(factory,color,line);
