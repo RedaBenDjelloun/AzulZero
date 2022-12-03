@@ -53,15 +53,13 @@ protected:
     bool time_limited;
     double tol = 0;
 
-    byte choosen_color;
-    byte choosen_factory;
-    byte choosen_line;
+    Move next_move;
     unordered_map<Board,PositionValue> look_up_table;
 
     Timer chrono;
 public:
     MinMax(){}
-    MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 1);
+    MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 0.01);
     double DFS(Board* board, byte depth, byte max_depth, double alpha = -INFINITY, double beta = + INFINITY);
     Move play_move(Board* board, bool play=true);
 };

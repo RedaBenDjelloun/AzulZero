@@ -47,6 +47,7 @@ Move Random::play_move(Board* board, bool play){
             return Move(factory_choice,color_choice,line);
         }
     }
+    return Move(-1,-1,-1); // not normal
 }
 
 
@@ -202,23 +203,23 @@ MinMax::MinMax(byte depth_limit_, bool time_limited_, double time_limit_){
 
 double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, double beta){
 
+    // ensure that we didn't run out of time and that the algorithm has time to compute first depth
+    if(time_limited and max_depth>1 and chrono.lap()>time_limit)
+        throw TimeOutException();
+
     double response;
     byte best_factory=255, best_col, best_line;
     double best_response = -INFINITY;
-    /*
+
     if(depth==0){
-        Move m = heuristic.play_move(board,false);
         Board board_copy(*board);
+        Move m = heuristic.play_move(&board_copy);
         best_response = -DFS(&board_copy,depth+1,max_depth,-beta,-alpha);
         alpha = best_response;
         best_factory = m.factory;
         best_col = m.col;
         best_line = m.line;
     }
-*/
-    // ensure that we didn't run out of time and that the algorithm has time to compute first depth
-    if(time_limited and max_depth>1 and chrono.lap()>time_limit)
-        throw TimeOutException();
 
     // if the position has already been reached
     /*
@@ -292,9 +293,9 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
     // choose the best move
     if(depth==0){
         assert(best_factory!=255);
-        choosen_factory = best_factory;
-        choosen_color = best_col;
-        choosen_line=best_line;
+        next_move.factory = best_factory;
+        next_move.col = best_col;
+        next_move.line = best_line;
     }
     //look_up_table.insert({*board,PositionValue(best_response,max_depth-depth)});
     return best_response;
@@ -317,8 +318,8 @@ Move MinMax::play_move(Board* board, bool play){
         DFS(board,0,depth_limit);
     }
     if(play)
-        board->play(choosen_factory,choosen_color,choosen_line);
-    return Move(choosen_factory,choosen_color,choosen_line);
+        board->play(next_move);
+    return next_move;
 }
 
 
@@ -352,6 +353,7 @@ Move Human::play_move(Board *board, bool play){
 
 void play_game(Board* board, Controller **players){
     board->nextRound();
+    board->random_first_player();
     while(!board->endOfTheGame()){
 
         while(!board->endOfTheRound()){
