@@ -61,7 +61,7 @@ protected:
     Timer chrono;
 public:
     MinMax(){}
-    MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 0.01);
+    MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 1);
     double DFS(Board* board, byte depth, byte max_depth, double alpha = -INFINITY, double beta = + INFINITY);
     Move play_move(Board* board, bool play=true);
 };
