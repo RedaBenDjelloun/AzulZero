@@ -9,7 +9,7 @@ GUI::GUI(vector<string> image_paths, int w, int h){
 }
 
 GUI::~GUI(){
-    delete [] images;
+    //delete [] images;
 }
 
 void GUI::safeLoad(Image<AlphaColor> &image, string path){
