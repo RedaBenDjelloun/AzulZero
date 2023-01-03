@@ -6,7 +6,7 @@ struct TimeOutException{};
 //////////////////// RANDOM ////////////////////
 
 
-void Random::play_move(Board* board){
+Move Random::play_move(Board* board, bool play){
     int nb_pickeable = 0;
     for(int factory=0; factory<=NB_FACTORIES; factory++){
         for(int color=0; color<NB_COLORS; color++){
@@ -42,10 +42,12 @@ void Random::play_move(Board* board){
     for(int line=0; line<=WALL_HEIGHT; line++){
         acc += board->placeableTile(color_choice, line);
         if(spot_choice<acc){
-            board->play(factory_choice,color_choice,line);
-            break;
+            if(play)
+                board->play(factory_choice,color_choice,line);
+            return Move(factory_choice,color_choice,line);
         }
     }
+    return Move(-1,-1,-1); // not normal
 }
 
 
@@ -64,7 +66,7 @@ double Heuristic::reward(int line, int nb, int in_the_floor){
 }
 
 
-void Heuristic::play_move(Board* board){
+Move Heuristic::play_move(Board* board, bool play){
 
     // [color,nb] -> is it possible to have this ?
     bool possible_draw[NB_COLORS*NB_TILES_PER_COLOR];
@@ -116,7 +118,9 @@ void Heuristic::play_move(Board* board){
         }
     }
     assert(board->playable(best_factory,best_col,best_line));
-    board->play(best_factory,best_col,best_line);
+    if(play)
+        board->play(best_factory,best_col,best_line);
+    return Move(best_factory,best_col,best_line);
 }
 
 Heuristic::Heuristic(int preoptimize){
@@ -198,11 +202,25 @@ MinMax::MinMax(byte depth_limit_, bool time_limited_, double time_limit_){
 
 
 double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, double beta){
-    
+
     // ensure that we didn't run out of time and that the algorithm has time to compute first depth
     if(time_limited and max_depth>1 and chrono.lap()>time_limit)
         throw TimeOutException();
-    
+
+    double response;
+    byte best_factory=255, best_col, best_line;
+    double best_response = -INFINITY;
+
+    if(depth==0){
+        Board board_copy(*board);
+        Move m = heuristic.play_move(&board_copy);
+        best_response = -DFS(&board_copy,depth+1,max_depth,-beta,-alpha);
+        alpha = best_response;
+        best_factory = m.factory;
+        best_col = m.col;
+        best_line = m.line;
+    }
+
     // if the position has already been reached
     /*
     if(look_up_table.count(*board)>0){
@@ -217,13 +235,6 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
     }
     */
 
-    // cannot happened if depth==0 (the end of the round would have been called)
-    if(board->endOfTheGame()){
-        byte player = board->currentPlayer();
-        board->addEndgameBonus();
-        return board->getScore(player) - board->getScore(1-player);
-    }
-
     if(depth==max_depth){
         byte player = board->currentPlayer();
         board->nextRound();
@@ -237,17 +248,23 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
         // if the other player has to play the sign needs to change
         bool change_sign = board->currentPlayer()!=board->getTile1();
         double total_expected = 0.;
+        // takes the average value of the expected outcome
         for(int i=0; i<nb_expect; i++){
             Board board_copy(*board);
             board_copy.nextRound();
+            if(board_copy.endOfTheGame()){
+                byte player = board_copy.currentPlayer();
+                board_copy.addEndgameBonus();
+                // exagerate the result so if it is a win he takes it
+                // and if it is a loss he tries to force a next round
+                return 1000*(1-2*change_sign)*(board_copy.getScore(player) - board_copy.getScore(1-player));
+            }
+
             total_expected += DFS(&board_copy,depth,max_depth,-beta,-alpha);
         }
         return (1-2*change_sign)*total_expected/nb_expect;
     }
 
-    double best_response = -INFINITY;
-    double response;
-    byte best_factory=255, best_col, best_line;
 
     for(byte factory=0; factory<=NB_FACTORIES; factory++){
         for(byte col=0; col<NB_COLORS; col++){
@@ -276,15 +293,15 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
     // choose the best move
     if(depth==0){
         assert(best_factory!=255);
-        choosen_factory = best_factory;
-        choosen_color = best_col;
-        choosen_line=best_line;
+        next_move.factory = best_factory;
+        next_move.col = best_col;
+        next_move.line = best_line;
     }
     //look_up_table.insert({*board,PositionValue(best_response,max_depth-depth)});
     return best_response;
 }
 
-void MinMax::play_move(Board *board){
+Move MinMax::play_move(Board* board, bool play){
     look_up_table.clear();
     if(time_limited){
         chrono.reset();
@@ -300,13 +317,15 @@ void MinMax::play_move(Board *board){
     else{
         DFS(board,0,depth_limit);
     }
-    board->play(choosen_factory,choosen_color,choosen_line);
+    if(play)
+        board->play(next_move);
+    return next_move;
 }
 
 
 //////////////////// HUMAN ////////////////////
 
-void Human::play_move(Board *board){
+Move Human::play_move(Board *board, bool play){
     byte factory;
     byte color;
     byte line;
@@ -325,13 +344,16 @@ void Human::play_move(Board *board){
         cin>>line;
     }while(!board->placeableTile(color,line));
 
-    board->play(factory,color,line);
+    if(play)
+        board->play(factory,color,line);
+    return Move(factory,color,line);
 }
 
 
 
 void play_game(Board* board, Controller **players){
     board->nextRound();
+    board->random_first_player();
     while(!board->endOfTheGame()){
 
         while(!board->endOfTheRound()){

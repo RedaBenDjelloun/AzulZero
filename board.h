@@ -29,7 +29,17 @@ byte wallColumnToColor(byte column, byte line);
 
 byte wallColorToColumn(byte color, byte line);
 
-
+struct Move{
+    byte factory;
+    byte col;
+    byte line;
+    Move(){}
+    Move(byte factory_, byte col_, byte line_){
+        factory = factory_;
+        col = col_;
+        line = line_;
+    }
+};
 
 class Board{
 
@@ -89,6 +99,9 @@ public:
     byte nbFloorTiles() const;
     bool wallTileFilled(byte player, byte line, byte column) const{return walls[player*WALL_SIZE+line*WALL_HEIGHT+column];}
 
+    /// Set the first player randomly
+    void random_first_player(){current_player = rand()%2;}
+
     /// returns 0 if the first player wins 1 if the scaond wins and 1 if its a draw
     byte winner() const{return (scores[0]<scores[1])+(scores[0]<=scores[1]);}
 
@@ -124,6 +137,7 @@ public:
 
     /// Play a move without checking if it is possible (Unknown behaviour if the move is not possible)
     void play(byte factory, byte color, byte line);
+    void play(Move m){play(m.factory,m.col,m.line);}
 
     ///  Checks if a tile exists
     bool pickableTile(byte factory, byte color) const;
