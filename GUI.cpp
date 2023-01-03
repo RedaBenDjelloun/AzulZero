@@ -215,7 +215,7 @@ void playGameGraphics(Board* board, Controller **players, GUI gui){
         clearWindow();
         gui.displayBoardState(board);
         noRefreshEnd();
-        milliSleep(500);
+        //milliSleep(500);
         click();
 
         while(!board->endOfTheRound()){

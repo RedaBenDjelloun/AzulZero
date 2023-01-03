@@ -1,9 +1,12 @@
 #include "controller.h"
 
 
+struct TimeOutException{};
+
+//////////////////// RANDOM ////////////////////
 
 
-void Random::play_move(Board* board){
+Move Random::play_move(Board* board, bool play){
     int nb_pickeable = 0;
     for(int factory=0; factory<=NB_FACTORIES; factory++){
         for(int color=0; color<NB_COLORS; color++){
@@ -32,18 +35,24 @@ void Random::play_move(Board* board){
         nb_placeable += board->placeableTile(color_choice, line);
     }
 
-    nb_placeable = max(1,nb_placeable-1); // do not play in the floor if he doesn't have to
+    //nb_placeable = max(1,nb_placeable-1); // do not play in the floor if he doesn't have to
     int spot_choice = rand()%nb_placeable;
     acc=0;
 
     for(int line=0; line<=WALL_HEIGHT; line++){
         acc += board->placeableTile(color_choice, line);
         if(spot_choice<acc){
-            board->play(factory_choice,color_choice,line);
-            break;
+            if(play)
+                board->play(factory_choice,color_choice,line);
+            return Move(factory_choice,color_choice,line);
         }
     }
+    return Move(-1,-1,-1); // not normal
 }
+
+
+
+//////////////////// HEURISTIC ////////////////////
 
 
 double Heuristic::reward(int line, int nb, int in_the_floor){
@@ -57,7 +66,7 @@ double Heuristic::reward(int line, int nb, int in_the_floor){
 }
 
 
-void Heuristic::play_move(Board* board){
+Move Heuristic::play_move(Board* board, bool play){
 
     // [color,nb] -> is it possible to have this ?
     bool possible_draw[NB_COLORS*NB_TILES_PER_COLOR];
@@ -109,26 +118,30 @@ void Heuristic::play_move(Board* board){
         }
     }
     assert(board->playable(best_factory,best_col,best_line));
-    board->play(best_factory,best_col,best_line);
+    if(play)
+        board->play(best_factory,best_col,best_line);
+    return Move(best_factory,best_col,best_line);
 }
 
 Heuristic::Heuristic(int preoptimize){
     switch(preoptimize){
 
-    // optimize vs random
+    // optimize vs random (94-8.5 in average)
     case 0:
-        par[0] = 0.06558;
-        par[1] = 0.4635;
-        par[2] = 0.2758;
-        par[3] = -0.5508;
-        par[4] = 0.03573;
-        par[5] = -0.2471;
-        par[6] = 0.1930;
-        par[7] = -0.2121;
-        par[8] = -0.5065;
+        par[0] = 0.0053696;
+        par[1] = 0.251656;
+        par[2] = 0.144145;
+        par[3] = 0.0812487;
+        par[4] = 0.390732;
+        par[5] = -0.165523;
+        par[6] = -0.635363;
+        par[7] = -0.519715;
+        par[8] = -0.235377;
     }
 }
 
+
+// optmization of the parameters with the Monte-Carlo method
 void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_game){
     int total_result;
     int best_result = -INFINITY; // = score(player)-score(opponent)
@@ -138,7 +151,7 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
     Controller** players = new Controller*[NB_PLAYERS];
     players[0] = this;
     players[1] = opponent;
-
+    Board board;
     for(int i=0; i<nb_evolve_game; i++){
         total_result=0;
         double squared_norm = 0;
@@ -155,7 +168,7 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
         }
 
         for(int j=0; j<nb_test_game; j++){
-            Board board;
+            board.init();
             play_game(&board,players);
             total_result += board.getScore(0)-board.getScore(1);
         }
@@ -177,8 +190,170 @@ void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_g
 }
 
 
+
+//////////////////// MINMAX ////////////////////
+
+MinMax::MinMax(byte depth_limit_, bool time_limited_, double time_limit_){
+    depth_limit = depth_limit_;
+    time_limited = time_limited_;
+    time_limit = time_limit_;
+}
+
+
+
+double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, double beta){
+
+    // ensure that we didn't run out of time and that the algorithm has time to compute first depth
+    if(time_limited and max_depth>1 and chrono.lap()>time_limit)
+        throw TimeOutException();
+
+    double response;
+    byte best_factory=255, best_col, best_line;
+    double best_response = -INFINITY;
+
+    if(depth==0){
+        Board board_copy(*board);
+        Move m = heuristic.play_move(&board_copy);
+        best_response = -DFS(&board_copy,depth+1,max_depth,-beta,-alpha);
+        alpha = best_response;
+        best_factory = m.factory;
+        best_col = m.col;
+        best_line = m.line;
+    }
+
+    // if the position has already been reached
+    /*
+    if(look_up_table.count(*board)>0){
+        PositionValue pos_val(look_up_table.at(*board));
+        if(pos_val.depth < max_depth-depth and pos_val.value >= alpha-tol){
+            look_up_table.erase(*board);
+            if(beta>=pos_val.value)
+                alpha = max(alpha,pos_val.value);
+        }
+        else
+            return pos_val.value;
+    }
+    */
+
+    if(depth==max_depth){
+        byte player = board->currentPlayer();
+        board->nextRound();
+        board->addEndgameBonus();
+        //look_up_table.insert({*board,PositionValue(board->getScore(player) - board->getScore(1-player),0)});
+        return board->getScore(player) - board->getScore(1-player);
+    }
+
+
+    if(board->endOfTheRound()){
+        // if the other player has to play the sign needs to change
+        bool change_sign = board->currentPlayer()!=board->getTile1();
+        double total_expected = 0.;
+        // takes the average value of the expected outcome
+        for(int i=0; i<nb_expect; i++){
+            Board board_copy(*board);
+            board_copy.nextRound();
+            if(board_copy.endOfTheGame()){
+                byte player = board_copy.currentPlayer();
+                board_copy.addEndgameBonus();
+                // exagerate the result so if it is a win he takes it
+                // and if it is a loss he tries to force a next round
+                return 1000*(1-2*change_sign)*(board_copy.getScore(player) - board_copy.getScore(1-player));
+            }
+
+            total_expected += DFS(&board_copy,depth,max_depth,-beta,-alpha);
+        }
+        return (1-2*change_sign)*total_expected/nb_expect;
+    }
+
+
+    for(byte factory=0; factory<=NB_FACTORIES; factory++){
+        for(byte col=0; col<NB_COLORS; col++){
+            if(board->pickableTile(factory,col)){
+                for(byte line=0; line<=WALL_HEIGHT; line++){
+                    if(board->placeableTile(col,line)){
+                        Board board_copy(*board);
+                        board_copy.play(factory,col,line);
+                        response = -DFS(&board_copy,depth+1,max_depth,-beta,-alpha);
+                        if(response>best_response){
+                            best_response=response;
+                            if(depth==0){
+                                best_factory = factory;
+                                best_col = col;
+                                best_line = line;
+                            }
+                            if(best_response>=beta)
+                                return best_response;
+                            alpha = max(alpha,best_response);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    // choose the best move
+    if(depth==0){
+        assert(best_factory!=255);
+        next_move.factory = best_factory;
+        next_move.col = best_col;
+        next_move.line = best_line;
+    }
+    //look_up_table.insert({*board,PositionValue(best_response,max_depth-depth)});
+    return best_response;
+}
+
+Move MinMax::play_move(Board* board, bool play){
+    look_up_table.clear();
+    if(time_limited){
+        chrono.reset();
+        double alpha = -INFINITY;
+        double beta = INFINITY;
+        try{
+            for(byte max_depth=1; max_depth<=depth_limit; max_depth++){
+                DFS(board,0,max_depth,alpha,beta);
+            }
+        }
+        catch(TimeOutException&e){}
+    }
+    else{
+        DFS(board,0,depth_limit);
+    }
+    if(play)
+        board->play(next_move);
+    return next_move;
+}
+
+
+//////////////////// HUMAN ////////////////////
+
+Move Human::play_move(Board *board, bool play){
+    byte factory;
+    byte color;
+    byte line;
+
+    board->display();
+
+    do{
+        cout<<"factory ?"<<endl;
+        cin>>factory;
+        cout<<"color ?"<<endl;
+        cin>>color;
+    }while(!board->pickableTile(factory,color));
+
+    do{
+        cout<<"line ?"<<endl;
+        cin>>line;
+    }while(!board->placeableTile(color,line));
+
+    if(play)
+        board->play(factory,color,line);
+    return Move(factory,color,line);
+}
+
+
+
 void play_game(Board* board, Controller **players){
     board->nextRound();
+    board->random_first_player();
     while(!board->endOfTheGame()){
 
         while(!board->endOfTheRound()){
