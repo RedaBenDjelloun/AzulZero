@@ -6,7 +6,7 @@ using namespace std;
 #include <Imagine/Images.h>
 using namespace Imagine;
 
-#include "controller.h"
+#include "board.h"
 
 // GUI Parameters
 
@@ -53,6 +53,8 @@ const Color DISCARD_COLOR = Color(255,225,225);
 
 const IntPoint2 BAG_CONTENT_P0 = IntPoint2(0,0);
 const Color BAG_CONTENT_COLOR = Color(212, 236, 247);
+
+const int HIGHLIGHT_PEN = 4;
 
 
 // Images
@@ -155,10 +157,9 @@ public:
 
     /// Display grid for designing UI
     void displayGrid();
-
 };
 
-void playGameGraphics(Board* board, Controller** players, GUI gui);
+
 
 
 

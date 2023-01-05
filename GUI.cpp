@@ -103,22 +103,7 @@ void GUI::displayFactoryTiles(byte factory, Board *board){
     IntPoint2 factory_p0 = FACTORY_CENTER+unityroot-FACTORY_CENTERING;
 
     byte tiles_to_place[NB_TILES_PER_FACTORY];
-    for (byte i = 0; i < NB_TILES_PER_FACTORY; i++){
-        tiles_to_place[i] = 255;
-    }
-
-    byte color = 0;
-    byte i = 0;
-    byte j = 0;
-    while (i < NB_TILES_PER_FACTORY and color < NB_COLORS){
-        j = board->getFactoryTile(factory,color);
-        while (j > 0){
-            tiles_to_place[i] = color;
-            i++;
-            j--;
-        }
-        color++;
-    }
+    board->fillFactoryTilesArray(tiles_to_place, factory);
 
     for (int x = -1; x < 1; x++){
         for (int y = -1; y < 1; y++){
@@ -195,7 +180,6 @@ void GUI::displayBoardState(Board *board){
     displayBag(0, WINDOW_HEIGHT-BAG_SIDE);
     displayGamebox(WINDOW_HEIGHT-BAG_SIDE, WINDOW_HEIGHT-BAG_SIDE);
     displayFactories();
-
     displayWalls(board);
     displayPatterns(board);
     displayFloors(board);
@@ -205,37 +189,4 @@ void GUI::displayBoardState(Board *board){
     displayDiscard(board);
 }
 
-void playGameGraphics(Board* board, Controller **players, GUI gui){
-    gui.displayBoardState(board);
-    click();
-    board->nextRound();
-    while(!board->endOfTheGame()){
 
-        noRefreshBegin();
-        clearWindow();
-        gui.displayBoardState(board);
-        noRefreshEnd();
-        //milliSleep(500);
-        click();
-
-        while(!board->endOfTheRound()){
-            players[board->currentPlayer()]->play_move(board);
-
-            noRefreshBegin();
-            clearWindow();
-            gui.displayBoardState(board);
-            noRefreshEnd();
-            milliSleep(500);
-
-        }
-        click();
-        board->nextRound();
-    }
-
-    noRefreshBegin();
-    clearWindow();
-    gui.displayBoardState(board);
-    noRefreshEnd();
-
-    board->addEndgameBonus();
-}

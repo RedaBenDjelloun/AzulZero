@@ -325,31 +325,120 @@ Move MinMax::play_move(Board* board, bool play){
 
 //////////////////// HUMAN ////////////////////
 
+double euclidianNorm(IntPoint2 a){
+    return sqrt(pow(a.x(),2) + pow(a.y(),2));
+}
+
+double euclidianDistance(IntPoint2 a, IntPoint2 b){
+    return euclidianNorm(a-b);
+}
+
+bool computeFactoryCardinal(Board *board, byte factory){
+    int total = 0;
+    for (byte color = 0; color < NB_COLORS; color++){
+        total += board->getFactoryTile(factory,color);
+    }
+    return total;
+}
+
+bool isEmptyFactory(Board *board, byte factory){
+    return computeFactoryCardinal(board, factory) == 0;
+}
+
+void Human::clickPickableTile(Board *board, byte &factory, byte &color){
+    int x = 0, y = 0;
+    IntPoint2 clickPoint(x,y);
+    factory = 255;
+    color = 255;
+    IntPoint2 unityroot(0,0);
+    IntPoint2 factory_p0(0,0);
+    while (factory == 255){
+        getMouse(x,y);
+        clickPoint = IntPoint2(x,y);
+        byte factoryIndex = 0;
+        while (factoryIndex < NB_FACTORIES and factory == 255){
+            unityroot = IntPoint2(int(FACTORY_RADIUS*cos(- M_PI/2 + 2*M_PI*factoryIndex/NB_FACTORIES)),
+                                  int(FACTORY_RADIUS*sin(- M_PI/2 + 2*M_PI*factoryIndex/NB_FACTORIES)));
+            factory_p0 = FACTORY_CENTER+unityroot;
+            if (euclidianDistance(clickPoint, factory_p0) < FACTORY_SIDE/2 and not isEmptyFactory(board, factoryIndex)){
+                drawCircle(factory_p0,FACTORY_SIDE/2 + HIGHLIGHT_PEN, GREEN, HIGHLIGHT_PEN);
+                factory = factoryIndex;
+            }
+            factoryIndex++;
+        }
+        if (factoryIndex == NB_FACTORIES){
+            if (x > MIDDLE_P0.x() + WALL_MARGIN
+            and x < MIDDLE_P0.x() + WALL_MARGIN + NB_COLORS*WALL_SPACING
+            and y > MIDDLE_P0.y()){
+                drawRect(MIDDLE_P0 - IntPoint2(HIGHLIGHT_PEN, HIGHLIGHT_PEN), 5*WALL_SPACING + WALL_MARGIN + 2*HIGHLIGHT_PEN, BAG_SIDE+2*HIGHLIGHT_PEN, GREEN, HIGHLIGHT_PEN);
+                factory = factoryIndex;
+            }
+        }
+    }
+    if (factory < NB_FACTORIES){
+        while(color == 255){
+            byte factory_tiles[NB_TILES_PER_FACTORY];
+            board->fillFactoryTilesArray(factory_tiles, factory);
+            IntPoint2 relativeClickedPoint = factory_p0 - clickPoint;
+            int xTile = (relativeClickedPoint.x() < 0)? 0 : -1;
+            int yTile = (relativeClickedPoint.y() < 0)? 0 : -1;
+            if (factory_tiles[(1+xTile)*2+(1+yTile)] < 255){
+                color = factory_tiles[(1+xTile)*2+(1+yTile)];
+                for (int xHighlight = -1; xHighlight < 1; xHighlight++){
+                    for (int yHighlight = -1; yHighlight < 1; yHighlight++){
+                        if (factory_tiles[(1+xHighlight)*2+(1+yHighlight)] == color){
+                            drawRect((factory_p0-FACTORY_CENTERING).x() + FACTORY_SIDE/2 + xHighlight*(FACTORY_MARGIN+TILE_SIDE) + FACTORY_MARGIN/2 - HIGHLIGHT_PEN,
+                                     (factory_p0-FACTORY_CENTERING).y() + FACTORY_SIDE/2 + yHighlight*(FACTORY_MARGIN+TILE_SIDE) + FACTORY_MARGIN/2 - HIGHLIGHT_PEN,
+                                     TILE_SIDE + 2*HIGHLIGHT_PEN, TILE_SIDE + 2*HIGHLIGHT_PEN, GREEN, HIGHLIGHT_PEN);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (factory == NB_FACTORIES){
+        int xMiddle = (x - MIDDLE_P0.x() - WALL_MARGIN)/WALL_SPACING;
+        drawRect(MIDDLE_P0 + IntPoint2(WALL_MARGIN + xMiddle*WALL_SPACING - HIGHLIGHT_PEN,WALL_MARGIN/2 - HIGHLIGHT_PEN), TILE_SIDE +2*HIGHLIGHT_PEN, TILE_SIDE+2*HIGHLIGHT_PEN, GREEN, HIGHLIGHT_PEN);
+        color = byte(xMiddle);
+    }
+
+}
+
+void Human::clickPlaceableTile(Board *board, byte &line){
+    int x = 0, y = 0;
+    line = 255;
+    while (line == 255){
+        getMouse(x,y);
+        int p = board->currentPlayer();
+        if (x > PLAYERBOARD_X0 + PATTERN_X0 and x < PLAYERBOARD_X0 + PATTERN_X0 + WALL_HEIGHT*WALL_SPACING
+        and y > p*PLAYERBOARD_HEIGHT + PATTERN_Y0 and y < p*PLAYERBOARD_HEIGHT + PATTERN_Y0 + WALL_HEIGHT*WALL_SPACING){
+            int yPattern = (y - p*PLAYERBOARD_HEIGHT - PATTERN_Y0)/WALL_SPACING;
+//            for (int xPattern = WALL_HEIGHT - yPattern - 1; xPattern < WALL_HEIGHT; xPattern++){
+//                drawRect(PLAYERBOARD_X0 + PATTERN_X0 + xPattern*WALL_SPACING - HIGHLIGHT_PEN,
+//                         p*PLAYERBOARD_HEIGHT + PATTERN_Y0 + yPattern*WALL_SPACING - HIGHLIGHT_PEN,
+//                         TILE_SIDE+2*HIGHLIGHT_PEN, TILE_SIDE+2*HIGHLIGHT_PEN, GREEN, HIGHLIGHT_PEN);
+//            }
+            line = byte(yPattern);
+        }
+    }
+}
+
 Move Human::play_move(Board *board, bool play){
     byte factory;
     byte color;
     byte line;
 
-    board->display();
-
     do{
-        cout<<"factory ?"<<endl;
-        cin>>factory;
-        cout<<"color ?"<<endl;
-        cin>>color;
+        clickPickableTile(board, factory, color);
     }while(!board->pickableTile(factory,color));
 
     do{
-        cout<<"line ?"<<endl;
-        cin>>line;
+        clickPlaceableTile(board, line);
     }while(!board->placeableTile(color,line));
-
     if(play)
         board->play(factory,color,line);
     return Move(factory,color,line);
 }
-
-
 
 void play_game(Board* board, Controller **players){
     board->nextRound();
@@ -361,5 +450,40 @@ void play_game(Board* board, Controller **players){
         }
         board->nextRound();
     }
+    board->addEndgameBonus();
+}
+
+void playGameGraphics(Board* board, Controller **players, GUI gui){
+    gui.displayBoardState(board);
+    click();
+    board->nextRound();
+    while(!board->endOfTheGame()){
+
+        noRefreshBegin();
+        clearWindow();
+        gui.displayBoardState(board);
+        noRefreshEnd();
+        //milliSleep(500);
+        //click();
+
+        while(!board->endOfTheRound()){
+            players[board->currentPlayer()]->play_move(board);
+
+            noRefreshBegin();
+            clearWindow();
+            gui.displayBoardState(board);
+            noRefreshEnd();
+            milliSleep(500);
+
+        }
+        click();
+        board->nextRound();
+    }
+
+    noRefreshBegin();
+    clearWindow();
+    gui.displayBoardState(board);
+    noRefreshEnd();
+
     board->addEndgameBonus();
 }

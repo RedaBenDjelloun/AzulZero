@@ -5,6 +5,8 @@
 #include <unordered_map>
 using namespace std;
 
+#include "GUI.h"
+
 class Controller
 {
 public:
@@ -18,7 +20,7 @@ public:
 class Random: public Controller
 {
 public:
-    Random(){};
+    Random(){}
     Move play_move(Board* board, bool play = true);
 };
 
@@ -70,9 +72,13 @@ class Human: public Controller
 public:
     Human(){}
     Human(string name_){name=name_;}
+    void clickPickableTile(Board *board, byte &factory, byte &color);
+    void clickPlaceableTile(Board *board, byte &line);
     Move play_move(Board* board, bool play=true);
 };
 
 
 /// Play an entire game given the players
 void play_game(Board* board, Controller** players);
+/// Play an entire game given the players with graphics
+void playGameGraphics(Board* board, Controller** players, GUI gui);
