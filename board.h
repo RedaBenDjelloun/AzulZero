@@ -97,7 +97,7 @@ public:
     byte getPatternLineColor(byte player, byte line) const{return pattern_lines[player*WALL_HEIGHT*2 + line*2 + 1];}
     byte getFloorTile(byte pos) const{return floor_lines[pos];}
     byte nbFloorTiles() const;
-    bool wallTileFilled(byte player, byte line, byte column) const{return walls[player*WALL_SIZE+line*WALL_HEIGHT+column];}
+    inline bool wallTileFilled(byte player, byte line, byte column) const{return walls[player*WALL_SIZE+line*WALL_HEIGHT+column];}
 
     /// Set the first player randomly
     void random_first_player(){current_player = rand()%2;}
@@ -146,7 +146,8 @@ public:
     bool placeableTile(byte color, byte line) const;
 
     /// Checks if the move is possible
-    bool playable(byte factory, byte color, byte line);
+    bool playable(byte factory, byte color, byte line) const;
+    bool playable(Move m) const {return playable(m.factory,m.col,m.line);}
 
     /// Add a malus to a player
     void addMalus(byte malus, byte player);
@@ -157,7 +158,14 @@ public:
     /// In terminal display of the factories
     void display() const;
 
+    /// Construct the list of all the possible moves
+    vector<Move> moveList();
+
     size_t hash() const;
+
+    void addBonusToAll(byte bonus){scores[0]+=bonus; scores[1]+=bonus;}
+
+    void setScoreToAll(byte score){scores[0]=score; scores[1]=score;}
 };
 
 namespace std
@@ -167,7 +175,6 @@ namespace std
     {
         size_t operator()(const Board& board) const
         {
-            // Compute individual hash values for two data members and combine them using XOR and bit shifting
             return board.hash();
         }
     };

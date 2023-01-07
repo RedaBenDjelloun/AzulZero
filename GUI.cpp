@@ -207,16 +207,12 @@ void GUI::displayBoardState(Board *board){
 
 void playGameGraphics(Board* board, Controller **players, GUI gui){
     gui.displayBoardState(board);
-    click();
-    board->nextRound();
     while(!board->endOfTheGame()){
 
         noRefreshBegin();
         clearWindow();
         gui.displayBoardState(board);
         noRefreshEnd();
-        //milliSleep(500);
-        click();
 
         while(!board->endOfTheRound()){
             players[board->currentPlayer()]->play_move(board);

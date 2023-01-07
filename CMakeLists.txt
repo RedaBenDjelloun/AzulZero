@@ -9,5 +9,6 @@ add_executable(AzulZero
                main.cpp
                board.cpp board.h
                controller.cpp controller.h
-               GUI.cpp GUI.h)
+               GUI.cpp GUI.h
+               Tree.h)
 ImagineUseModules(AzulZero Graphics)

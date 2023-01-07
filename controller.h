@@ -2,13 +2,13 @@
 
 #include "board.h"
 #include "time.h"
+#include "Tree.h"
 #include <unordered_map>
 using namespace std;
 
 class Controller
 {
 public:
-    static bool display_game; // Activate GUI
     Controller(){}
     virtual ~Controller(){}
     virtual Move play_move(Board* board, bool play = true)=0;
@@ -59,7 +59,7 @@ protected:
     Timer chrono;
 public:
     MinMax(){}
-    MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 0.01);
+    MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 1);
     double DFS(Board* board, byte depth, byte max_depth, double alpha = -INFINITY, double beta = + INFINITY);
     Move play_move(Board* board, bool play=true);
 };
@@ -73,6 +73,56 @@ public:
     Move play_move(Board* board, bool play=true);
 };
 
+struct State{
+    int wins=0;
+    int draws=0;
+    int losses=0;
+
+    State(){}
+    State(int wins_, int draws_, int losses_){wins=wins_; draws=draws_; losses=losses_;}
+    void operator+=(State s){wins+=s.wins; draws+=s.draws; losses+=s.losses;}
+    State inverse(){return State(losses,draws,wins);};
+    void update(byte player,byte score1, byte score2){
+        if (score1==score2)
+            draws++;
+        else if ((score1>score2 and player==0) or (score1<score2 and player==1))
+            wins++;
+        else
+            losses++;
+    }
+};
+
+
+struct MCNode{
+    Move move;
+    State s;
+
+    double UCT(int N_parent, double c=sqrt(2)) const{return (s.wins+0.5*s.draws)/(s.wins+s.draws+s.losses)+c*sqrt(log(N_parent)/(s.wins+s.draws+s.losses));}
+    int N() const{return s.wins+s.draws+s.losses;}
+    double value(){return (s.wins+0.5*s.draws)/double(N());}
+    MCNode(){}
+    MCNode(Move move_){move=move_;}
+};
+
+
+class MCTS: public Controller
+{
+    double time_limit=10;
+    int nb_max_simul=10000;
+    bool time_limited=true;
+    bool nb_simul_limited=false;
+    Timer chrono;
+    Controller** random_players;
+public:
+    MCTS();
+    ~MCTS();
+
+    /// Add all possible nodes from a leaf
+    State add_nodes(Board* board,Tree<MCNode>* tree);
+    State tree_search(Board* board,Tree<MCNode>* tree);
+    Move play_move(Board* board, bool play=true);
+};
 
 /// Play an entire game given the players
 void play_game(Board* board, Controller** players);
+

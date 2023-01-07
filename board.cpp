@@ -387,10 +387,12 @@ void Board::play(byte factory, byte color, byte line){
 
 bool Board::pickableTile(byte factory, byte color) const{
     // That color is available in this factory ?
+    assert(factory<=NB_FACTORIES and color<NB_COLORS);
     return factories[factory*NB_COLORS+color]>0;
 }
 
 bool Board::placeableTile(byte color, byte line) const{
+    assert(line<=WALL_HEIGHT and color<NB_COLORS);
     // if the player wants to place the tiles on the floor line (always possible)
     if(line == WALL_HEIGHT)
         return true;
@@ -405,7 +407,7 @@ bool Board::placeableTile(byte color, byte line) const{
     return (pattern_lines[index+1] == color and pattern_lines[index]<line+1);
 }
 
-bool Board::playable(byte factory, byte color, byte line){
+bool Board::playable(byte factory, byte color, byte line) const{
     return pickableTile(factory,color) and placeableTile(color,line);
 }
 
@@ -495,6 +497,23 @@ void Board::display() const{
     }
     if(tile1==NB_PLAYERS)
         cout<<"tile 1"<<endl;
+}
+
+
+vector<Move> Board::moveList(){
+    vector<Move> lst;
+    for(int factory=0; factory<=NB_FACTORIES; factory++){
+        for(int col=0; col<NB_COLORS; col++){
+            if(pickableTile(factory,col)){
+                for(int line=0; line<=WALL_HEIGHT; line++){
+                    if(placeableTile(col,line)){
+                        lst.push_back(Move(factory,col,line));
+                    }
+                }
+            }
+        }
+    }
+    return lst;
 }
 
 
