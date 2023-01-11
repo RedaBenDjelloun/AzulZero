@@ -10,7 +10,7 @@ using namespace Imagine;
 
 // GUI Parameters
 
-const double ZOOM = 1.05;
+const double ZOOM = 1.2;
 
 const int PLAYERBOARD_WIDTH = int(740*ZOOM);
 const int PLAYERBOARD_HEIGHT = int(484*ZOOM);
@@ -55,6 +55,9 @@ const IntPoint2 BAG_CONTENT_P0 = IntPoint2(0,0);
 const Color BAG_CONTENT_COLOR = Color(212, 236, 247);
 
 const int HIGHLIGHT_PEN = 4;
+const int HIGHLIGHT_GAP = HIGHLIGHT_PEN-1;
+const int HIGHLIGHT_SELECT_COLOR = GREEN;
+const int HIGHLIGHT_HISTORY_COLOR = BLUE;
 
 
 // Images
@@ -154,6 +157,9 @@ public:
 
     /// Display everything
     void displayBoardState(Board *board);
+
+    /// Clear window and display everything, with no refresh
+    void updateBoardState(Board *board);
 
     /// Display grid for designing UI
     void displayGrid();

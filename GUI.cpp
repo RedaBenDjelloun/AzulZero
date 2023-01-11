@@ -177,8 +177,8 @@ void GUI::displayGrid(){
 
 void GUI::displayBoardState(Board *board){
     displayPlayerboards();
-    displayBag(0, WINDOW_HEIGHT-BAG_SIDE);
-    displayGamebox(WINDOW_HEIGHT-BAG_SIDE, WINDOW_HEIGHT-BAG_SIDE);
+    //displayBag(0, WINDOW_HEIGHT-BAG_SIDE);
+    //displayGamebox(WINDOW_HEIGHT-BAG_SIDE, WINDOW_HEIGHT-BAG_SIDE);
     displayFactories();
     displayWalls(board);
     displayPatterns(board);
@@ -189,4 +189,9 @@ void GUI::displayBoardState(Board *board){
     displayDiscard(board);
 }
 
-
+void GUI::updateBoardState(Board *board){
+    noRefreshBegin();
+    clearWindow();
+    displayBoardState(board);
+    noRefreshEnd();
+}
