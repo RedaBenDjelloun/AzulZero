@@ -445,7 +445,7 @@ byte findClickedTileColor(Board *board, byte factory, IntPoint2 clickedPoint){
     return 255;
 }
 
-void Human::clickPickableTile(Board *board, byte &factory, byte &color){
+void  Human::clickPickableTile(Board *board, byte &factory, byte &color){
     factory = 255;
     color = 255;
     int x = 0, y = 0;
@@ -458,36 +458,42 @@ void Human::clickPickableTile(Board *board, byte &factory, byte &color){
     color = findClickedTileColor(board, factory, clickedPoint);
 }
 
-void Human::clickPlaceableTile(Board *board, byte &line){
+bool Human::clickPlaceableTile(Board *board, byte &line){
     int x = 0, y = 0;
     line = 255;
     IntPoint2 clickedPoint(x,y);
-    while (line == 255){
-        getMouse(x,y);
-        clickedPoint = IntPoint2(x,y);
-        byte player = board->currentPlayer();
-        if (isInsideBox(clickedPoint, PLAYERBOARD_X0 + PATTERN_X0, player*PLAYERBOARD_HEIGHT + PATTERN_Y0,
-                                      WALL_HEIGHT*WALL_SPACING,  WALL_HEIGHT*WALL_SPACING)){
-            line = byte((y -  player*PLAYERBOARD_HEIGHT - PATTERN_Y0)/WALL_SPACING);
-        }
-        else if(isInsideBox(clickedPoint, PLAYERBOARD_X0 + FLOOR_X0 - FLOOR_MARGIN/4, player*PLAYERBOARD_HEIGHT + FLOOR_Y0,
-                                          FLOOR_SIZE*FLOOR_SPACING + FLOOR_MARGIN/2 - TILE_SIDE/2, TILE_SIDE + FLOOR_MARGIN/4)){
-            line = WALL_HEIGHT;
-        }
+    getMouse(x,y);
+    clickedPoint = IntPoint2(x,y);
+    byte player = board->currentPlayer();
+    if (isInsideBox(clickedPoint, PLAYERBOARD_X0 + PATTERN_X0, player*PLAYERBOARD_HEIGHT + PATTERN_Y0,
+                                  WALL_HEIGHT*WALL_SPACING,  WALL_HEIGHT*WALL_SPACING)){
+        line = byte((y -  player*PLAYERBOARD_HEIGHT - PATTERN_Y0)/WALL_SPACING);
+        return true;
+    }
+    else if(isInsideBox(clickedPoint, PLAYERBOARD_X0 + FLOOR_X0 - FLOOR_MARGIN/4, player*PLAYERBOARD_HEIGHT + FLOOR_Y0,
+                                      FLOOR_SIZE*FLOOR_SPACING + FLOOR_MARGIN/2 - TILE_SIDE/2, TILE_SIDE + FLOOR_MARGIN/4)){
+        line = WALL_HEIGHT;
+        return true;
+    }
+    else{
+        return false;
     }
 }
 
 Move Human::play_move(Board *board, bool play){
-    byte factory;
-    byte color;
-    byte line;
+    byte factory = 255;
+    byte color = 255;
+    byte line = 255;
+    bool foundTile = true;
     do{
-        clickPickableTile(board, factory, color);
-    }while(!board->pickableTile(factory,color));
-
-    do{
-        clickPlaceableTile(board, line);
-    }while(!board->placeableTile(color,line));
+        do{
+            if (foundTile == false){
+                gui->updateBoardState(board);
+            }
+            clickPickableTile(board, factory, color);
+        }while(!board->pickableTile(factory,color));
+        foundTile = clickPlaceableTile(board, line);
+    } while (not foundTile or not board->placeableTile(color,line));
     if(play)
         board->play(factory,color,line);
     return Move(factory,color,line);
@@ -506,7 +512,7 @@ void play_game(Board* board, Controller **players){
     board->addEndgameBonus();
 }
 
-void playGameGraphics(Board* board, Controller **players, GUI gui){
+void playGameGraphics(Board* board, Controller **players, GUI &gui){
     // Display initial board state
     gui.updateBoardState(board);
     // Go to the first round after click
@@ -516,10 +522,12 @@ void playGameGraphics(Board* board, Controller **players, GUI gui){
     while(!board->endOfTheGame()){
         // Display board at the beginning of the round
         gui.updateBoardState(board);
+        milliSleep(500);
         while(!board->endOfTheRound()){
             // Play move and update board
             players[board->currentPlayer()]->play_move(board);
             gui.updateBoardState(board);
+            milliSleep(500);
         }
         // Go to the next round after click
         click();

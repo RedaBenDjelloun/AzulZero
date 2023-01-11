@@ -69,11 +69,12 @@ public:
 class Human: public Controller
 {
     string name;
+    GUI *gui;
 public:
     Human(){}
-    Human(string name_){name=name_;}
+    Human(string name_, GUI *gui_){name=name_ ; gui = gui_;}
     void clickPickableTile(Board *board, byte &factory, byte &color);
-    void clickPlaceableTile(Board *board, byte &line);
+    bool clickPlaceableTile(Board *board, byte &line);
     Move play_move(Board* board, bool play=true);
 };
 
@@ -81,4 +82,4 @@ public:
 /// Play an entire game given the players
 void play_game(Board* board, Controller** players);
 /// Play an entire game given the players with graphics
-void playGameGraphics(Board* board, Controller** players, GUI gui);
+void playGameGraphics(Board* board, Controller** players, GUI &gui);

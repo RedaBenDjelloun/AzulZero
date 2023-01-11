@@ -16,16 +16,21 @@ int main(){
 //    int max_points[NB_PLAYERS] = {0,0};
 //    int nb_iterations = 100;
 //    int winner[3] = {0,0,0};
+    Board board;
+    board.init();
+    GUI gui;
+    gui.init();
+
     Controller** players = new Controller*[NB_PLAYERS];
     Heuristic heuristic_player(0);
     MinMax minmax_player(20,true,1);
     MinMax minmax_player2(20);
     Random random_player;
-    Human player("Hector");
+    Human player("Hector", &gui);
 
     // Choose players
     players[0] = &player;
-    players[1] = &minmax_player;
+    players[1] = &heuristic_player;
 
 //    auto start = high_resolution_clock::now();
 
@@ -60,10 +65,6 @@ int main(){
 //        cout<<"nombre de parties gagnees par le joueur 2: "<<winner[2]<<"("<<100*float(winner[2])/nb_iterations<<"%)"<<endl;
 //    }
 
-    Board board;
-    board.init();
-    GUI gui;
-    gui.init();
     playGameGraphics(&board,players,gui);
     cout<<"score joueur 1: "<<int(board.getScore(0))<<endl;
     cout<<"score joueur 2: "<<int(board.getScore(1))<<endl;
