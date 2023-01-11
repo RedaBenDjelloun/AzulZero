@@ -35,16 +35,24 @@ Window GUI::init(){
 }
 
 void GUI::displayTile(int j, int x, int y, double fact) {
-    displayImage(4+j,x,y,fact);
+    displayImage(5+j,x,y,fact);
 
     drawRect(x-1,y-1,TILE_SIDE+2,TILE_SIDE+2,BLACK);
     drawRect(x-2,y-2,TILE_SIDE+4,TILE_SIDE+4,WHITE);
     drawRect(x-3,y-3,TILE_SIDE+6,TILE_SIDE+6,BLACK);
 }
 
-void GUI::displayPlayerboards(){
+void GUI::displayPlayerboards(Board *board){
+    byte player = board->currentPlayer();
     displayPlayerboard(PLAYERBOARD_X0);
     displayPlayerboard(PLAYERBOARD_X0,WINDOW_HEIGHT/2);
+    if (player == 0){
+        drawRect(PLAYERBOARD_X0, 0, PLAYERBOARD_WIDTH, PLAYERBOARD_HEIGHT, HIGHLIGHT_SELECT_COLOR, HIGHLIGHT_PEN);
+    }
+    else{
+        drawRect(PLAYERBOARD_X0, PLAYERBOARD_HEIGHT, PLAYERBOARD_WIDTH, PLAYERBOARD_HEIGHT, HIGHLIGHT_SELECT_COLOR, HIGHLIGHT_PEN);
+    }
+
 }
 
 void GUI::displayFactories(bool circles){
@@ -176,7 +184,7 @@ void GUI::displayGrid(){
 }
 
 void GUI::displayBoardState(Board *board){
-    displayPlayerboards();
+    displayPlayerboards(board);
     //displayBag(0, WINDOW_HEIGHT-BAG_SIDE);
     //displayGamebox(WINDOW_HEIGHT-BAG_SIDE, WINDOW_HEIGHT-BAG_SIDE);
     displayFactories();

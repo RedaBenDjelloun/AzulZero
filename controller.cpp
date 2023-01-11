@@ -485,15 +485,17 @@ Move Human::play_move(Board *board, bool play){
     byte color = 255;
     byte line = 255;
     bool foundTile = true;
+    bool isPlaceableTile = true;
     do{
         do{
-            if (foundTile == false){
+            if (foundTile == false or isPlaceableTile == false){
                 gui->updateBoardState(board);
             }
             clickPickableTile(board, factory, color);
         }while(!board->pickableTile(factory,color));
         foundTile = clickPlaceableTile(board, line);
-    } while (not foundTile or not board->placeableTile(color,line));
+        isPlaceableTile = board->placeableTile(color,line);
+    } while (not foundTile or not isPlaceableTile);
     if(play)
         board->play(factory,color,line);
     return Move(factory,color,line);
