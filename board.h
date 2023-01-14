@@ -161,24 +161,10 @@ public:
     /// Construct the list of all the possible moves
     vector<Move> moveList();
 
-    size_t hash() const;
-
     void addBonusToAll(byte bonus){scores[0]+=bonus; scores[1]+=bonus;}
 
     void setScoreToAll(byte score){scores[0]=score; scores[1]=score;}
 };
-
-namespace std
-{
-    template <>
-    struct hash<Board>
-    {
-        size_t operator()(const Board& board) const
-        {
-            return board.hash();
-        }
-    };
-}
 
 void randomGameTest();
 

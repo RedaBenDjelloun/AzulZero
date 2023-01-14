@@ -517,50 +517,5 @@ vector<Move> Board::moveList(){
 }
 
 
-size_t Board::hash() const{
-    size_t key = 127320773; //big prime number to hash
-    size_t output =0;
-    output ^= current_player;
-    output *= key;
-    output ^= tile1;
-    output *= key;
-
-    for(byte player=0; player<NB_PLAYERS; player++){
-        output ^= scores[player];
-        output *= key;
-    }
-
-    for(byte i=0; i<NB_COLORS; i++){
-        output ^= bag[i];
-        output *= key;
-    }
-
-    for(byte i=0; i<NB_COLORS; i++){
-        output ^= discard[i];
-        output *= key;
-    }
-
-    for(byte i=0; i<(NB_FACTORIES+1)*NB_COLORS; i++){
-        output ^= factories[i];
-        output *= key;
-    }
-
-    for(byte i=0; i<NB_PLAYERS*WALL_HEIGHT*2; i++){
-        output ^= pattern_lines[i];
-        output *= key;
-    }
-
-    for(byte i=0; i<NB_PLAYERS*FLOOR_SIZE; i++){
-        output ^= floor_lines[i];
-        output *= key;
-    }
-
-    for(byte i=0; i<NB_PLAYERS*WALL_SIZE; i++){
-        output ^= walls[i];
-        output *= key;
-    }
-    return output;
-}
-
 
 

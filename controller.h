@@ -51,10 +51,9 @@ protected:
     double time_limit; // in seconds
     byte depth_limit;   // limit of max_depth
     bool time_limited;
-    double tol = 0;
+    double evaluation;
 
     Move next_move;
-    unordered_map<Board,PositionValue> look_up_table;
 
     Timer chrono;
 public:
@@ -124,5 +123,5 @@ public:
 };
 
 /// Play an entire game given the players
-void play_game(Board* board, Controller** players);
+void play_game(Board* board, Controller** players, bool save=false);
 

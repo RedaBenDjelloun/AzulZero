@@ -222,25 +222,10 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
         best_line = m.line;
     }
 
-    // if the position has already been reached
-    /*
-    if(look_up_table.count(*board)>0){
-        PositionValue pos_val(look_up_table.at(*board));
-        if(pos_val.depth < max_depth-depth and pos_val.value >= alpha-tol){
-            look_up_table.erase(*board);
-            if(beta>=pos_val.value)
-                alpha = max(alpha,pos_val.value);
-        }
-        else
-            return pos_val.value;
-    }
-    */
-
     if(depth==max_depth){
         byte player = board->currentPlayer();
         board->nextRound();
         board->addEndgameBonus();
-        //look_up_table.insert({*board,PositionValue(board->getScore(player) - board->getScore(1-player),0)});
         return board->getScore(player) - board->getScore(1-player);
     }
 
@@ -298,26 +283,24 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
         next_move.col = best_col;
         next_move.line = best_line;
     }
-    //look_up_table.insert({*board,PositionValue(best_response,max_depth-depth)});
     return best_response;
 }
 
 Move MinMax::play_move(Board* board, bool play){
     next_move = heuristic.play_move(board,false);
-    look_up_table.clear();
     if(time_limited){
         chrono.reset();
         double alpha = -INFINITY;
         double beta = INFINITY;
         try{
             for(byte max_depth=1; max_depth<=depth_limit; max_depth++){
-                DFS(board,0,max_depth,alpha,beta);
+                evaluation = DFS(board,0,max_depth,alpha,beta);
             }
         }
         catch(TimeOutException&e){}
     }
     else{
-        DFS(board,0,depth_limit);
+        evaluation = DFS(board,0,depth_limit);
     }
     if(play)
         board->play(next_move);
@@ -457,7 +440,7 @@ Move MCTS::play_move(Board *board, bool play){
 }
 
 
-void play_game(Board* board, Controller **players){
+void play_game(Board* board, Controller **players, bool save){
     while(!board->endOfTheGame()){
         while(!board->endOfTheRound()){
             players[board->currentPlayer()]->play_move(board);
