@@ -3,7 +3,6 @@
 #include "board.h"
 #include "time.h"
 #include "Tree.h"
-#include <unordered_map>
 using namespace std;
 
 #include "GUI.h"
@@ -131,7 +130,4 @@ public:
 };
 
 /// Play an entire game given the players
-void play_game(Board* board, Controller** players, bool save=false);
-
-/// Play an entire game given the players with graphics
-void playGameGraphics(Board* board, Controller** players, GUI &gui);
+void play_game(Board* board, Controller** players);

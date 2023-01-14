@@ -6,24 +6,33 @@ class Game{
     /// All the moves of the saved game
     vector<Move> moves;
 
-    /// State of the game at the start of each round
+    /// States of the games
     vector<Board> states;
 
-    int move_index=0;
-    int round_index=0;
+    unsigned int move_index=0;
 
-    /// Board
-    Board current_state;
 public:
     Game(){}
 
     /// Update the board by moving forward one move
     void nextState();
 
+    void previousState();
+
+    void saveState(Board* board){states.push_back(Board(*board));}
+
+    void saveMove(Move m){moves.push_back(m);}
+
     /// Update the board returning at the beginning of the game
     void init();
+
+    Board* currentState(){return &states[move_index];};
 
     /// Valuation of the state of the game with a choosen AI
     double valuation(int choice=0);
 
+    void review_game(GUI gui);
 };
+
+/// Play an entire game given the players with graphics
+Game* playGameGraphics(Board* board, Controller** players, GUI &gui, bool save=true);

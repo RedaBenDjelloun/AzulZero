@@ -7,6 +7,7 @@ using namespace std::chrono;
 #include "board.h"
 #include "controller.h"
 #include "GUI.h"
+#include "game.h"
 
 int main(){
     srand((unsigned int) time(nullptr));
@@ -21,12 +22,11 @@ int main(){
     MinMax minmax_player2(20);
     Random random_player;
     Random random_player2;
-    Human player("Hector");
     MCTS player0;
 
     // Choose players
-    players[0] = &player0;
-    players[1] = &minmax_player;
+    players[0] = &heuristic_player;
+    players[1] = &heuristic_player;
 
 //    auto start = high_resolution_clock::now();
 
@@ -60,7 +60,12 @@ int main(){
 //        cout<<"nombre de parties gagnees par le joueur 2: "<<winner[2]<<"("<<100*float(winner[2])/nb_iterations<<"%)"<<endl;
 //    }
 
-    playGameGraphics(&board,players,gui);
+    GUI gui;
+    gui.init();
+    Board board;
+    board.init();
+    Game* game = playGameGraphics(&board,players,gui);
+    game->review_game(gui);
     cout<<"score joueur 1: "<<int(board.getScore(0))<<endl;
     cout<<"score joueur 2: "<<int(board.getScore(1))<<endl;
     endGraphics();

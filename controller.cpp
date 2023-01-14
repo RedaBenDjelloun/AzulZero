@@ -592,38 +592,12 @@ Move MCTS::play_move(Board *board, bool play){
 }
 
 
-void play_game(Board* board, Controller **players, bool save){
+void play_game(Board* board, Controller **players){
     while(!board->endOfTheGame()){
         while(!board->endOfTheRound()){
             players[board->currentPlayer()]->play_move(board);
         }
         board->nextRound();
     }
-    board->addEndgameBonus();
-}
-
-void playGameGraphics(Board* board, Controller **players, GUI &gui){
-    // Display initial board state
-    gui.updateBoardState(board);
-    // Go to the first round after click
-    click();
-    board->nextRound();
-    // Loop on rounds
-    while(!board->endOfTheGame()){
-        // Display board at the beginning of the round
-        gui.updateBoardState(board);
-        milliSleep(500);
-        while(!board->endOfTheRound()){
-            // Play move and update board
-            players[board->currentPlayer()]->play_move(board);
-            gui.updateBoardState(board);
-            milliSleep(500);
-        }
-        // Go to the next round after click
-        click();
-        board->nextRound();
-    }
-    // Display final board state and update scores
-    gui.updateBoardState(board);
     board->addEndgameBonus();
 }
