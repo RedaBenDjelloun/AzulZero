@@ -84,8 +84,8 @@ class Board{
 
 public:
 
-    Board(){};
-    ~Board(){};
+    Board(){}
+    ~Board(){}
     void init();
 
     bool operator ==(const Board& b) const;
@@ -96,6 +96,7 @@ public:
     byte getBagTile(byte color) const {return bag[color];}
     byte getDiscardedTile(byte color) const {return discard[color];}
     byte getFactoryTile(byte factory, byte color) const{return factories[factory*NB_COLORS+color];}
+    void fillFactoryTilesArray(byte tiles[NB_TILES_PER_FACTORY], byte factory);
     byte getTile1() const{return tile1;}
     byte getPatternLineNb(byte player, byte line) const{return pattern_lines[player*WALL_HEIGHT*2 + line*2];}
     byte getPatternLineColor(byte player, byte line) const{return pattern_lines[player*WALL_HEIGHT*2 + line*2 + 1];}

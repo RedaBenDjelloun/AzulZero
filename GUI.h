@@ -6,11 +6,16 @@ using namespace std;
 #include <Imagine/Images.h>
 using namespace Imagine;
 
-#include "controller.h"
+#include "board.h"
 
 // GUI Parameters
 
-const double ZOOM = 1.05;
+const double ZOOM = 1.2;
+
+const int HIGHLIGHT_PEN = 4;
+const int HIGHLIGHT_GAP = HIGHLIGHT_PEN-1;
+const Color HIGHLIGHT_SELECT_COLOR = GREEN;
+const Color HIGHLIGHT_HISTORY_COLOR = BLUE;
 
 const int PLAYERBOARD_WIDTH = int(740*ZOOM);
 const int PLAYERBOARD_HEIGHT = int(484*ZOOM);
@@ -48,18 +53,18 @@ const int TEXT_SIZE = int(32*ZOOM);
 const IntPoint2 MIDDLE_P0 = IntPoint2(WINDOW_HEIGHT/2 - (5*WALL_SPACING + WALL_MARGIN)/2, WINDOW_HEIGHT-BAG_SIDE);
 const Color MIDDLE_COLOR = Color(230,230,230);
 
-const IntPoint2 DISCARD_P0 = IntPoint2(WINDOW_HEIGHT - 5*WALL_SPACING - WALL_MARGIN,0);
+const IntPoint2 DISCARD_P0 = IntPoint2(WINDOW_HEIGHT - 5*WALL_SPACING - WALL_MARGIN - HIGHLIGHT_PEN,0);
 const Color DISCARD_COLOR = Color(255,225,225);
 
 const IntPoint2 BAG_CONTENT_P0 = IntPoint2(0,0);
 const Color BAG_CONTENT_COLOR = Color(212, 236, 247);
-
 
 // Images
 
 const string GAMEBOX = stringSrcPath("Images/game_box.png");
 const string BAG = stringSrcPath("Images/bag.png");
 const string PLAYERBOARD = stringSrcPath("Images/playerboard.png");
+const string PLAYERBOARD_TRANSPARENT = stringSrcPath("Images/playerboard_transparency.png");
 const string FACTORY = stringSrcPath("Images/factory.png");
 const string BLUE_TILE = stringSrcPath("Images/blue.svg");
 const string YELLOW_TILE = stringSrcPath("Images/yellow.svg");
@@ -72,6 +77,7 @@ const vector<string> IMAGE_PATHS = {
     GAMEBOX,
     BAG,
     PLAYERBOARD,
+    PLAYERBOARD_TRANSPARENT,
     FACTORY,
     BLUE_TILE,
     YELLOW_TILE,
@@ -105,8 +111,10 @@ public:
     void displayBag(int x = 0, int y = 0, double fact = ZOOM) { displayImage(1,x,y,fact); }
     /// Shortcut : Display playerboard image
     void displayPlayerboard(int x = 0, int y = 0, double fact = ZOOM) { displayImage(2,x,y,fact); }
+    /// Shortcut : Display transparent playerboard image
+    void displayPlayerboardTransparent(int x = 0, int y = 0, double fact = ZOOM) { displayImage(3,x,y,fact); }
     /// Shortcut : Display factory image
-    void displayFactory(int x = 0, int y = 0, double fact = ZOOM) { displayImage(3,x,y,fact); }
+    void displayFactory(int x = 0, int y = 0, double fact = ZOOM) { displayImage(4,x,y,fact); }
     /// Shortcut : Display tile of color j (0: blue, 1: yellow, 2: red, 3: black, 4: cyan, 5: first player)
     void displayTile(int j, int x = 0, int y = 0, double fact = ZOOM);
 
@@ -118,6 +126,8 @@ public:
     void displayBag(IntPoint2 P, double fact = ZOOM) { displayBag(P.x(),P.y(),fact); }
     /// Shortcut : Display playerboard image
     void displayPlayerboard(IntPoint2 P, double fact = ZOOM) { displayPlayerboard(P.x(),P.y(),fact); }
+    /// Shortcut : Display transparent playerboard image
+    void displayPlayerboardTransparent(IntPoint2 P, double fact = ZOOM) { displayPlayerboardTransparent(P.x(),P.y(),fact); }
     /// Shortcut : Display factory image
     void displayFactory(IntPoint2 P, double fact = ZOOM) { displayFactory(P.x(),P.y(),fact); }
     /// Shortcut : Display tile of color j (0: blue, 1: yellow, 2: red, 3: black, 4: cyan, 5: first player)
@@ -127,7 +137,7 @@ public:
     Window init();
 
     /// Display NB_PLAYERS = 2 playerboards
-    void displayPlayerboards();
+    void displayPlayerboards(Board *board);
     /// Display NB_FACTORIES factories in a circle
     void displayFactories(bool circles = false);
 
@@ -153,12 +163,14 @@ public:
     /// Display everything
     void displayBoardState(Board *board);
 
+    /// Clear window and display everything, with no refresh
+    void updateBoardState(Board *board);
+
     /// Display grid for designing UI
     void displayGrid();
-
 };
 
-void playGameGraphics(Board* board, Controller** players, GUI gui);
+
 
 
 

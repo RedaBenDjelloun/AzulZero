@@ -9,8 +9,7 @@ using namespace std::chrono;
 #include "GUI.h"
 
 int main(){
-    srand((unsigned int) time(0));
-
+    srand((unsigned int) time(nullptr));
 
     int total_points[NB_PLAYERS] = {0,0};
     int max_points[NB_PLAYERS] = {0,0};
@@ -43,7 +42,6 @@ int main(){
 //        }
 //        winner[board.winner()]+=1;
 //    }
-
 //    auto stop = high_resolution_clock::now();
 //    auto duration = duration_cast<milliseconds>(stop - start);
 //    cout<<"temps d'execution : "<<duration.count()<<"ms"<<endl;
@@ -62,11 +60,6 @@ int main(){
 //        cout<<"nombre de parties gagnees par le joueur 2: "<<winner[2]<<"("<<100*float(winner[2])/nb_iterations<<"%)"<<endl;
 //    }
 
-
-    Board board;
-    board.init();
-    GUI gui;
-    gui.init();
     playGameGraphics(&board,players,gui);
     cout<<"score joueur 1: "<<int(board.getScore(0))<<endl;
     cout<<"score joueur 2: "<<int(board.getScore(1))<<endl;

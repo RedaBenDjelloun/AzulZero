@@ -107,6 +107,25 @@ bool Board::operator ==(const Board& b) const{
     return true;
 }
 
+void Board::fillFactoryTilesArray(byte tiles[NB_TILES_PER_FACTORY], byte factory){
+    for (byte i = 0; i < NB_TILES_PER_FACTORY; i++){
+        tiles[i] = 255;
+    }
+
+    byte color = 0;
+    byte i = 0;
+    byte j = 0;
+    while (i < NB_TILES_PER_FACTORY and color < NB_COLORS){
+        j = getFactoryTile(factory,color);
+        while (j > 0){
+            tiles[i] = color;
+            i++;
+            j--;
+        }
+        color++;
+    }
+}
+
 byte Board::nbFloorTiles() const{
     for(int pos=0; pos<FLOOR_SIZE; pos++){
         if(getFloorTile(pos)==NB_COLORS+1)
