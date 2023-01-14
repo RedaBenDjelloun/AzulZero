@@ -24,6 +24,8 @@ const byte HORIZONTAL_LINE_BONUS = 2;
 const byte VERTICAL_LINE_BONUS = 7;
 const byte COLOR_BONUS = 10;
 
+const string COLOR_NAMES = "BYRDL";
+
 
 byte wallColumnToColor(byte column, byte line);
 
@@ -39,6 +41,8 @@ struct Move{
         col = col_;
         line = line_;
     }
+
+    string acronym();
 };
 
 class Board{

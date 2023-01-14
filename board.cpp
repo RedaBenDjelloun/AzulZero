@@ -15,6 +15,18 @@ byte wallColorToColumn(byte color, byte line){
 }
 
 
+string Move::acronym(){
+    string name = "";
+    name += factory+49;
+    name += COLOR_NAMES[col];
+    if(line==WALL_WIDTH)
+        name += "F";
+    else
+        name += line+49;
+    return name;
+}
+
+
 void Board::init(){
 
     current_player = 0;

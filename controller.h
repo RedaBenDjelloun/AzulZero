@@ -8,10 +8,13 @@ using namespace std;
 
 class Controller
 {
+protected:
+    double evaluation;
 public:
     Controller(){}
     virtual ~Controller(){}
     virtual Move play_move(Board* board, bool play = true)=0;
+    double giveEvaluation(){return evaluation;}
 };
 
 
@@ -51,7 +54,6 @@ protected:
     double time_limit; // in seconds
     byte depth_limit;   // limit of max_depth
     bool time_limited;
-    double evaluation;
 
     Move next_move;
 
@@ -115,6 +117,7 @@ class MCTS: public Controller
 public:
     MCTS();
     ~MCTS();
+    MCTS(double time_limit_){time_limit=time_limit_;}
 
     /// Add all possible nodes from a leaf
     State add_nodes(Board* board,Tree<MCNode>* tree);
