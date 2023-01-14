@@ -1,7 +1,7 @@
 #include "game.h"
 
 void Game::nextState(){
-    if(move_index<moves.size()-1)
+    if(move_index<moves.size())
         move_index++;
 }
 
