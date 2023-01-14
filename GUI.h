@@ -10,7 +10,7 @@ using namespace Imagine;
 
 // GUI Parameters
 
-const double ZOOM = 1.2;
+const double ZOOM = 1.;
 
 const int HIGHLIGHT_PEN = 4;
 const int HIGHLIGHT_GAP = HIGHLIGHT_PEN-1;
@@ -41,6 +41,9 @@ const int FLOOR_X0 = int(0.018*PLAYERBOARD_WIDTH);
 const int FLOOR_Y0 = int(0.86*PLAYERBOARD_HEIGHT);
 const int FLOOR_MARGIN = int(0.43*TILE_SIDE);
 const int FLOOR_SPACING = FLOOR_MARGIN + TILE_SIDE;
+
+const int EVALUATION_BAR_HEIGHT = int(600*ZOOM);
+const int EVALUATION_BAR_WIDTH = int(30*ZOOM);
 
 const double FACTORY_SCALE = 0.64;
 const int FACTORY_RADIUS = int((WINDOW_HEIGHT-FACTORY_SIDE)*FACTORY_SCALE/2);
@@ -159,6 +162,8 @@ public:
     void displayBagContent(Board *board);
     /// Display discard
     void displayDiscard(Board *board);
+    /// Display evaluation bar
+    void displayEvaluationBar(double evaluation);
 
     /// Display everything
     void displayBoardState(Board *board);

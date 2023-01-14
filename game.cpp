@@ -22,7 +22,7 @@ double Game::valuation(int choice){
     else
         controller = new MCTS(1);
     controller->play_move(&states[move_index],false);
-    double result = controller->giveEvaluation();
+    double result = 2*(0.5-states[move_index].currentPlayer())*controller->giveEvaluation();
     delete controller;
     return result;
 }
@@ -32,6 +32,8 @@ void Game::review_game(GUI gui){
     init();
     while(true){
         gui.updateBoardState(currentState());
+        double evaluation = valuation();
+        gui.displayEvaluationBar(evaluation);
         int key = getKey();
         if(key == KEY_RIGHT)
             nextState();
