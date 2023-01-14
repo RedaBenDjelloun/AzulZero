@@ -144,7 +144,7 @@ Heuristic::Heuristic(int preoptimize){
 // optmization of the parameters with the Monte-Carlo method
 void Heuristic::optimize(Controller *opponent, int nb_test_game, int nb_evolve_game){
     int total_result;
-    int best_result = -INFINITY; // = score(player)-score(opponent)
+    int best_result = -INT32_MAX; // = score(player)-score(opponent)
     double old_par[9];
     double best_par[9];
 
@@ -213,7 +213,8 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
 
     if(depth==0){
         Board board_copy(*board);
-        Move m = heuristic.play_move(&board_copy);
+        Move m = next_move;
+        board_copy.play(m);
         best_response = -DFS(&board_copy,depth+1,max_depth,-beta,-alpha);
         alpha = best_response;
         best_factory = m.factory;
@@ -221,25 +222,10 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
         best_line = m.line;
     }
 
-    // if the position has already been reached
-    /*
-    if(look_up_table.count(*board)>0){
-        PositionValue pos_val(look_up_table.at(*board));
-        if(pos_val.depth < max_depth-depth and pos_val.value >= alpha-tol){
-            look_up_table.erase(*board);
-            if(beta>=pos_val.value)
-                alpha = max(alpha,pos_val.value);
-        }
-        else
-            return pos_val.value;
-    }
-    */
-
     if(depth==max_depth){
         byte player = board->currentPlayer();
         board->nextRound();
         board->addEndgameBonus();
-        //look_up_table.insert({*board,PositionValue(board->getScore(player) - board->getScore(1-player),0)});
         return board->getScore(player) - board->getScore(1-player);
     }
 
@@ -297,25 +283,24 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
         next_move.col = best_col;
         next_move.line = best_line;
     }
-    //look_up_table.insert({*board,PositionValue(best_response,max_depth-depth)});
     return best_response;
 }
 
 Move MinMax::play_move(Board* board, bool play){
-    look_up_table.clear();
+    next_move = heuristic.play_move(board,false);
     if(time_limited){
         chrono.reset();
         double alpha = -INFINITY;
         double beta = INFINITY;
         try{
             for(byte max_depth=1; max_depth<=depth_limit; max_depth++){
-                DFS(board,0,max_depth,alpha,beta);
+                evaluation = DFS(board,0,max_depth,alpha,beta);
             }
         }
         catch(TimeOutException&e){}
     }
     else{
-        DFS(board,0,depth_limit);
+        evaluation = DFS(board,0,depth_limit);
     }
     if(play)
         board->play(next_move);
@@ -501,11 +486,114 @@ Move Human::play_move(Board *board, bool play){
     return Move(factory,color,line);
 }
 
-void play_game(Board* board, Controller **players){
-    board->nextRound();
-    board->random_first_player();
-    while(!board->endOfTheGame()){
 
+//////////////////// MCTS ////////////////////
+
+
+MCTS::MCTS(){
+    random_players = new Controller*[NB_PLAYERS];
+    random_players[0] = new Random();
+    random_players[1] = new Random();
+}
+
+MCTS::~MCTS(){
+    delete random_players[0];
+    delete random_players[1];
+    delete random_players;
+}
+
+State MCTS::add_nodes(Board* board,Tree<MCNode> *tree){
+    assert(!board->endOfTheRound());
+    assert(tree->isLeaf());
+    State delta_state;
+    for(int factory=0; factory<=NB_FACTORIES; factory++){
+        for(int col=0; col<NB_COLORS; col++){
+            if(board->pickableTile(factory,col)){
+                for(int line=0; line<=WALL_HEIGHT; line++){
+                    if(board->placeableTile(col,line)){
+                        tree->addAsLastChild(new Tree<MCNode>(MCNode(Move(factory,col,line))));
+                        Board board_copy(*board);
+                        board_copy.play(factory,col,line);
+                        byte player = board->currentPlayer();
+                        play_game(&board_copy,random_players);
+                        tree->getLastChild()->getDataRef().s.update(player,board_copy.getScore(0),board_copy.getScore(1));
+                        delta_state += tree->getLastChild()->getDataRef().s;
+                    }
+                }
+            }
+        }
+    }
+    return delta_state;
+}
+
+
+State MCTS::tree_search(Board* board,Tree<MCNode>* tree){
+    if(tree->isLeaf()){
+        // expansion
+        if(!board->endOfTheRound()){
+        State delta_state(add_nodes(board,tree).inverse());
+        tree->getDataRef().s += delta_state;
+        return delta_state;
+        }
+        // simulation
+        else{
+            byte player = 1-board->currentPlayer();
+            play_game(board,random_players);
+            State delta_state;
+            delta_state.update(player,board->getScore(0),board->getScore(1));
+            tree->getDataRef().s += delta_state;
+            return delta_state;
+        }
+    }
+    else{
+        // selection
+        double best_bound = -INFINITY;
+        int child_index = -1;
+        int N = tree->getData().N();
+        for(int i=0; i<tree->nbChildren(); i++){
+            if(best_bound < tree->getChild(i)->getData().UCT(N)){
+                best_bound = tree->getChild(i)->getData().UCT(N);
+                child_index = i;
+            }
+        }
+        Tree<MCNode>* child(tree->getChild(child_index));
+        board->play(tree->getChild(child_index)->getData().move);
+        State delta_state = tree_search(board,child).inverse();
+        tree->getDataRef().s += delta_state;
+        return delta_state;
+    }
+}
+
+
+Move MCTS::play_move(Board *board, bool play){
+    assert(time_limited or nb_simul_limited);
+    chrono.reset();
+    MCNode root;
+    Tree<MCNode> tree(root);
+    Board board1(*board);
+    board1.addBonusToAll(50);
+    while((chrono.lap()<time_limit or !time_limited) and (tree.getData().N()<nb_max_simul or !nb_simul_limited)){
+        Board board_copy(board1);
+        tree_search(&board_copy,&tree).inverse();
+    }
+    // selection
+    double best_value = -INFINITY;
+    int child_index = -1;
+    for(int i=0; i<tree.nbChildren(); i++){
+        if(best_value < tree.getChild(i)->getData().value()){
+            best_value = tree.getChild(i)->getData().value();
+            child_index = i;
+        }
+    }
+    Move m(tree.getChild(child_index)->getData().move);
+    if(play)
+        board->play(m);
+    return m;
+}
+
+
+void play_game(Board* board, Controller **players, bool save){
+    while(!board->endOfTheGame()){
         while(!board->endOfTheRound()){
             players[board->currentPlayer()]->play_move(board);
         }

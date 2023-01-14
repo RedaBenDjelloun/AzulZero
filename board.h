@@ -24,6 +24,8 @@ const byte HORIZONTAL_LINE_BONUS = 2;
 const byte VERTICAL_LINE_BONUS = 7;
 const byte COLOR_BONUS = 10;
 
+const string COLOR_NAMES = "BYRDL";
+
 
 byte wallColumnToColor(byte column, byte line);
 
@@ -39,6 +41,8 @@ struct Move{
         col = col_;
         line = line_;
     }
+
+    string acronym();
 };
 
 class Board{
@@ -98,7 +102,7 @@ public:
     byte getPatternLineColor(byte player, byte line) const{return pattern_lines[player*WALL_HEIGHT*2 + line*2 + 1];}
     byte getFloorTile(byte pos) const{return floor_lines[pos];}
     byte nbFloorTiles() const;
-    bool wallTileFilled(byte player, byte line, byte column) const{return walls[player*WALL_SIZE+line*WALL_HEIGHT+column];}
+    inline bool wallTileFilled(byte player, byte line, byte column) const{return walls[player*WALL_SIZE+line*WALL_HEIGHT+column];}
 
     /// Set the first player randomly
     void random_first_player(){current_player = rand()%2;}
@@ -147,7 +151,8 @@ public:
     bool placeableTile(byte color, byte line) const;
 
     /// Checks if the move is possible
-    bool playable(byte factory, byte color, byte line);
+    bool playable(byte factory, byte color, byte line) const;
+    bool playable(Move m) const {return playable(m.factory,m.col,m.line);}
 
     /// Add a malus to a player
     void addMalus(byte malus, byte player);
@@ -158,21 +163,13 @@ public:
     /// In terminal display of the factories
     void display() const;
 
-    size_t hash() const;
-};
+    /// Construct the list of all the possible moves
+    vector<Move> moveList();
 
-namespace std
-{
-    template <>
-    struct hash<Board>
-    {
-        size_t operator()(const Board& board) const
-        {
-            // Compute individual hash values for two data members and combine them using XOR and bit shifting
-            return board.hash();
-        }
-    };
-}
+    void addBonusToAll(byte bonus){scores[0]+=bonus; scores[1]+=bonus;}
+
+    void setScoreToAll(byte score){scores[0]=score; scores[1]=score;}
+};
 
 void randomGameTest();
 

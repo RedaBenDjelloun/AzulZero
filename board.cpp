@@ -15,6 +15,18 @@ byte wallColorToColumn(byte color, byte line){
 }
 
 
+string Move::acronym(){
+    string name = "";
+    name += factory+49;
+    name += COLOR_NAMES[col];
+    if(line==WALL_WIDTH)
+        name += "F";
+    else
+        name += line+49;
+    return name;
+}
+
+
 void Board::init(){
 
     current_player = 0;
@@ -406,10 +418,12 @@ void Board::play(byte factory, byte color, byte line){
 
 bool Board::pickableTile(byte factory, byte color) const{
     // That color is available in this factory ?
+    assert(factory<=NB_FACTORIES and color<NB_COLORS);
     return factories[factory*NB_COLORS+color]>0;
 }
 
 bool Board::placeableTile(byte color, byte line) const{
+    assert(line<=WALL_HEIGHT and color<NB_COLORS);
     // if the player wants to place the tiles on the floor line (always possible)
     if(line == WALL_HEIGHT)
         return true;
@@ -424,7 +438,7 @@ bool Board::placeableTile(byte color, byte line) const{
     return (pattern_lines[index+1] == color and pattern_lines[index]<line+1);
 }
 
-bool Board::playable(byte factory, byte color, byte line){
+bool Board::playable(byte factory, byte color, byte line) const{
     return pickableTile(factory,color) and placeableTile(color,line);
 }
 
@@ -517,50 +531,22 @@ void Board::display() const{
 }
 
 
-size_t Board::hash() const{
-    size_t key = 127320773; //big prime number to hash
-    size_t output =0;
-    output ^= current_player;
-    output *= key;
-    output ^= tile1;
-    output *= key;
-
-    for(byte player=0; player<NB_PLAYERS; player++){
-        output ^= scores[player];
-        output *= key;
+vector<Move> Board::moveList(){
+    vector<Move> lst;
+    for(int factory=0; factory<=NB_FACTORIES; factory++){
+        for(int col=0; col<NB_COLORS; col++){
+            if(pickableTile(factory,col)){
+                for(int line=0; line<=WALL_HEIGHT; line++){
+                    if(placeableTile(col,line)){
+                        lst.push_back(Move(factory,col,line));
+                    }
+                }
+            }
+        }
     }
-
-    for(byte i=0; i<NB_COLORS; i++){
-        output ^= bag[i];
-        output *= key;
-    }
-
-    for(byte i=0; i<NB_COLORS; i++){
-        output ^= discard[i];
-        output *= key;
-    }
-
-    for(byte i=0; i<(NB_FACTORIES+1)*NB_COLORS; i++){
-        output ^= factories[i];
-        output *= key;
-    }
-
-    for(byte i=0; i<NB_PLAYERS*WALL_HEIGHT*2; i++){
-        output ^= pattern_lines[i];
-        output *= key;
-    }
-
-    for(byte i=0; i<NB_PLAYERS*FLOOR_SIZE; i++){
-        output ^= floor_lines[i];
-        output *= key;
-    }
-
-    for(byte i=0; i<NB_PLAYERS*WALL_SIZE; i++){
-        output ^= walls[i];
-        output *= key;
-    }
-    return output;
+    return lst;
 }
+
 
 
 

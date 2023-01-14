@@ -11,26 +11,22 @@ using namespace std::chrono;
 int main(){
     srand((unsigned int) time(nullptr));
 
-
-//    int total_points[NB_PLAYERS] = {0,0};
-//    int max_points[NB_PLAYERS] = {0,0};
-//    int nb_iterations = 100;
-//    int winner[3] = {0,0,0};
-    Board board;
-    board.init();
-    GUI gui;
-    gui.init();
-
+    int total_points[NB_PLAYERS] = {0,0};
+    int max_points[NB_PLAYERS] = {0,0};
+    int nb_iterations = 1;
+    int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
     Heuristic heuristic_player(0);
-    MinMax minmax_player(20,true,1);
+    MinMax minmax_player(20,true,10);
     MinMax minmax_player2(20);
     Random random_player;
-    Human player("Hector", &gui);
+    Random random_player2;
+    Human player("Hector");
+    MCTS player0;
 
     // Choose players
-    players[0] = &player;
-    players[1] = &heuristic_player;
+    players[0] = &player0;
+    players[1] = &minmax_player;
 
 //    auto start = high_resolution_clock::now();
 
@@ -46,7 +42,6 @@ int main(){
 //        }
 //        winner[board.winner()]+=1;
 //    }
-
 //    auto stop = high_resolution_clock::now();
 //    auto duration = duration_cast<milliseconds>(stop - start);
 //    cout<<"temps d'execution : "<<duration.count()<<"ms"<<endl;
