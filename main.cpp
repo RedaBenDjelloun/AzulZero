@@ -23,9 +23,12 @@ int main(){
     Random random_player;
     Random random_player2;
     MCTS player0;
+    GUI gui;
+    gui.init();
+    Human human("Hector",&gui);
 
     // Choose players
-    players[0] = &heuristic_player;
+    players[0] = &random_player;
     players[1] = &minmax_player;
 
 //    auto start = high_resolution_clock::now();
@@ -60,8 +63,6 @@ int main(){
 //        cout<<"nombre de parties gagnees par le joueur 2: "<<winner[2]<<"("<<100*float(winner[2])/nb_iterations<<"%)"<<endl;
 //    }
 
-    GUI gui;
-    gui.init();
     Board board;
     board.init();
     Game* game = playGameGraphics(&board,players,gui);

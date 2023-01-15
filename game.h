@@ -9,6 +9,8 @@ class Game{
     /// States of the games
     vector<Board> states;
 
+    MCTS evaluator;
+
     unsigned int move_index=0;
 
 public:
@@ -29,7 +31,7 @@ public:
     Board* currentState(){return &states[move_index];};
 
     /// Valuation of the state of the game with a choosen AI
-    double valuation(int choice=0);
+    MCNode valuation(int nb_simul, Tree<MCNode> *tree);
 
     void review_game(GUI gui);
 };

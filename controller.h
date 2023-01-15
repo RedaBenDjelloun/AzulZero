@@ -78,6 +78,10 @@ public:
     Move play_move(Board* board, bool play=true);
 };
 
+void highlightFactoryTilesOfColor(byte factory, byte factoryTiles[NB_TILES_PER_FACTORY], byte color);
+void highlightMiddleTile(byte tile);
+void highlightMiddle();
+
 struct State{
     int wins=0;
     int draws=0;
@@ -85,6 +89,7 @@ struct State{
 
     State(){}
     State(int wins_, int draws_, int losses_){wins=wins_; draws=draws_; losses=losses_;}
+    int total(){return wins+draws+losses;}
     void operator+=(State s){wins+=s.wins; draws+=s.draws; losses+=s.losses;}
     State inverse(){return State(losses,draws,wins);};
     void update(byte player,byte score1, byte score2){

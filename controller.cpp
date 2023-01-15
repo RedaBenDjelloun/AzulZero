@@ -479,7 +479,7 @@ Move Human::play_move(Board *board, bool play){
             clickPickableTile(board, factory, color);
         }while(!board->pickableTile(factory,color));
         foundTile = clickPlaceableTile(board, line);
-        isPlaceableTile = board->placeableTile(color,line);
+        isPlaceableTile = foundTile and board->placeableTile(color,line);
     } while (not foundTile or not isPlaceableTile);
     if(play)
         board->play(factory,color,line);
@@ -574,7 +574,7 @@ Move MCTS::play_move(Board *board, bool play){
     board1.addBonusToAll(50);
     while((chrono.lap()<time_limit or !time_limited) and (tree.getData().N()<nb_max_simul or !nb_simul_limited)){
         Board board_copy(board1);
-        tree_search(&board_copy,&tree).inverse();
+        tree_search(&board_copy,&tree);
     }
     // selection
     double best_value = -INFINITY;

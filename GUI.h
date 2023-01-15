@@ -163,7 +163,7 @@ public:
     /// Display discard
     void displayDiscard(Board *board);
     /// Display evaluation bar
-    void displayEvaluationBar(double evaluation);
+    void displayEvaluationBar(double wins, double draws, double losses);
 
     /// Display everything
     void displayBoardState(Board *board);
