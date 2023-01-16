@@ -68,6 +68,11 @@ void GUI::displayFactories(bool circles){
     }
 }
 
+void GUI::displayFactory(byte factory){
+    IntPoint2 unityroot = IntPoint2(int(FACTORY_RADIUS*cos(- M_PI/2 + 2*M_PI*factory/NB_FACTORIES)),int(FACTORY_RADIUS*sin(- M_PI/2 + 2*M_PI*factory/NB_FACTORIES)));
+    displayFactory(FACTORY_CENTER+unityroot-FACTORY_CENTERING);
+}
+
 void GUI::displayWalls(Board *board){
     for (byte p = 0; p < NB_PLAYERS; p++){
         for (byte x = 0; x < NB_COLORS; x++){

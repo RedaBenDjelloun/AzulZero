@@ -6,47 +6,81 @@ struct TimeOutException{};
 //////////////////// RANDOM ////////////////////
 
 
-Move Random::play_move(Board* board, bool play){
-    int nb_pickeable = 0;
-    for(int factory=0; factory<=NB_FACTORIES; factory++){
-        for(int color=0; color<NB_COLORS; color++){
-            nb_pickeable += board->pickableTile(factory,color);
-        }
-    }
+//Move Random::play_move(Board* board, bool play){
+//    int nb_pickeable = 0;
+//    for(int factory=0; factory<=NB_FACTORIES; factory++){
+//        for(int color=0; color<NB_COLORS; color++){
+//            nb_pickeable += board->pickableTile(factory,color);
+//        }
+//    }
 
-    int pick_choice = rand()%nb_pickeable;
-    int factory_choice;
-    int color_choice;
-    int acc = 0;
-    for(int factory=0; factory<=NB_FACTORIES; factory++){
-        for(int color=0; color<NB_COLORS; color++){
-            acc += board->pickableTile(factory,color);
-            if(pick_choice<acc){
-                factory_choice = factory;
-                color_choice = color;
-                factory = NB_FACTORIES;
-                color = NB_COLORS;
+//    int pick_choice = rand()%nb_pickeable;
+//    int factory_choice;
+//    int color_choice;
+//    int acc = 0;
+//    for(int factory=0; factory<=NB_FACTORIES; factory++){
+//        for(int color=0; color<NB_COLORS; color++){
+//            acc += board->pickableTile(factory,color);
+//            if(pick_choice<acc){
+//                factory_choice = factory;
+//                color_choice = color;
+//                factory = NB_FACTORIES;
+//                color = NB_COLORS;
+//            }
+//        }
+//    }
+
+//    int nb_placeable = 0;
+//    for(int line=0; line<=WALL_HEIGHT; line++){
+//        nb_placeable += board->placeableTile(color_choice, line);
+//    }
+
+//    //nb_placeable = max(1,nb_placeable-1); // do not play in the floor if he doesn't have to
+//    int spot_choice = rand()%nb_placeable;
+//    acc=0;
+
+//    for(int line=0; line<=WALL_HEIGHT; line++){
+//        acc += board->placeableTile(color_choice, line);
+//        if(spot_choice<acc){
+//            if(play)
+//                board->play(factory_choice,color_choice,line);
+//            return Move(factory_choice,color_choice,line);
+//        }
+//    }
+//    return Move(-1,-1,-1); // not normal
+//}
+
+Move Random::play_move(Board* board, bool play){
+    int nb_choices = 0;
+    for(byte factory=0; factory<=NB_FACTORIES; factory++){
+        for(byte color=0; color<NB_COLORS; color++){
+            if(board->pickableTile(factory,color)){
+                for(byte line=0; line<=WALL_HEIGHT; line++){
+                    nb_choices += (1+3*(line!=WALL_HEIGHT))*board->placeableTile(color,line);
+                }
             }
         }
     }
 
-    int nb_placeable = 0;
-    for(int line=0; line<=WALL_HEIGHT; line++){
-        nb_placeable += board->placeableTile(color_choice, line);
-    }
+    int choice = rand()%nb_choices;
+    int n=0;
 
-    //nb_placeable = max(1,nb_placeable-1); // do not play in the floor if he doesn't have to
-    int spot_choice = rand()%nb_placeable;
-    acc=0;
-
-    for(int line=0; line<=WALL_HEIGHT; line++){
-        acc += board->placeableTile(color_choice, line);
-        if(spot_choice<acc){
-            if(play)
-                board->play(factory_choice,color_choice,line);
-            return Move(factory_choice,color_choice,line);
+    for(byte factory=0; factory<=NB_FACTORIES; factory++){
+        for(byte color=0; color<NB_COLORS; color++){
+            if(board->pickableTile(factory,color)){
+                for(byte line=0; line<=WALL_HEIGHT; line++){
+                    n += (1+3*(line!=WALL_HEIGHT))*board->placeableTile(color,line);
+                    if(n>choice){
+                        if(play)
+                            board->play(factory,color,line);
+                        return Move(factory,color,line);
+                    }
+                }
+            }
         }
     }
+    cout<<"coucou"<<endl;
+    assert(false);
     return Move(-1,-1,-1); // not normal
 }
 
@@ -332,7 +366,7 @@ bool isEmptyFactory(Board *board, byte factory){
 
 IntPoint2 computeFactoryCenter(byte factoryIndex){
     IntPoint2 unityroot = IntPoint2(int(FACTORY_RADIUS*cos(- M_PI/2 + 2*M_PI*factoryIndex/NB_FACTORIES)),
-                          int(FACTORY_RADIUS*sin(- M_PI/2 + 2*M_PI*factoryIndex/NB_FACTORIES)));
+                                    int(FACTORY_RADIUS*sin(- M_PI/2 + 2*M_PI*factoryIndex/NB_FACTORIES)));
     return FACTORY_CENTER + unityroot;
 }
 
@@ -451,12 +485,12 @@ bool Human::clickPlaceableTile(Board *board, byte &line){
     clickedPoint = IntPoint2(x,y);
     byte player = board->currentPlayer();
     if (isInsideBox(clickedPoint, PLAYERBOARD_X0 + PATTERN_X0, player*PLAYERBOARD_HEIGHT + PATTERN_Y0,
-                                  WALL_HEIGHT*WALL_SPACING,  WALL_HEIGHT*WALL_SPACING)){
+                    WALL_HEIGHT*WALL_SPACING,  WALL_HEIGHT*WALL_SPACING)){
         line = byte((y -  player*PLAYERBOARD_HEIGHT - PATTERN_Y0)/WALL_SPACING);
         return true;
     }
     else if(isInsideBox(clickedPoint, PLAYERBOARD_X0 + FLOOR_X0 - FLOOR_MARGIN/4, player*PLAYERBOARD_HEIGHT + FLOOR_Y0,
-                                      FLOOR_SIZE*FLOOR_SPACING + FLOOR_MARGIN/2 - TILE_SIDE/2, TILE_SIDE + FLOOR_MARGIN/4)){
+                        FLOOR_SIZE*FLOOR_SPACING + FLOOR_MARGIN/2 - TILE_SIDE/2, TILE_SIDE + FLOOR_MARGIN/4)){
         line = WALL_HEIGHT;
         return true;
     }
@@ -531,9 +565,9 @@ State MCTS::tree_search(Board* board,Tree<MCNode>* tree){
     if(tree->isLeaf()){
         // expansion
         if(!board->endOfTheRound()){
-        State delta_state(add_nodes(board,tree).inverse());
-        tree->getDataRef().s += delta_state;
-        return delta_state;
+            State delta_state(add_nodes(board,tree).inverse());
+            tree->getDataRef().s += delta_state;
+            return delta_state;
         }
         // simulation
         else{

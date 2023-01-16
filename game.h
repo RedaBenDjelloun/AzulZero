@@ -31,7 +31,7 @@ public:
     Board* currentState(){return &states[move_index];};
 
     /// Valuation of the state of the game with a choosen AI
-    MCNode valuation(int nb_simul, Tree<MCNode> *tree);
+    MCNode valuation(double time_limit, Tree<MCNode> *tree);
 
     void review_game(GUI gui);
 };

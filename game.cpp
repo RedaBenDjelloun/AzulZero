@@ -15,18 +15,19 @@ void Game::init(){
 }
 
 
-MCNode Game::valuation(int nb_simul,Tree<MCNode>* tree){
+MCNode Game::valuation(double time_limit,Tree<MCNode>* tree){
     State s;
-    while(tree->getData().N()<nb_simul){
+    Timer t;
+    t.reset();
+    while(t.lap()<time_limit){
         Board board_copy(*currentState());
         evaluator.tree_search(&board_copy,tree);
     }
     double best_bound = -INFINITY;
     int child_index = -1;
-    int N = tree->getData().N();
     for(int i=0; i<tree->nbChildren(); i++){
-        if(best_bound < tree->getChild(i)->getData().UCT(N)){
-            best_bound = tree->getChild(i)->getData().UCT(N);
+        if(best_bound < tree->getChild(i)->getData().value()){
+            best_bound = tree->getChild(i)->getData().value();
             child_index = i;
         }
     }
@@ -66,8 +67,8 @@ void Game::review_game(GUI gui){
 
         }
         else{
-            for(int i=1; i<=100; i++){
-                MCNode best_child = valuation(10000*i,&tree);
+            for(int i=1; i<=1000; i++){
+                MCNode best_child = valuation(0.1,&tree);
                 State eval = best_child.s;
                 Move best_move = best_child.move;
                 if(currentState()->currentPlayer()==0)
@@ -77,10 +78,15 @@ void Game::review_game(GUI gui){
                 double losses = double(eval.losses)/eval.total();
                 gui.displayEvaluationBar(wins,draws,losses);
                 byte factoryTiles[NB_TILES_PER_FACTORY];
-                if(i%10==0 and (factory!=best_move.factory or color!=best_move.col or line!=best_move.line)){
-                    gui.displayFactories();
+                if(i%10==1 and (factory!=best_move.factory or color!=best_move.col or line!=best_move.line)){
+                    noRefreshBegin();
+                    if(factory<NB_FACTORIES){
+                    gui.displayFactory(factory);
                     gui.displayAllFactoryTiles(currentState());
+                    }
+                    else{
                     gui.displayMiddleTiles(currentState());
+                    }
                     factory = best_move.factory;
                     color = best_move.col;
                     line = best_move.line;
@@ -92,6 +98,7 @@ void Game::review_game(GUI gui){
                         highlightMiddle();
                         highlightMiddleTile(color);
                     }
+                    noRefreshEnd();
                 }
                 key = keyboard();
                 if(key!=-1)

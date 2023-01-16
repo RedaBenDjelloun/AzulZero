@@ -133,6 +133,8 @@ public:
     void displayPlayerboardTransparent(IntPoint2 P, double fact = ZOOM) { displayPlayerboardTransparent(P.x(),P.y(),fact); }
     /// Shortcut : Display factory image
     void displayFactory(IntPoint2 P, double fact = ZOOM) { displayFactory(P.x(),P.y(),fact); }
+    /// Display one factory
+    void displayFactory(byte factory);
     /// Shortcut : Display tile of color j (0: blue, 1: yellow, 2: red, 3: black, 4: cyan, 5: first player)
     void displayTile(int j, IntPoint2 P, double fact = ZOOM) { displayTile(j,P.x(),P.y(),fact); }
 
