@@ -10,7 +10,7 @@ using namespace Imagine;
 
 // GUI Parameters
 
-const double ZOOM = 1.2;
+const double ZOOM = 1.;
 
 const int HIGHLIGHT_PEN = 4;
 const int HIGHLIGHT_GAP = HIGHLIGHT_PEN-1;
@@ -42,13 +42,17 @@ const int FLOOR_Y0 = int(0.86*PLAYERBOARD_HEIGHT);
 const int FLOOR_MARGIN = int(0.43*TILE_SIDE);
 const int FLOOR_SPACING = FLOOR_MARGIN + TILE_SIDE;
 
+const int EVALUATION_BAR_HEIGHT = int(700*ZOOM);
+const int EVALUATION_BAR_WIDTH = int(35*ZOOM);
+const int EVALUATION_BAR_MARGIN = int(5*ZOOM);
+
 const double FACTORY_SCALE = 0.64;
 const int FACTORY_RADIUS = int((WINDOW_HEIGHT-FACTORY_SIDE)*FACTORY_SCALE/2);
 const IntPoint2 FACTORY_CENTER = IntPoint2((WINDOW_WIDTH-PLAYERBOARD_WIDTH)/2,WINDOW_HEIGHT/2);
 const int FACTORY_MARGIN = int(0.15*FACTORY_SIDE);
 const IntPoint2 FACTORY_CENTERING = IntPoint2(FACTORY_SIDE/2, FACTORY_SIDE/2);
 
-const int TEXT_SIZE = int(32*ZOOM);
+const int TEXT_SIZE = int(20*ZOOM);
 
 const IntPoint2 MIDDLE_P0 = IntPoint2(WINDOW_HEIGHT/2 - (5*WALL_SPACING + WALL_MARGIN)/2, WINDOW_HEIGHT-BAG_SIDE);
 const Color MIDDLE_COLOR = Color(230,230,230);
@@ -130,6 +134,8 @@ public:
     void displayPlayerboardTransparent(IntPoint2 P, double fact = ZOOM) { displayPlayerboardTransparent(P.x(),P.y(),fact); }
     /// Shortcut : Display factory image
     void displayFactory(IntPoint2 P, double fact = ZOOM) { displayFactory(P.x(),P.y(),fact); }
+    /// Display one factory
+    void displayFactory(byte factory);
     /// Shortcut : Display tile of color j (0: blue, 1: yellow, 2: red, 3: black, 4: cyan, 5: first player)
     void displayTile(int j, IntPoint2 P, double fact = ZOOM) { displayTile(j,P.x(),P.y(),fact); }
 
@@ -159,6 +165,8 @@ public:
     void displayBagContent(Board *board);
     /// Display discard
     void displayDiscard(Board *board);
+    /// Display evaluation bar
+    void displayEvaluationBar(double wins, double draws, double losses);
 
     /// Display everything
     void displayBoardState(Board *board);
@@ -168,6 +176,8 @@ public:
 
     /// Display grid for designing UI
     void displayGrid();
+
+    void displayScores(Board *board);
 };
 
 
