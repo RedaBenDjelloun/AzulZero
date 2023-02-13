@@ -5,11 +5,10 @@ GUI::GUI(vector<string> image_paths, int w, int h){
     window_height = h;
     images = new Image<AlphaColor>[2*image_paths.size()];
     loadImages(image_paths);
-
 }
 
 GUI::~GUI(){
-    //delete [] images;
+    delete images;
 }
 
 void GUI::safeLoad(Image<AlphaColor> &image, string path){
@@ -142,10 +141,10 @@ void GUI::displayTileInfo(IntPoint2 P0, Color bg_color, byte tiles[NB_COLORS]){
         if (tiles[x] > 0){
             displayTile(x, P0 + IntPoint2(WALL_MARGIN + x*WALL_SPACING,WALL_MARGIN/2));
             if (tiles[x] < 10){
-                drawString(P0 + IntPoint2(WALL_MARGIN + x*WALL_SPACING + TILE_SIDE/2 - TEXT_SIZE/4,WALL_SPACING + int(2.5*WALL_MARGIN)), to_string(tiles[x]), BLACK, TEXT_SIZE);
+                drawString(P0 + IntPoint2(WALL_MARGIN + x*WALL_SPACING + TILE_SIDE/2 - TEXT_SIZE/2,WALL_SPACING + int(2.5*WALL_MARGIN)), to_string(tiles[x]), BLACK, TEXT_SIZE);
             }
             else{
-                drawString(P0 + IntPoint2(WALL_MARGIN + x*WALL_SPACING + TILE_SIDE/2 - TEXT_SIZE/2,WALL_SPACING + int(2.5*WALL_MARGIN)), to_string(tiles[x]), BLACK, TEXT_SIZE);
+                drawString(P0 + IntPoint2(WALL_MARGIN + x*WALL_SPACING + TILE_SIDE/2 - TEXT_SIZE,WALL_SPACING + int(2.5*WALL_MARGIN)), to_string(tiles[x]), BLACK, TEXT_SIZE);
             }
         }
     }
@@ -179,11 +178,20 @@ void GUI::displayDiscard(Board *board){
 }
 
 void GUI::displayEvaluationBar(double wins, double draws, double losses){
-    fillRect(WINDOW_WIDTH-PLAYERBOARD_WIDTH-EVALUATION_BAR_WIDTH,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2,EVALUATION_BAR_WIDTH,losses*EVALUATION_BAR_HEIGHT,BLACK);
-    fillRect(WINDOW_WIDTH-PLAYERBOARD_WIDTH-EVALUATION_BAR_WIDTH,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2+losses*EVALUATION_BAR_HEIGHT,EVALUATION_BAR_WIDTH,draws*EVALUATION_BAR_HEIGHT,Color(128,128,128));
-    fillRect(WINDOW_WIDTH-PLAYERBOARD_WIDTH-EVALUATION_BAR_WIDTH,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2+(losses+draws)*EVALUATION_BAR_HEIGHT,EVALUATION_BAR_WIDTH,wins*EVALUATION_BAR_HEIGHT,WHITE);
-    drawRect(WINDOW_WIDTH-PLAYERBOARD_WIDTH-EVALUATION_BAR_WIDTH,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2,EVALUATION_BAR_WIDTH,EVALUATION_BAR_HEIGHT,BLACK,2);
-//    drawString(WINDOW_WIDTH-PLAYERBOARD_WIDTH-2.5*EVALUATION_BAR_WIDTH,WINDOW_HEIGHT/2,to_string(int(evaluation)),RED);
+    int x0 = WINDOW_WIDTH-PLAYERBOARD_WIDTH-EVALUATION_BAR_WIDTH-EVALUATION_BAR_MARGIN;
+    fillRect(x0,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2,EVALUATION_BAR_WIDTH,losses*EVALUATION_BAR_HEIGHT,BLACK);
+    fillRect(x0,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2+losses*EVALUATION_BAR_HEIGHT,EVALUATION_BAR_WIDTH,draws*EVALUATION_BAR_HEIGHT,Color(128,128,128));
+    fillRect(x0,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2+(losses+draws)*EVALUATION_BAR_HEIGHT,EVALUATION_BAR_WIDTH,wins*EVALUATION_BAR_HEIGHT,WHITE);
+    drawRect(x0,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2,EVALUATION_BAR_WIDTH,EVALUATION_BAR_HEIGHT,BLACK,2);
+    int val = 100-int(100*(wins+0.5*draws)/(wins+draws+losses)+0.5); // +0.5 for the rounding
+    string disp = ".";
+    if(val<10)
+        disp+="0";
+    disp+=to_string(val);
+    if(val==100)
+        disp="1.";
+    bool ex = val>=50;
+    drawString(x0,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2+ex*losses*EVALUATION_BAR_HEIGHT+(1-ex)*((1-wins)*EVALUATION_BAR_HEIGHT+20),disp,RED);
 }
 
 
@@ -208,6 +216,7 @@ void GUI::displayBoardState(Board *board){
     displayMiddleTiles(board);
     displayBagContent(board);
     displayDiscard(board);
+    displayScores(board);
 }
 
 void GUI::updateBoardState(Board *board){
@@ -215,4 +224,11 @@ void GUI::updateBoardState(Board *board){
     clearWindow();
     displayBoardState(board);
     noRefreshEnd();
+}
+
+void GUI::displayScores(Board *board){
+    int score0 = board->getScore(0);
+    int score1 = board->getScore(1);
+    drawString(WINDOW_WIDTH-0.858*PLAYERBOARD_WIDTH-TEXT_SIZE/2*(1+(score0>=10)+(score0>=100)),PLAYERBOARD_HEIGHT*0.2,to_string(score0),BLACK,TEXT_SIZE);
+    drawString(WINDOW_WIDTH-0.858*PLAYERBOARD_WIDTH-TEXT_SIZE/2*(1+(score1>=10)+(score1>=100)),PLAYERBOARD_HEIGHT*1.2,to_string(score1),BLACK,TEXT_SIZE);
 }

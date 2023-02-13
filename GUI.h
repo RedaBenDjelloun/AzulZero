@@ -42,8 +42,9 @@ const int FLOOR_Y0 = int(0.86*PLAYERBOARD_HEIGHT);
 const int FLOOR_MARGIN = int(0.43*TILE_SIDE);
 const int FLOOR_SPACING = FLOOR_MARGIN + TILE_SIDE;
 
-const int EVALUATION_BAR_HEIGHT = int(600*ZOOM);
-const int EVALUATION_BAR_WIDTH = int(30*ZOOM);
+const int EVALUATION_BAR_HEIGHT = int(700*ZOOM);
+const int EVALUATION_BAR_WIDTH = int(35*ZOOM);
+const int EVALUATION_BAR_MARGIN = int(5*ZOOM);
 
 const double FACTORY_SCALE = 0.64;
 const int FACTORY_RADIUS = int((WINDOW_HEIGHT-FACTORY_SIDE)*FACTORY_SCALE/2);
@@ -51,7 +52,7 @@ const IntPoint2 FACTORY_CENTER = IntPoint2((WINDOW_WIDTH-PLAYERBOARD_WIDTH)/2,WI
 const int FACTORY_MARGIN = int(0.15*FACTORY_SIDE);
 const IntPoint2 FACTORY_CENTERING = IntPoint2(FACTORY_SIDE/2, FACTORY_SIDE/2);
 
-const int TEXT_SIZE = int(32*ZOOM);
+const int TEXT_SIZE = int(20*ZOOM);
 
 const IntPoint2 MIDDLE_P0 = IntPoint2(WINDOW_HEIGHT/2 - (5*WALL_SPACING + WALL_MARGIN)/2, WINDOW_HEIGHT-BAG_SIDE);
 const Color MIDDLE_COLOR = Color(230,230,230);
@@ -175,6 +176,8 @@ public:
 
     /// Display grid for designing UI
     void displayGrid();
+
+    void displayScores(Board *board);
 };
 
 

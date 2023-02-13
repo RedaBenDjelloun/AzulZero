@@ -39,8 +39,6 @@ MCNode Game::valuation(double time_limit,Tree<MCNode>* tree){
 int keyboard(){
     Event e;
     do {
-        bool deja_vu;
-        int j;
         getEvent(0,e);
 
         if(e.type==EVT_KEY_ON){
@@ -78,15 +76,11 @@ void Game::review_game(GUI gui){
                 double losses = double(eval.losses)/eval.total();
                 gui.displayEvaluationBar(wins,draws,losses);
                 byte factoryTiles[NB_TILES_PER_FACTORY];
-                if(i%10==1 and (factory!=best_move.factory or color!=best_move.col or line!=best_move.line)){
+                if (i%10==0 and (factory!=best_move.factory or color!=best_move.col or line!=best_move.line)){
+                    milliSleep(50);
                     noRefreshBegin();
-                    if(factory<NB_FACTORIES){
-                    gui.displayFactory(factory);
-                    gui.displayAllFactoryTiles(currentState());
-                    }
-                    else{
-                    gui.displayMiddleTiles(currentState());
-                    }
+                    clearWindow();
+                    gui.displayBoardState(currentState());
                     factory = best_move.factory;
                     color = best_move.col;
                     line = best_move.line;
@@ -95,14 +89,16 @@ void Game::review_game(GUI gui){
                         highlightFactoryTilesOfColor(factory, factoryTiles, color);
                     }
                     else{
-                        highlightMiddle();
                         highlightMiddleTile(color);
                     }
+                    highlightPatternLine(currentState()->currentPlayer(),line = best_move.line);
+                    gui.displayEvaluationBar(wins,draws,losses);
                     noRefreshEnd();
+                    milliSleep(50);
                 }
-                key = keyboard();
-                if(key!=-1)
-                    break;
+            key = keyboard();
+            if(key==KEY_RIGHT or key==KEY_LEFT or key==KEY_ESCAPE)
+                break;
             }
         }
         while(!(key==KEY_RIGHT or key==KEY_LEFT or key==KEY_ESCAPE))
@@ -112,7 +108,22 @@ void Game::review_game(GUI gui){
         else if(key == KEY_LEFT)
             previousState();
         else if(key == KEY_ESCAPE)
-            break;
+            return;
+    }
+}
+
+
+void Game::game_stats(){
+    MinMax evaluator(20,true,0.1);
+    vector<double> valuations;
+    vector<Move> best_moves;
+    for(unsigned int turn=0; turn<moves.size(); turn++){
+        move_index = turn;
+        best_moves.push_back(evaluator.play_move(&states[turn],false));
+        valuations.push_back(evaluator.valuation);
+    }
+    for(unsigned int i=0; i<moves.size()-1; i++){
+        cout<<valuations[i] + valuations[i+1]<<endl;
     }
 }
 
@@ -147,5 +158,9 @@ Game* playGameGraphics(Board* board, Controller **players, GUI &gui, bool save){
     board->addEndgameBonus();
     if(save)
         game->saveState(board);
+    milliSleep(50);
+    gui.updateBoardState(board);
+    milliSleep(50);
+    click();
     return game;
 }

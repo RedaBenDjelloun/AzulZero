@@ -51,6 +51,7 @@ class Board{
 
     // Score of each player
     // [player] -> score
+    // NB: the maximal score possible in the game is 245 < 2^8
     byte scores[NB_PLAYERS];
 
     // tiles in the bag
@@ -66,12 +67,13 @@ class Board{
     // factory = NB_FACTORIES -> center of the table
     byte factories[(NB_FACTORIES+1)*NB_COLORS];
 
-    // indicates where the "1" tile
-    // player or NB_PLAYER -> center of the table
+    // indicates where the "1" tile is
+    // player -> player who has the "1" tile
+    // NB_PLAYER -> center of the table
     byte tile1;
 
     // tiles on the pattern lines for each player
-    // [player,line,(nb,color)] ->
+    // [player,line] -> (nb,color)
     byte pattern_lines[NB_PLAYERS*WALL_HEIGHT*2];
 
     // tiles on the floor line for each player
@@ -86,6 +88,7 @@ public:
 
     Board(){}
     ~Board(){}
+    /// Put every piece in the box and reset player's scores
     void init();
 
     bool operator ==(const Board& b) const;
@@ -107,7 +110,7 @@ public:
     /// Set the first player randomly
     void random_first_player(){current_player = rand()%2;}
 
-    /// returns 0 if the first player wins 1 if the scaond wins and 1 if its a draw
+    /// returns 0 if the first player wins 2 if the second wins and 1 if its a draw
     byte winner() const{return (scores[0]<scores[1])+(scores[0]<=scores[1]);}
 
     /// Checks if it is the end of the round
@@ -142,6 +145,7 @@ public:
 
     /// Play a move without checking if it is possible (Unknown behaviour if the move is not possible)
     void play(byte factory, byte color, byte line);
+    /// Play a move without checking if it is possible (Unknown behaviour if the move is not possible)
     void play(Move m){play(m.factory,m.col,m.line);}
 
     ///  Checks if a tile exists
@@ -152,6 +156,7 @@ public:
 
     /// Checks if the move is possible
     bool playable(byte factory, byte color, byte line) const;
+    /// Checks if the move is possible
     bool playable(Move m) const {return playable(m.factory,m.col,m.line);}
 
     /// Add a malus to a player

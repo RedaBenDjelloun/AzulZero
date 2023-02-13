@@ -9,15 +9,11 @@ using namespace std;
 
 class Controller
 {
-protected:
-    double evaluation;
 public:
     Controller(){}
     virtual ~Controller(){}
     virtual Move play_move(Board* board, bool play = true)=0;
-    double giveEvaluation(){return evaluation;}
 };
-
 
 class Random: public Controller
 {
@@ -27,19 +23,31 @@ public:
 };
 
 
+class PseudoRandom: public Controller
+{
+    double coeff=3;
+public:
+    PseudoRandom(){}
+    PseudoRandom(double coeff_){coeff=coeff_;}
+    Move play_move(Board* board, bool play = true);
+};
+
+
 class Heuristic: public Controller
 {
+protected:
     double par[9] ={0,0,0,0,0,0,0,0,0};
 public:
     Heuristic(){}
     Heuristic(int preoptimization);
-    Move play_move(Board* board, bool play = true);
+    virtual Move play_move(Board* board, bool play = true);
     void optimize(Controller* opponent, int nb_test_game=100, int nb_evolve_game=100);
     double line_complete_reward(int line,int nb){return par[0] + par[1]*line + par[2]*nb;}
     double non_complete_line_reward(int line, int nb, int missing){return par[3] + par[4]*line + par[5]*nb + par[6]*missing;}
     double discard_reward(int nb){return par[7] + par[8]*nb;}
     double reward(int line, int nb, int in_the_floor);
 };
+
 
 struct PositionValue{
     double value;
@@ -51,7 +59,7 @@ class MinMax: public Controller
 {
 protected:
     Heuristic heuristic = Heuristic(0);
-    int nb_expect = 10;
+    int nb_expect = 10; // for expecti-MinMax
     double time_limit; // in seconds
     byte depth_limit;   // limit of max_depth
     bool time_limited;
@@ -60,6 +68,7 @@ protected:
 
     Timer chrono;
 public:
+    double valuation;
     MinMax(){}
     MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 1);
     double DFS(Board* board, byte depth, byte max_depth, double alpha = -INFINITY, double beta = + INFINITY);
@@ -81,6 +90,7 @@ public:
 void highlightFactoryTilesOfColor(byte factory, byte factoryTiles[NB_TILES_PER_FACTORY], byte color);
 void highlightMiddleTile(byte tile);
 void highlightMiddle();
+void highlightPatternLine(byte player, byte line);
 
 struct State{
     int wins=0;
@@ -117,16 +127,15 @@ struct MCNode{
 
 class MCTS: public Controller
 {
-    double time_limit=10;
+    double time_limit=1;
     int nb_max_simul=10000;
     bool time_limited=true;
     bool nb_simul_limited=false;
     Timer chrono;
     Controller** random_players;
 public:
-    MCTS();
+    MCTS(double coeff=3);
     ~MCTS();
-    MCTS(double time_limit_){time_limit=time_limit_;}
 
     /// Add all possible nodes from a leaf
     State add_nodes(Board* board,Tree<MCNode>* tree);
@@ -136,3 +145,6 @@ public:
 
 /// Play an entire game given the players
 void play_game(Board* board, Controller** players);
+
+
+int play_stat_game(Board* board, Controller **players);
