@@ -61,7 +61,7 @@ void Game::review_game(GUI gui){
         byte color=255;
         byte line =255;
         int key=-1;
-        if(currentState()->endOfTheGame()){
+        if(currentState()->endOfTheRound()){
 
         }
         else{
@@ -112,21 +112,6 @@ void Game::review_game(GUI gui){
     }
 }
 
-
-void Game::game_stats(){
-    MinMax evaluator(20,true,0.1);
-    vector<double> valuations;
-    vector<Move> best_moves;
-    for(unsigned int turn=0; turn<moves.size(); turn++){
-        move_index = turn;
-        best_moves.push_back(evaluator.play_move(&states[turn],false));
-        valuations.push_back(evaluator.valuation);
-    }
-    for(unsigned int i=0; i<moves.size()-1; i++){
-        cout<<valuations[i] + valuations[i+1]<<endl;
-    }
-}
-
 Game* playGameGraphics(Board* board, Controller **players, GUI &gui, bool save){
     Game* game = new Game();
     // Display initial board state
@@ -143,7 +128,8 @@ Game* playGameGraphics(Board* board, Controller **players, GUI &gui, bool save){
             if(save)
                 game->saveState(board);
             // Play move and update board
-            Move m = players[board->currentPlayer()]->play_move(board);
+            Move m = players[board->currentPlayer()]->choose_move(board);
+            board->play(m);
             if(save)
                 game->saveMove(m);
             gui.updateBoardState(board);
@@ -151,6 +137,10 @@ Game* playGameGraphics(Board* board, Controller **players, GUI &gui, bool save){
         }
         // Go to the next round after click
         click();
+        if(save){
+            game->saveState(board);
+            game->saveMove(Move(255,255,255));
+        }
         board->nextRound();
     }
     // Display final board state and update scores

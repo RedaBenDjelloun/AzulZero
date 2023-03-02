@@ -18,7 +18,7 @@ int main(){
 //    int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
     Heuristic heuristic_player(0);
-    MinMax minmax_player(20,true,1);
+    MinMax minmax_player(20,true,0.1);
     Random random_player;
     PseudoRandom random_player2(5);
     MCTS player0(3);
@@ -27,8 +27,8 @@ int main(){
     Human human("Hector",&gui);
 
     // Choose players
-    players[0] = &human;
-    players[1] = &player0;
+    players[0] = &minmax_player;
+    players[1] = &minmax_player;
 
 //    auto start = high_resolution_clock::now();
 //    int nb_coups_total = 0;

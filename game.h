@@ -2,6 +2,11 @@
 #include "board.h"
 #include "controller.h"
 
+// naive implementation of a game :
+// save all states and move of the game
+// states of the board could be found from less informations
+// (states of the begining of each round + moves)
+
 class Game{
     /// All the moves of the saved game
     vector<Move> moves;
@@ -19,7 +24,7 @@ public:
     /// Update the board by moving one move forward
     void nextState();
 
-    /// Update the board by moving one move bacward
+    /// Update the board by moving one move backward
     void previousState();
 
     /// Save the board
@@ -39,9 +44,6 @@ public:
 
     /// Launch a review of the game
     void review_game(GUI gui);
-
-    /// Compute game stats
-    void game_stats();
 };
 
 /// Play an entire game given the players with graphics

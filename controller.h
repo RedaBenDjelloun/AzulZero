@@ -12,14 +12,14 @@ class Controller
 public:
     Controller(){}
     virtual ~Controller(){}
-    virtual Move play_move(Board* board, bool play = true)=0;
+    virtual Move choose_move(Board* board)=0;
 };
 
 class Random: public Controller
 {
 public:
     Random(){}
-    Move play_move(Board* board, bool play = true);
+    Move choose_move(Board* board);
 };
 
 
@@ -29,7 +29,7 @@ class PseudoRandom: public Controller
 public:
     PseudoRandom(){}
     PseudoRandom(double coeff_){coeff=coeff_;}
-    Move play_move(Board* board, bool play = true);
+    Move choose_move(Board* board);
 };
 
 
@@ -40,7 +40,7 @@ protected:
 public:
     Heuristic(){}
     Heuristic(int preoptimization);
-    virtual Move play_move(Board* board, bool play = true);
+    virtual Move choose_move(Board* board);
     void optimize(Controller* opponent, int nb_test_game=100, int nb_evolve_game=100);
     double line_complete_reward(int line,int nb){return par[0] + par[1]*line + par[2]*nb;}
     double non_complete_line_reward(int line, int nb, int missing){return par[3] + par[4]*line + par[5]*nb + par[6]*missing;}
@@ -72,7 +72,7 @@ public:
     MinMax(){}
     MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 1);
     double DFS(Board* board, byte depth, byte max_depth, double alpha = -INFINITY, double beta = + INFINITY);
-    Move play_move(Board* board, bool play=true);
+    Move choose_move(Board* board);
 };
 
 class Human: public Controller
@@ -84,7 +84,7 @@ public:
     Human(string name_, GUI *gui_){name=name_ ; gui = gui_;}
     void clickPickableTile(Board *board, byte &factory, byte &color);
     bool clickPlaceableTile(Board *board, byte &line);
-    Move play_move(Board* board, bool play=true);
+    Move choose_move(Board* board);
 };
 
 void highlightFactoryTilesOfColor(byte factory, byte factoryTiles[NB_TILES_PER_FACTORY], byte color);
@@ -140,11 +140,8 @@ public:
     /// Add all possible nodes from a leaf
     State add_nodes(Board* board,Tree<MCNode>* tree);
     State tree_search(Board* board,Tree<MCNode>* tree);
-    Move play_move(Board* board, bool play=true);
+    Move choose_move(Board* board);
 };
 
 /// Play an entire game given the players
 void play_game(Board* board, Controller** players);
-
-
-int play_stat_game(Board* board, Controller **players);

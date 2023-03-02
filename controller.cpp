@@ -6,7 +6,7 @@ struct TimeOutException{};
 //////////////////// RANDOM ////////////////////
 
 
-Move Random::play_move(Board* board, bool play){
+Move Random::choose_move(Board* board){
     int nb_choices = 0;
     for(byte color=0; color<NB_COLORS; color++){
         for(byte line=0; line<=WALL_HEIGHT; line++){
@@ -27,8 +27,6 @@ Move Random::play_move(Board* board, bool play){
                 for(byte factory=NB_FACTORIES; factory!=255; factory--){
                     n += board->pickableTile(factory,color);
                     if(n>choice){
-                        if(play)
-                            board->play(factory,color,line);
                         return Move(factory,color,line);
                     }
                 }
@@ -36,14 +34,14 @@ Move Random::play_move(Board* board, bool play){
         }
     }
     assert(false);
-    return Move(-1,-1,-1); // not normal
+    return Move(255,255,255); // not normal
 }
 
 
 //////////////////// PseudoRandom ////////////////////
 
 
-Move PseudoRandom::play_move(Board* board, bool play){
+Move PseudoRandom::choose_move(Board* board){
     double nb_choices = 0;
     for(byte factory=0; factory<=NB_FACTORIES; factory++){
         for(byte color=0; color<NB_COLORS; color++){
@@ -64,8 +62,6 @@ Move PseudoRandom::play_move(Board* board, bool play){
                 for(byte line=0; line<=WALL_HEIGHT; line++){
                     n += (1+coeff*(line!=WALL_HEIGHT))*board->placeableTile(color,line);
                     if(n>=choice){
-                        if(play)
-                            board->play(factory,color,line);
                         return Move(factory,color,line);
                     }
                 }
@@ -91,7 +87,7 @@ double Heuristic::reward(int line, int nb, int in_the_floor){
 }
 
 
-Move Heuristic::play_move(Board* board, bool play){
+Move Heuristic::choose_move(Board* board){
 
     // [color,nb] -> is it possible to have this ?
     bool possible_draw[NB_COLORS*NB_TILES_PER_COLOR];
@@ -143,8 +139,6 @@ Move Heuristic::play_move(Board* board, bool play){
         }
     }
     assert(board->playable(best_factory,best_col,best_line));
-    if(play)
-        board->play(best_factory,best_col,best_line);
     return Move(best_factory,best_col,best_line);
 }
 
@@ -266,7 +260,7 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
                 byte player = board_copy.currentPlayer();
                 board_copy.addEndgameBonus();
                 // exagerate the result so if it is a win he takes it
-                // and if it is a loss he tries to force a next round
+                // and if it is a loss he tries to force a next round to have a chance to win
                 return 1000*(1-2*change_sign)*(board_copy.getScore(player) - board_copy.getScore(1-player));
             }
             total_expected += DFS(&board_copy,depth,max_depth);
@@ -310,8 +304,8 @@ double MinMax::DFS(Board *board, byte depth, byte max_depth, double alpha, doubl
     return best_response;
 }
 
-Move MinMax::play_move(Board* board, bool play){
-    next_move = heuristic.play_move(board,false);
+Move MinMax::choose_move(Board* board){
+    next_move = heuristic.choose_move(board);
     if(time_limited){
         chrono.reset();
         double alpha = -INFINITY;
@@ -326,8 +320,6 @@ Move MinMax::play_move(Board* board, bool play){
     else{
         DFS(board,0,depth_limit);
     }
-    if(play)
-        board->play(next_move);
     return next_move;
 }
 
@@ -498,7 +490,7 @@ bool Human::clickPlaceableTile(Board *board, byte &line){
     }
 }
 
-Move Human::play_move(Board *board, bool play){
+Move Human::choose_move(Board *board){
     byte factory = 255;
     byte color = 255;
     byte line = 255;
@@ -514,8 +506,6 @@ Move Human::play_move(Board *board, bool play){
         foundTile = clickPlaceableTile(board, line);
         isPlaceableTile = foundTile and board->placeableTile(color,line);
     } while (not foundTile or not isPlaceableTile);
-    if(play)
-        board->play(factory,color,line);
     return Move(factory,color,line);
 }
 
@@ -598,7 +588,7 @@ State MCTS::tree_search(Board* board,Tree<MCNode>* tree){
 }
 
 
-Move MCTS::play_move(Board *board, bool play){
+Move MCTS::choose_move(Board *board){
     assert(time_limited or nb_simul_limited);
     chrono.reset();
     MCNode root;
@@ -618,33 +608,16 @@ Move MCTS::play_move(Board *board, bool play){
             child_index = i;
         }
     }
-    Move m(tree.getChild(child_index)->getData().move);
-    if(play)
-        board->play(m);
-    return m;
+    return tree.getChild(child_index)->getData().move;
 }
 
 
 void play_game(Board* board, Controller **players){
     while(!board->endOfTheGame()){
         while(!board->endOfTheRound()){
-            players[board->currentPlayer()]->play_move(board);
+            board->play(players[board->currentPlayer()]->choose_move(board));
         }
         board->nextRound();
     }
     board->addEndgameBonus();
-}
-
-
-int play_stat_game(Board* board, Controller **players){
-    int nb_coups = 0;
-    while(!board->endOfTheGame()){
-        while(!board->endOfTheRound()){
-            players[board->currentPlayer()]->play_move(board);
-            nb_coups++;
-        }
-        board->nextRound();
-    }
-    board->addEndgameBonus();
-    return nb_coups;
 }
