@@ -70,5 +70,16 @@ public:
 
     /// Check if the Tree is a leaf (i.e. has no child)
     bool isLeaf(){return nbChildren()==0;};
-};
 
+    /// Select the children which has the biggest value in data
+    Tree* max(){
+        if(isLeaf()) return nullptr;
+        Tree* max_child = children[0];
+        for(auto it=children.begin(); it!=children.end();it++){
+            if(max_child->data < (*it)->data){
+                max_child = *it;
+            }
+        }
+        return max_child;
+    }
+};

@@ -165,7 +165,7 @@ public:
     void displayBagContent(Board *board);
     /// Display discard
     void displayDiscard(Board *board);
-    /// Display evaluation bar
+    /// Display evaluation bar (for review mode only)
     void displayEvaluationBar(double wins, double draws, double losses);
 
     /// Display everything
@@ -177,7 +177,11 @@ public:
     /// Display grid for designing UI
     void displayGrid();
 
+    /// Display the scores of each player
     void displayScores(Board *board);
+
+    /// Display the best moves and their valuations
+    void displayBestMoves(vector<Move> moves,vector<double> valuations);
 };
 
 

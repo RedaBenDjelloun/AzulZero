@@ -42,7 +42,7 @@ struct Move{
         line = line_;
     }
 
-    string acronym();
+    string acronym() const;
 };
 
 class Board{

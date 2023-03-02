@@ -39,8 +39,8 @@ public:
     /// return a pointer to the current state of the game
     Board* currentState(){return &states[move_index];};
 
-    /// Valuation of the state of the game with a choosen AI
-    MCNode valuation(double time_limit, Tree<MCNode> *tree);
+    /// Update MC tree with limited time to compute it
+    void valuation(double time_limit, Tree<MCNode> *tree);
 
     /// Launch a review of the game
     void review_game(GUI gui);

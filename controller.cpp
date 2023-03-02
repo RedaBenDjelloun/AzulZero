@@ -27,14 +27,14 @@ Move Random::choose_move(Board* board){
                 for(byte factory=NB_FACTORIES; factory!=255; factory--){
                     n += board->pickableTile(factory,color);
                     if(n>choice){
-                        return Move(factory,color,line);
+                        return Move{factory,color,line};
                     }
                 }
             }
         }
     }
     assert(false);
-    return Move(255,255,255); // not normal
+    return Move{255,255,255}; // not normal
 }
 
 
@@ -62,14 +62,14 @@ Move PseudoRandom::choose_move(Board* board){
                 for(byte line=0; line<=WALL_HEIGHT; line++){
                     n += (1+coeff*(line!=WALL_HEIGHT))*board->placeableTile(color,line);
                     if(n>=choice){
-                        return Move(factory,color,line);
+                        return Move{factory,color,line};
                     }
                 }
             }
         }
     }
     assert(false);
-    return Move(-1,-1,-1); // not normal
+    return Move{255,255,255}; // not normal
 }
 
 
@@ -89,7 +89,7 @@ double Heuristic::reward(int line, int nb, int in_the_floor){
 
 Move Heuristic::choose_move(Board* board){
 
-    // [color,nb] -> is it possible to have this ?
+    // [color,nb] -> is it possible to have this combination ?
     bool possible_draw[NB_COLORS*NB_TILES_PER_COLOR];
     int arg_fact[NB_COLORS*NB_TILES_PER_COLOR];
 
@@ -107,15 +107,15 @@ Move Heuristic::choose_move(Board* board){
         }
     }
     double best_reward = -INFINITY;
-    int best_col=-1;
-    int best_factory=-1;
-    int best_line=-1;
-    for(int col=0; col<NB_COLORS; col++){
-        for(int nb=1; nb<=NB_TILES_PER_COLOR; nb++){
+    byte best_col=255;
+    byte best_factory=255;
+    byte best_line=255;
+    for(byte col=0; col<NB_COLORS; col++){
+        for(byte nb=1; nb<=NB_TILES_PER_COLOR; nb++){
             if(possible_draw[col*NB_TILES_PER_COLOR+nb-1]){
                 double max_reward = -INFINITY;
-                int max_line = WALL_HEIGHT;
-                for(int line=0; line<WALL_HEIGHT; line++){
+                byte max_line = WALL_HEIGHT;
+                for(byte line=0; line<WALL_HEIGHT; line++){
                     if(board->placeableTile(col,line)){
                         int in_the_floor = nb+board->getPatternLineNb(board->currentPlayer(),line) -line-1;
                         if(max_reward<reward(line,nb,in_the_floor)){
@@ -138,8 +138,7 @@ Move Heuristic::choose_move(Board* board){
 
         }
     }
-    assert(board->playable(best_factory,best_col,best_line));
-    return Move(best_factory,best_col,best_line);
+    return Move{best_factory,best_col,best_line};
 }
 
 Heuristic::Heuristic(int preoptimize){
@@ -506,7 +505,7 @@ Move Human::choose_move(Board *board){
         foundTile = clickPlaceableTile(board, line);
         isPlaceableTile = foundTile and board->placeableTile(color,line);
     } while (not foundTile or not isPlaceableTile);
-    return Move(factory,color,line);
+    return Move{factory,color,line};
 }
 
 
@@ -529,12 +528,12 @@ State MCTS::add_nodes(Board* board,Tree<MCNode> *tree){
     assert(!board->endOfTheRound());
     assert(tree->isLeaf());
     State delta_state;
-    for(int factory=0; factory<=NB_FACTORIES; factory++){
-        for(int col=0; col<NB_COLORS; col++){
+    for(byte factory=0; factory<=NB_FACTORIES; factory++){
+        for(byte col=0; col<NB_COLORS; col++){
             if(board->pickableTile(factory,col)){
-                for(int line=0; line<=WALL_HEIGHT; line++){
+                for(byte line=0; line<=WALL_HEIGHT; line++){
                     if(board->placeableTile(col,line)){
-                        tree->addAsLastChild(new Tree<MCNode>(MCNode(Move(factory,col,line))));
+                        tree->addAsLastChild(new Tree<MCNode>(MCNode(Move{factory,col,line})));
                         Board board_copy(*board);
                         board_copy.play(factory,col,line);
                         byte player = board->currentPlayer();

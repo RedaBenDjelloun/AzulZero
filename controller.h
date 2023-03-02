@@ -3,8 +3,6 @@
 #include "board.h"
 #include "time.h"
 #include "Tree.h"
-using namespace std;
-
 #include "GUI.h"
 
 class Controller
@@ -93,9 +91,9 @@ void highlightMiddle();
 void highlightPatternLine(byte player, byte line);
 
 struct State{
-    int wins=0;
-    int draws=0;
-    int losses=0;
+    unsigned int wins=0;
+    unsigned int draws=0;
+    unsigned int losses=0;
 
     State(){}
     State(int wins_, int draws_, int losses_){wins=wins_; draws=draws_; losses=losses_;}
@@ -120,6 +118,7 @@ struct MCNode{
     double UCT(int N_parent, double c=sqrt(2)) const{return (s.wins+0.5*s.draws)/(s.wins+s.draws+s.losses)+c*sqrt(log(N_parent)/(s.wins+s.draws+s.losses));}
     int N() const{return s.wins+s.draws+s.losses;}
     double value(){return (s.wins+0.5*s.draws)/double(N());}
+    bool operator<(MCNode other){return value()<other.value();}
     MCNode(){}
     MCNode(Move move_){move=move_;}
 };
