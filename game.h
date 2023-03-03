@@ -2,6 +2,11 @@
 #include "board.h"
 #include "controller.h"
 
+// naive implementation for saving a game :
+// save all states and move of the game
+// states of the board could be found from less informations
+// (states of the begining of each round + moves)
+
 class Game{
     /// All the moves of the saved game
     vector<Move> moves;
@@ -9,17 +14,19 @@ class Game{
     /// States of the games
     vector<Board> states;
 
-    MCTS evaluator = MCTS(0);
+    MCTS evaluator = MCTS(3);
 
     unsigned int move_index=0;
 
+    GUI* gui;
+
 public:
-    Game(){}
+    Game(GUI* gui_){gui=gui_;}
 
     /// Update the board by moving one move forward
     void nextState();
 
-    /// Update the board by moving one move bacward
+    /// Update the board by moving one move backward
     void previousState();
 
     /// Save the board
@@ -34,14 +41,14 @@ public:
     /// return a pointer to the current state of the game
     Board* currentState(){return &states[move_index];};
 
-    /// Valuation of the state of the game with a choosen AI
-    MCNode valuation(double time_limit, Tree<MCNode> *tree);
+    /// Update MC tree with limited time to compute it
+    void valuation(double time_limit, Tree<MCNode> *tree);
+
+
+    void evaluationIteration(Tree<MCNode>* tree, Move& current_best_move);
 
     /// Launch a review of the game
-    void review_game(GUI gui);
-
-    /// Compute game stats
-    void game_stats();
+    void review_game();
 };
 
 /// Play an entire game given the players with graphics

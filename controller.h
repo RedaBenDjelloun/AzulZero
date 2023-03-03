@@ -3,8 +3,6 @@
 #include "board.h"
 #include "time.h"
 #include "Tree.h"
-using namespace std;
-
 #include "GUI.h"
 
 class Controller
@@ -12,40 +10,41 @@ class Controller
 public:
     Controller(){}
     virtual ~Controller(){}
-    virtual Move play_move(Board* board, bool play = true)=0;
+    virtual Move choose_move(Board* board)=0;
 };
 
 class Random: public Controller
 {
 public:
     Random(){}
-    Move play_move(Board* board, bool play = true);
+    Move choose_move(Board* board);
 };
 
 
 class PseudoRandom: public Controller
 {
-    double coeff=3;
+    float coeff=3;
 public:
     PseudoRandom(){}
-    PseudoRandom(double coeff_){coeff=coeff_;}
-    Move play_move(Board* board, bool play = true);
+    PseudoRandom(float coeff_){coeff=coeff_;}
+    Move choose_move(Board* board);
 };
 
 
 class Heuristic: public Controller
 {
+    static const int nb_rounds = 5;
 protected:
-    double par[9] ={0,0,0,0,0,0,0,0,0};
+    float par[9] ={};
 public:
     Heuristic(){}
     Heuristic(int preoptimization);
-    virtual Move play_move(Board* board, bool play = true);
+    virtual Move choose_move(Board* board);
     void optimize(Controller* opponent, int nb_test_game=100, int nb_evolve_game=100);
-    double line_complete_reward(int line,int nb){return par[0] + par[1]*line + par[2]*nb;}
-    double non_complete_line_reward(int line, int nb, int missing){return par[3] + par[4]*line + par[5]*nb + par[6]*missing;}
-    double discard_reward(int nb){return par[7] + par[8]*nb;}
-    double reward(int line, int nb, int in_the_floor);
+    float line_complete_reward(int line,int nb){return par[0] + par[1]*line + par[2]*nb;}
+    float non_complete_line_reward(int line, int nb, int missing){return par[3] + par[4]*line + par[5]*nb + par[6]*missing;}
+    float discard_reward(int nb){return par[7] + par[8]*nb;}
+    float reward(int line, int nb, int in_the_floor);
 };
 
 
@@ -72,7 +71,7 @@ public:
     MinMax(){}
     MinMax(byte depth_limit_, bool time_limited_=true, double time_limit_ = 1);
     double DFS(Board* board, byte depth, byte max_depth, double alpha = -INFINITY, double beta = + INFINITY);
-    Move play_move(Board* board, bool play=true);
+    Move choose_move(Board* board);
 };
 
 class Human: public Controller
@@ -84,7 +83,7 @@ public:
     Human(string name_, GUI *gui_){name=name_ ; gui = gui_;}
     void clickPickableTile(Board *board, byte &factory, byte &color);
     bool clickPlaceableTile(Board *board, byte &line);
-    Move play_move(Board* board, bool play=true);
+    Move choose_move(Board* board);
 };
 
 void highlightFactoryTilesOfColor(byte factory, byte factoryTiles[NB_TILES_PER_FACTORY], byte color);
@@ -93,9 +92,9 @@ void highlightMiddle();
 void highlightPatternLine(byte player, byte line);
 
 struct State{
-    int wins=0;
-    int draws=0;
-    int losses=0;
+    unsigned int wins=0;
+    unsigned int draws=0;
+    unsigned int losses=0;
 
     State(){}
     State(int wins_, int draws_, int losses_){wins=wins_; draws=draws_; losses=losses_;}
@@ -120,6 +119,7 @@ struct MCNode{
     double UCT(int N_parent, double c=sqrt(2)) const{return (s.wins+0.5*s.draws)/(s.wins+s.draws+s.losses)+c*sqrt(log(N_parent)/(s.wins+s.draws+s.losses));}
     int N() const{return s.wins+s.draws+s.losses;}
     double value(){return (s.wins+0.5*s.draws)/double(N());}
+    bool operator<(MCNode other){return value()<other.value();}
     MCNode(){}
     MCNode(Move move_){move=move_;}
 };
@@ -140,11 +140,8 @@ public:
     /// Add all possible nodes from a leaf
     State add_nodes(Board* board,Tree<MCNode>* tree);
     State tree_search(Board* board,Tree<MCNode>* tree);
-    Move play_move(Board* board, bool play=true);
+    Move choose_move(Board* board);
 };
 
 /// Play an entire game given the players
 void play_game(Board* board, Controller** players);
-
-
-int play_stat_game(Board* board, Controller **players);

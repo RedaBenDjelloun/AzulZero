@@ -232,3 +232,28 @@ void GUI::displayScores(Board *board){
     drawString(WINDOW_WIDTH-0.858*PLAYERBOARD_WIDTH-TEXT_SIZE/2*(1+(score0>=10)+(score0>=100)),PLAYERBOARD_HEIGHT*0.2,to_string(score0),BLACK,TEXT_SIZE);
     drawString(WINDOW_WIDTH-0.858*PLAYERBOARD_WIDTH-TEXT_SIZE/2*(1+(score1>=10)+(score1>=100)),PLAYERBOARD_HEIGHT*1.2,to_string(score1),BLACK,TEXT_SIZE);
 }
+
+// set of moves are separated by moves = {255,255,255}
+void GUI::displayBestMoves(vector<Move> moves,vector<double> valuations){
+    IntPoint2 corner = MIDDLE_P0 + IntPoint2(5*WALL_SPACING + WALL_MARGIN,0);
+    fillRect(corner,WINDOW_WIDTH-PLAYERBOARD_WIDTH-corner.x(),WINDOW_HEIGHT-corner.y(),WHITE);
+    size_t move_index = 0;
+    for(size_t i=0; i<valuations.size(); i++){
+        int val = 100-int(100*valuations[i]); // +0.5 for the rounding
+        string disp = ".";
+        if(val<10)
+            disp+="0";
+        disp+=to_string(val);
+        if(val==100)
+            disp="1.";
+        int nb_moves=0;
+        while(moves[move_index].factory!=255) {
+            if(nb_moves==7) disp += "...";
+            if(nb_moves<7) disp += " " + moves[move_index].acronym();
+            move_index++;
+            nb_moves++;
+        }
+        move_index++;
+        drawString(0.4*WINDOW_WIDTH, (0.9+0.02*i)*WINDOW_HEIGHT,disp,RED,8);
+    }
+}

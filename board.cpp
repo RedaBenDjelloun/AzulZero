@@ -15,9 +15,10 @@ byte wallColorToColumn(byte color, byte line){
 }
 
 
-string Move::acronym(){
+string Move::acronym() const{
     string name = "";
-    name += factory+49;
+    if(factory==NB_FACTORIES) name+="C";
+    else name += factory+49;
     name += COLOR_NAMES[col];
     if(line==WALL_WIDTH)
         name += "F";
@@ -533,12 +534,12 @@ void Board::display() const{
 
 vector<Move> Board::moveList(){
     vector<Move> lst;
-    for(int factory=0; factory<=NB_FACTORIES; factory++){
-        for(int col=0; col<NB_COLORS; col++){
+    for(byte factory=0; factory<=NB_FACTORIES; factory++){
+        for(byte col=0; col<NB_COLORS; col++){
             if(pickableTile(factory,col)){
-                for(int line=0; line<=WALL_HEIGHT; line++){
+                for(byte line=0; line<=WALL_HEIGHT; line++){
                     if(placeableTile(col,line)){
-                        lst.push_back(Move(factory,col,line));
+                        lst.push_back(Move{factory,col,line});
                     }
                 }
             }
