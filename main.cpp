@@ -68,8 +68,7 @@ int main(){
     Board board;
     board.init();
     Game* game = playGameGraphics(&board,players,gui);
-    //game->game_stats();
-    game->review_game(gui);
+    game->review_game();
     endGraphics();
 
     return 0;

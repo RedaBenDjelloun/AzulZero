@@ -48,15 +48,58 @@ void bestMoves(Tree<MCNode>* tree,vector<Move>& moves){
     bestMoves(best_child,moves);
 }
 
-void Game::review_game(GUI gui){
+void Game::evaluationIteration(Tree<MCNode>* tree, Move& current_best_move){
+    valuation(0.5,tree);
+    MCNode best_child = tree->max()->getData();
+    State eval = best_child.s;
+    Move best_move = best_child.move;
+    if(currentState()->currentPlayer()==0)
+        eval = eval.inverse();
+    double wins = double(eval.wins)/eval.total();
+    double draws = double(eval.draws)/eval.total();
+    double losses = double(eval.losses)/eval.total();
+    gui->displayEvaluationBar(wins,draws,losses);
+    vector<Move> best_moves;
+    auto best_childs = tree->firstN(5);
+    vector<double> valuations;
+    for(auto it = best_childs.begin(); it!= best_childs.end(); it++){
+        bestMoves(*it,best_moves);
+        best_moves.push_back(Move{255,255,255});
+        double value = (*it)->getData().value();
+        if(currentState()->currentPlayer()==0)
+            value = 1-value;
+        valuations.push_back(value);
+    }
+    gui->displayBestMoves(best_moves,valuations);
+    byte factoryTiles[NB_TILES_PER_FACTORY];
+    if(current_best_move.factory!=best_move.factory or current_best_move.col!=best_move.col or current_best_move.line!=best_move.line){
+        milliSleep(50);
+        noRefreshBegin();
+        clearWindow();
+        gui->displayBoardState(currentState());
+        current_best_move = best_move;
+        if(best_move.factory<NB_FACTORIES){
+            currentState()->fillFactoryTilesArray(factoryTiles, best_move.factory);
+            highlightFactoryTilesOfColor(best_move.factory, factoryTiles, best_move.col);
+        }
+        else{
+            highlightMiddleTile(best_move.col);
+        }
+        highlightPatternLine(currentState()->currentPlayer(),best_move.line = best_move.line);
+        gui->displayEvaluationBar(wins,draws,losses);
+        gui->displayBestMoves(best_moves,valuations);
+        noRefreshEnd();
+        milliSleep(50);
+    }
+}
+
+void Game::review_game(){
     init();
     while(true){
-        gui.updateBoardState(currentState());
+        gui->updateBoardState(currentState());
         MCNode root;
         Tree<MCNode> tree(root);
-        byte factory=255;
-        byte color=255;
-        byte line =255;
+        Move current_best_move{255,255,255};
         int key=-1;
         if(currentState()->endOfTheRound()){
             for(int i=1; i<=1000; i++){
@@ -68,7 +111,7 @@ void Game::review_game(GUI gui){
                 double wins = double(eval.wins)/eval.total();
                 double draws = double(eval.draws)/eval.total();
                 double losses = double(eval.losses)/eval.total();
-                gui.displayEvaluationBar(wins,draws,losses);
+                gui->displayEvaluationBar(wins,draws,losses);
                 key = keyboard();
                 if(key==KEY_RIGHT or key==KEY_LEFT or key==KEY_ESCAPE)
                     break;
@@ -76,53 +119,8 @@ void Game::review_game(GUI gui){
         }
         else{
             for(int i=0; i<1000; i++){
-                valuation(0.1,&tree);
-                MCNode best_child = tree.max()->getData();
-                State eval = best_child.s;
-                Move best_move = best_child.move;
-                if(currentState()->currentPlayer()==0)
-                    eval = eval.inverse();
-                double wins = double(eval.wins)/eval.total();
-                double draws = double(eval.draws)/eval.total();
-                double losses = double(eval.losses)/eval.total();
-                gui.displayEvaluationBar(wins,draws,losses);
-                vector<Move> best_moves;
-                auto best_childs = tree.firstN(5);
-                vector<double> valuations;
-                for(auto it = best_childs.begin(); it!= best_childs.end(); it++){
-                    bestMoves(*it,best_moves);
-                    best_moves.push_back(Move{255,255,255});
-                    double value = (*it)->getData().value();
-                    if(currentState()->currentPlayer()==0)
-                        value = 1-value;
-                    valuations.push_back(value);
-                }
-                gui.displayBestMoves(best_moves,valuations);
-                key = keyboard();
-                byte factoryTiles[NB_TILES_PER_FACTORY];
-                if (i%10==0){
-                    if(factory!=best_move.factory or color!=best_move.col or line!=best_move.line){
-                        milliSleep(50);
-                        noRefreshBegin();
-                        clearWindow();
-                        gui.displayBoardState(currentState());
-                        factory = best_move.factory;
-                        color = best_move.col;
-                        line = best_move.line;
-                        if(factory<NB_FACTORIES){
-                            currentState()->fillFactoryTilesArray(factoryTiles, factory);
-                            highlightFactoryTilesOfColor(factory, factoryTiles, color);
-                        }
-                        else{
-                            highlightMiddleTile(color);
-                        }
-                        highlightPatternLine(currentState()->currentPlayer(),line = best_move.line);
-                        gui.displayEvaluationBar(wins,draws,losses);
-                        gui.displayBestMoves(best_moves,valuations);
-                        noRefreshEnd();
-                        milliSleep(50);
-                    }
-                }
+                evaluationIteration(&tree,current_best_move);
+                key=keyboard();
                 if(key==KEY_RIGHT or key==KEY_LEFT or key==KEY_ESCAPE)
                     break;
             }
@@ -139,7 +137,7 @@ void Game::review_game(GUI gui){
 }
 
 Game* playGameGraphics(Board* board, Controller **players, GUI &gui, bool save){
-    Game* game = new Game();
+    Game* game = new Game(&gui);
     // Display initial board state
     gui.updateBoardState(board);
     // Go to the first round after click
