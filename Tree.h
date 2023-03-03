@@ -70,6 +70,12 @@ public:
     /// Check if the Tree is a leaf (i.e. has no child)
     bool isLeaf() const{return nbChildren()==0;}
 
+    /// Begin iterator of children
+    auto begin(){ return children.begin();}
+
+    /// End iterator of children
+    auto end(){ return children.end();}
+
     /// Select the children which has the biggest value in data
     Tree* max() const{
         if(isLeaf()) return nullptr;

@@ -239,7 +239,7 @@ void GUI::displayBestMoves(vector<Move> moves,vector<double> valuations){
     fillRect(corner,WINDOW_WIDTH-PLAYERBOARD_WIDTH-corner.x(),WINDOW_HEIGHT-corner.y(),WHITE);
     size_t move_index = 0;
     for(size_t i=0; i<valuations.size(); i++){
-        int val = 100-int(100*valuations[i]); // +0.5 for the rounding
+        int val = 100-int(100*valuations[i]+0.5); // +0.5 for the rounding
         string disp = ".";
         if(val<10)
             disp+="0";

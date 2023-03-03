@@ -512,10 +512,10 @@ Move Human::choose_move(Board *board){
 //////////////////// MCTS ////////////////////
 
 
-MCTS::MCTS(double coeff){
+MCTS::MCTS(){
     random_players = new Controller*[NB_PLAYERS];
-    random_players[0] = new PseudoRandom(coeff);
-    random_players[1] = new PseudoRandom(coeff);
+    random_players[0] = new Heuristic(0);
+    random_players[1] = new Heuristic(0);
 }
 
 MCTS::~MCTS(){
@@ -532,18 +532,20 @@ State MCTS::add_nodes(Board* board,Tree<MCNode> *tree){
         for(byte col=0; col<NB_COLORS; col++){
             if(board->pickableTile(factory,col)){
                 for(byte line=0; line<=WALL_HEIGHT; line++){
-                    if(board->placeableTile(col,line)){
-                        tree->addAsLastChild(new Tree<MCNode>(MCNode(Move{factory,col,line})));
-                        Board board_copy(*board);
-                        board_copy.play(factory,col,line);
-                        byte player = board->currentPlayer();
-                        play_game(&board_copy,random_players);
-                        tree->getLastChild()->getDataRef().s.update(player,board_copy.getScore(0),board_copy.getScore(1));
-                        delta_state += tree->getLastChild()->getDataRef().s;
-                    }
+                    if(board->placeableTile(col,line)) tree->addAsLastChild(new Tree<MCNode>(MCNode(Move{factory,col,line})));
                 }
             }
         }
+    }
+    for_each(tree->begin(),tree->end(), [board,this](Tree<MCNode>* child){
+        Board board_copy(*board);
+        board_copy.play(child->getData().move);
+        byte player = board->currentPlayer();
+        play_game(&board_copy,random_players);
+        child->getDataRef().s.update(player,board_copy.getScore(0),board_copy.getScore(1));
+    });
+    for(auto it=tree->begin(); it!=tree->end(); it++){
+        delta_state += (*it)->getDataRef().s;
     }
     return delta_state;
 }
@@ -593,7 +595,6 @@ Move MCTS::choose_move(Board *board){
     MCNode root;
     Tree<MCNode> tree(root);
     Board board1(*board);
-    board1.addBonusToAll(50);
     while((chrono.lap()<time_limit or !time_limited) and (tree.getData().N()<nb_max_simul or !nb_simul_limited)){
         Board board_copy(board1);
         tree_search(&board_copy,&tree);

@@ -18,17 +18,28 @@ int main(){
 //    int winner[3] = {0,0,0};
     Controller** players = new Controller*[NB_PLAYERS];
     Heuristic heuristic_player(0);
-    MinMax minmax_player(20,true,0.1);
+    MinMax minmax_player(20,true,1);
     Random random_player;
     PseudoRandom random_player2(5);
-    MCTS player0(3);
-    GUI gui;
-    gui.init();
-    Human human("Hector",&gui);
+    MCTS player0;
+    Board board;
+    board.init();
+    board.nextRound();
+    MCNode root{};
+    Tree<MCNode> tree(root);
+    Timer t;
+    t.reset();
+    while(t.lap()<1){
+        player0.tree_search(&board,&tree);
+    }
+    cout<<tree.getData().N()<<endl;
+//    GUI gui;
+//    gui.init();
+//    Human human("Hector",&gui);
 
     // Choose players
-    players[0] = &heuristic_player;
-    players[1] = &minmax_player;
+//    players[0] = &player0;
+//    players[1] = &minmax_player;
 
 //    auto start = high_resolution_clock::now();
 //    int nb_coups_total = 0;
@@ -37,7 +48,7 @@ int main(){
 //        Board board;
 //        board.init();
 
-//        nb_coups_total += play_stat_game(&board,players);
+//        play_game(&board,players);
 //        for(int player=0; player<NB_PLAYERS; player++){
 //            total_points[player] += board.getScore(player);
 //            max_points[player] = max(max_points[player],int(board.getScore(player)));
@@ -65,11 +76,11 @@ int main(){
 //        cout<<"index:"<<(winner[0]+0.5*winner[1])/nb_iterations<<endl;
 //    }
 
-    Board board;
-    board.init();
-    Game* game = playGameGraphics(&board,players,gui);
-    game->review_game();
-    endGraphics();
+//    Board board;
+//    board.init();
+//    Game* game = playGameGraphics(&board,players,gui);
+//    game->review_game();
+//    endGraphics();
 
     return 0;
 

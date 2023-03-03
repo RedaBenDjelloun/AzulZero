@@ -134,7 +134,7 @@ class MCTS: public Controller
     Timer chrono;
     Controller** random_players;
 public:
-    MCTS(double coeff=3);
+    MCTS();
     ~MCTS();
 
     /// Add all possible nodes from a leaf
