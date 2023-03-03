@@ -42,7 +42,7 @@ Move Random::choose_move(Board* board){
 
 
 Move PseudoRandom::choose_move(Board* board){
-    double nb_choices = 0;
+    float nb_choices = 0;
     for(byte factory=0; factory<=NB_FACTORIES; factory++){
         for(byte color=0; color<NB_COLORS; color++){
             if(board->pickableTile(factory,color)){
@@ -53,8 +53,8 @@ Move PseudoRandom::choose_move(Board* board){
         }
     }
 
-    double choice = doubleRandom()*nb_choices;
-    double n=0;
+    float choice = doubleRandom()*nb_choices;
+    float n=0;
 
     for(byte factory=0; factory<=NB_FACTORIES; factory++){
         for(byte color=0; color<NB_COLORS; color++){
@@ -76,7 +76,7 @@ Move PseudoRandom::choose_move(Board* board){
 //////////////////// HEURISTIC ////////////////////
 
 
-double Heuristic::reward(int line, int nb, int in_the_floor){
+float Heuristic::reward(int line, int nb, int in_the_floor){
     if(line==WALL_HEIGHT)
         return discard_reward(nb);
     if(in_the_floor>0)
@@ -106,14 +106,14 @@ Move Heuristic::choose_move(Board* board){
             }
         }
     }
-    double best_reward = -INFINITY;
+    float best_reward = -INFINITY;
     byte best_col=255;
     byte best_factory=255;
     byte best_line=255;
     for(byte col=0; col<NB_COLORS; col++){
         for(byte nb=1; nb<=NB_TILES_PER_COLOR; nb++){
             if(possible_draw[col*NB_TILES_PER_COLOR+nb-1]){
-                double max_reward = -INFINITY;
+                float max_reward = -INFINITY;
                 byte max_line = WALL_HEIGHT;
                 for(byte line=0; line<WALL_HEIGHT; line++){
                     if(board->placeableTile(col,line)){

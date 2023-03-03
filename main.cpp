@@ -27,7 +27,7 @@ int main(){
     Human human("Hector",&gui);
 
     // Choose players
-    players[0] = &minmax_player;
+    players[0] = &heuristic_player;
     players[1] = &minmax_player;
 
 //    auto start = high_resolution_clock::now();
