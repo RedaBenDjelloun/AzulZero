@@ -87,10 +87,16 @@ void Game::review_game(GUI gui){
                 double losses = double(eval.losses)/eval.total();
                 gui.displayEvaluationBar(wins,draws,losses);
                 vector<Move> best_moves;
-                bestMoves(tree.max(),best_moves);
-                best_moves.push_back(Move{255,255,255});
+                auto best_childs = tree.firstN(5);
                 vector<double> valuations;
-                valuations.push_back(wins+0.5*draws);
+                for(auto it = best_childs.begin(); it!= best_childs.end(); it++){
+                    bestMoves(*it,best_moves);
+                    best_moves.push_back(Move{255,255,255});
+                    double value = (*it)->getData().value();
+                    if(currentState()->currentPlayer()==0)
+                        value = 1-value;
+                    valuations.push_back(value);
+                }
                 gui.displayBestMoves(best_moves,valuations);
                 key = keyboard();
                 byte factoryTiles[NB_TILES_PER_FACTORY];

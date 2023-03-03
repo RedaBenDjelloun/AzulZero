@@ -248,14 +248,12 @@ void GUI::displayBestMoves(vector<Move> moves,vector<double> valuations){
             disp="1.";
         int nb_moves=0;
         while(moves[move_index].factory!=255) {
-            if(nb_moves==7){ // value hardcoded :/
-                disp += "...";
-                break;
-            }
-            disp += " " + moves[move_index].acronym();
+            if(nb_moves==7) disp += "...";
+            if(nb_moves<7) disp += " " + moves[move_index].acronym();
             move_index++;
             nb_moves++;
         }
-        drawString(0.4*WINDOW_WIDTH, 0.9*WINDOW_HEIGHT,disp,RED,8);
+        move_index++;
+        drawString(0.4*WINDOW_WIDTH, (0.9+0.02*i)*WINDOW_HEIGHT,disp,RED,8);
     }
 }
