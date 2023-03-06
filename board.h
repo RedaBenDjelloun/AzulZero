@@ -82,7 +82,7 @@ class Board{
 
     // tiles on the wall for each player
     // [player, line, column] -> is there a tile ?
-    bool walls[NB_PLAYERS*WALL_SIZE];
+    byte walls[NB_PLAYERS*WALL_HEIGHT];
 
 public:
 
@@ -105,7 +105,7 @@ public:
     byte getPatternLineColor(byte player, byte line) const{return pattern_lines[player*WALL_HEIGHT*2 + line*2 + 1];}
     byte getFloorTile(byte pos) const{return floor_lines[pos];}
     byte nbFloorTiles() const;
-    inline bool wallTileFilled(byte player, byte line, byte column) const{return walls[player*WALL_SIZE+line*WALL_HEIGHT+column];}
+    bool wallTileFilled(byte player, byte line, byte column) const{return 1 & walls[player*WALL_HEIGHT+line]>>column;}
 
     /// Set the first player randomly
     void random_first_player(){current_player = rand()%2;}

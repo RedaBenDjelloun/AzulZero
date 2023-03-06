@@ -57,8 +57,8 @@ void Board::init(){
         floor_lines[i] = NB_COLORS+1; // there is no tile
     }
 
-    for(byte i=0; i<NB_PLAYERS*WALL_SIZE; i++){
-        walls[i] = false;   // the wall is empty
+    for(byte i=0; i<NB_PLAYERS*WALL_HEIGHT; i++){
+        walls[i] = 0;   // the wall is empty
     }
 }
 
@@ -149,12 +149,8 @@ bool Board::endOfTheGame() const{
 
     for(byte player=0; player<NB_PLAYERS; player++){
         for(byte line=0; line<WALL_HEIGHT; line++){
-            for(byte column=0; column<WALL_WIDTH; column++){
-                if(!walls[player*WALL_SIZE + line*WALL_WIDTH + column])
-                    break;
-                else if(column == WALL_WIDTH-1)
-                    return true;
-            }
+            if(walls[player*WALL_HEIGHT + line]==0b11111)
+                return true;
         }
     }
     return false;
@@ -276,30 +272,30 @@ void Board::refillBag(){
 
 void Board::addTileToWall(byte player, byte line, byte column){
 
-    walls[player*WALL_SIZE+line*WALL_WIDTH+column] = true;
+    walls[player*WALL_HEIGHT+line] |= 1<<column;
 
     byte horizontal_points = 1;
     byte vertical_points = 1;
     for(byte i=line-1; i!=255; i--){
-        if(walls[player*WALL_SIZE + i*WALL_WIDTH + column])
+        if(wallTileFilled(player,i,column))
             vertical_points += 1;
         else
             break;
     }
     for(byte i=line+1; i<WALL_HEIGHT; i++){
-        if(walls[player*WALL_SIZE + i*WALL_WIDTH + column])
+        if(wallTileFilled(player,i,column))
             vertical_points += 1;
         else
             break;
     }
     for(byte j=column-1; j!=255; j--){
-        if(walls[player*WALL_SIZE + line*WALL_WIDTH + j])
+        if(wallTileFilled(player,line,j))
             horizontal_points += 1;
         else
             break;
     }
     for(byte j=column+1; j<WALL_HEIGHT; j++){
-        if(walls[player*WALL_SIZE + line*WALL_WIDTH + j])
+        if(wallTileFilled(player,line,j))
             horizontal_points += 1;
         else
             break;
@@ -319,21 +315,15 @@ void Board::addEndgameBonus(){
 
         // horizontal line bonus
         for(byte i=0; i< WALL_HEIGHT; i++){
-            for(byte j=0; j< WALL_WIDTH; j++){
-                // if there is no tile: the line isn't complete (stop)
-                if(!walls[player*WALL_SIZE+i*WALL_WIDTH+j])
-                    break;
-                // if we checked that all tiles in line i are here: add bonus
-                if(j==WALL_WIDTH-1)
+                if(walls[player*WALL_HEIGHT+i] == 0b11111)
                     scores[player] += HORIZONTAL_LINE_BONUS;
-            }
         }
 
         // vertical line bonus
         for(byte j=0; j< WALL_WIDTH; j++){
             for(byte i=0; i< WALL_HEIGHT; i++){
                 // if there is no tile: the column isn't complete (stop)
-                if(!walls[player*WALL_SIZE+i*WALL_WIDTH+j])
+                if(!wallTileFilled(player,i,j))
                     break;
                 // if we checked that all tiles in column j are here: add bonus
                 if(i==WALL_HEIGHT-1)
@@ -347,7 +337,7 @@ void Board::addEndgameBonus(){
             for(byte i=0; i< WALL_HEIGHT; i++){
                 j = wallColorToColumn(col,i);
                 // if there is no tile: the color isn't complete (stop)
-                if(!walls[player*WALL_SIZE+i*WALL_WIDTH+j])
+                if(!wallTileFilled(player,i,j))
                     break;
                 // if we checked that all tiles of color col are here: add bonus
                 if(i==WALL_HEIGHT-1)
@@ -433,7 +423,7 @@ bool Board::placeableTile(byte color, byte line) const{
 
     // if the line is empty... check if the color has already be done
     if(pattern_lines[index] == 0)
-        return !walls[current_player*WALL_SIZE+line*WALL_WIDTH+wallColorToColumn(color,line)];
+        return !wallTileFilled(current_player,line,wallColorToColumn(color,line));
 
     // if the line is not empty... colors need to match and the line needs to be not full
     return (pattern_lines[index+1] == color and pattern_lines[index]<line+1);
