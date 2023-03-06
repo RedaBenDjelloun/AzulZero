@@ -53,6 +53,8 @@ const int FACTORY_MARGIN = int(0.15*FACTORY_SIDE);
 const IntPoint2 FACTORY_CENTERING = IntPoint2(FACTORY_SIDE/2, FACTORY_SIDE/2);
 
 const int TEXT_SIZE = int(20*ZOOM);
+const int EVAL_BAR_TEXT_SIZE = int(12*ZOOM);
+const int BEST_MOVES_TEXT_SIZE = int(8*ZOOM);
 
 const IntPoint2 MIDDLE_P0 = IntPoint2(WINDOW_HEIGHT/2 - (5*WALL_SPACING + WALL_MARGIN)/2, WINDOW_HEIGHT-BAG_SIDE);
 const Color MIDDLE_COLOR = Color(230,230,230);
@@ -62,6 +64,20 @@ const Color DISCARD_COLOR = Color(255,225,225);
 
 const IntPoint2 BAG_CONTENT_P0 = IntPoint2(0,0);
 const Color BAG_CONTENT_COLOR = Color(212, 236, 247);
+
+
+// Color
+
+const Color RED_TILE_COLOR = Color(245,51,63);
+const Color BLUE_TILE_COLOR = Color(0,131,173);
+const Color YELLOW_TILE_COLOR = Color(255,191,60);
+const Color YELLOW_TILE_COLOR2 = RED_TILE_COLOR;
+const Color DARK_TILE_COLOR = BLACK;
+const Color DARK_TILE_COLOR2 = Color(29,162,172);
+const Color LIGHT_TILE_COLOR = Color(29,202,211);
+const Color LIGHT_TILE_COLOR2 = WHITE;
+
+
 
 // Images
 
@@ -73,8 +89,8 @@ const string FACTORY = stringSrcPath("Images/factory.png");
 const string BLUE_TILE = stringSrcPath("Images/blue.svg");
 const string YELLOW_TILE = stringSrcPath("Images/yellow.svg");
 const string RED_TILE = stringSrcPath("Images/red.svg");
-const string BLACK_TILE = stringSrcPath("Images/black.svg");
-const string CYAN_TILE = stringSrcPath("Images/cyan.svg");
+const string DARK_TILE = stringSrcPath("Images/black.svg");
+const string LIGHT_TILE = stringSrcPath("Images/cyan.svg");
 const string FIRST_PLAYER_TILE = stringSrcPath("Images/first-player.svg");
 
 const vector<string> IMAGE_PATHS = {
@@ -86,8 +102,8 @@ const vector<string> IMAGE_PATHS = {
     BLUE_TILE,
     YELLOW_TILE,
     RED_TILE,
-    BLACK_TILE,
-    CYAN_TILE,
+    DARK_TILE,
+    LIGHT_TILE,
     FIRST_PLAYER_TILE
 };
 

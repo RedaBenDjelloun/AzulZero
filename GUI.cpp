@@ -191,7 +191,7 @@ void GUI::displayEvaluationBar(double wins, double draws, double losses){
     if(val==100)
         disp="1.";
     bool ex = val>=50;
-    drawString(x0,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2+ex*losses*EVALUATION_BAR_HEIGHT+(1-ex)*((1-wins)*EVALUATION_BAR_HEIGHT+20),disp,RED);
+    drawString(x0,(WINDOW_HEIGHT-EVALUATION_BAR_HEIGHT)/2+ex*losses*EVALUATION_BAR_HEIGHT+(1-ex)*((1-wins)*EVALUATION_BAR_HEIGHT+20),disp,RED,EVAL_BAR_TEXT_SIZE);
 }
 
 
@@ -254,6 +254,6 @@ void GUI::displayBestMoves(vector<Move> moves,vector<double> valuations){
             nb_moves++;
         }
         move_index++;
-        drawString(0.4*WINDOW_WIDTH, (0.9+0.02*i)*WINDOW_HEIGHT,disp,RED,8);
+        drawString(0.4*WINDOW_WIDTH, (0.9+0.02*i)*WINDOW_HEIGHT,disp,RED,BEST_MOVES_TEXT_SIZE);
     }
 }

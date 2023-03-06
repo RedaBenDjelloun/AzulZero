@@ -512,10 +512,10 @@ Move Human::choose_move(Board *board){
 //////////////////// MCTS ////////////////////
 
 
-MCTS::MCTS(double coeff){
+MCTS::MCTS(){
     random_players = new Controller*[NB_PLAYERS];
-    random_players[0] = new PseudoRandom(coeff);
-    random_players[1] = new PseudoRandom(coeff);
+    random_players[0] = new Heuristic(0);
+    random_players[1] = new Heuristic(0);
 }
 
 MCTS::~MCTS(){

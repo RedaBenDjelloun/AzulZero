@@ -14,7 +14,7 @@ class Game{
     /// States of the games
     vector<Board> states;
 
-    MCTS evaluator = MCTS(3);
+    MCTS evaluator = MCTS();
 
     unsigned int move_index=0;
 
