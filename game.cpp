@@ -137,7 +137,8 @@ void Game::review_game(){
 }
 
 Game* playGameGraphics(Board* board, Controller **players, GUI &gui, bool save){
-    Game* game = new Game(&gui);
+    Game* game{};
+    if(save) game = new Game(&gui);
     // Display initial board state
     gui.updateBoardState(board);
     // Go to the first round after click
