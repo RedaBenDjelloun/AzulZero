@@ -59,9 +59,9 @@ class MinMax: public Controller
 protected:
     Heuristic heuristic = Heuristic(0);
     int nb_expect = 10; // for expecti-MinMax
-    double time_limit; // in seconds
-    byte depth_limit;   // limit of max_depth
-    bool time_limited;
+    double time_limit=1; // in seconds
+    byte depth_limit=20;   // limit of max_depth
+    bool time_limited=true;
 
     Move next_move;
 
@@ -134,7 +134,7 @@ class MCTS: public Controller
     Timer chrono;
     Controller** random_players;
 public:
-    MCTS(double coeff=3);
+    MCTS();
     ~MCTS();
 
     /// Add all possible nodes from a leaf
