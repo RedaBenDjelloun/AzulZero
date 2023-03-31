@@ -1,5 +1,5 @@
 # AzulZero
-Authors : Reda BEN DJELLOUN, Hector MARTINET (c) 2023
+Authors : Reda BEN DJELLOUN, Hector MARTINET (c) 2023, an engineering student project.
 
 Artificial Intelligence for Azul game (2 players only).
 
@@ -10,6 +10,8 @@ This project use the Imagine++ library for the graphic interface wich can be fou
 [Wikipedia] Azul (Portuguese for blue) is an abstract strategy board game designed by Michael Kiesling and released by Plan B Games in 2017. Based on Portuguese tiles called azulejos, in Azul players collect sets of similarly colored tiles which they place on their player board. When a row is filled, one of the tiles is moved into a square pattern on the right side of the player board, where it garners points depending on where it is placed in relation to other tiles on the board.
 
 Wikipedia page of the game : https://en.wikipedia.org/wiki/Azul_(board_game)
+
+Detailed rules of the game can be found in the "Documents" folder.
 
 ## Algorithms
 
