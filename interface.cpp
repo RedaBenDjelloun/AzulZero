@@ -96,7 +96,7 @@ void user_friendly_interface(){
     for(int player=0; player<NB_PLAYERS; player++){
         switch(choices[player]){
         case(0):
-            players[player] = new Human();
+            players[player] = new Human("Joueur",&gui);
             break;
         case(1):
             players[player] = new Random();
