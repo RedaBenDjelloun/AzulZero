@@ -3,11 +3,11 @@ Authors : Reda BEN DJELLOUN, Hector MARTINET (c) 2023, an engineering student pr
 
 Artificial Intelligence for Azul game (2 players only).
 
-This project use the Imagine++ library for the graphic interface wich can be found here : http://imagine.enpc.fr/~monasse/Imagine++/
+This project use the Imagine++ library for the graphic interface which can be found here : http://imagine.enpc.fr/~monasse/Imagine++/
 
 ## The Game
 
-[Wikipedia] Azul (Portuguese for blue) is an abstract strategy board game designed by Michael Kiesling and released by Plan B Games in 2017. Based on Portuguese tiles called azulejos, in Azul players collect sets of similarly colored tiles which they place on their player board. When a row is filled, one of the tiles is moved into a square pattern on the right side of the player board, where it garners points depending on where it is placed in relation to other tiles on the board.
+[Wikipedia] Azul (Portuguese for blue) is an abstract strategy board game designed by Michael Kiesling and released by Plan B Games in 2017. Based on Portuguese tiles called azulejos, Azul is a game where players collect sets of similarly colored tiles which they place on their own board. When a row is filled, one of the tiles is moved into a square pattern on the right side of the board. Filling the pattern grants points depending on where tiles are placed in relation with one another on the board.
 
 Wikipedia page of the game : https://en.wikipedia.org/wiki/Azul_(board_game)
 
